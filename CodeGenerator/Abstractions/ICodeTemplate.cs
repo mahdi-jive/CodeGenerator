@@ -2,8 +2,11 @@
 
 namespace CodeGenerator.Abstractions
 {
-    public interface ICodeTemplate<TGenerator> where TGenerator : IGenerator
+    public interface ICodeTemplate<TDirectoryParent, TContextModel> : ICodeTemplateBase where TDirectoryParent : IDirectoryMarkerParent where TContextModel : IContextModel
     {
-        IEnumerable<ICodeFile> Generate();
+    }
+    public interface ICodeTemplateBase
+    {
+        IEnumerable<ICodeFile> Generate(IContextModel contextModel);
     }
 }

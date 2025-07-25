@@ -5,7 +5,6 @@ namespace CodeGenerator.Abstractions
     public interface IGenerator
     {
         IAssembly Assembly { get; }
-        IEnumerable<ICodeFile> Generate();
-        Task SaveFile();
+        public Task Generate();
     }
 }

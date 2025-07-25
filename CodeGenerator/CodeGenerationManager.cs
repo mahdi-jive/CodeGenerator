@@ -15,10 +15,9 @@ namespace CodeGenerator
         {
             var tasks = Generators
                 .Select(generator =>
-                Task.Run(() =>
+                Task.Run(async () =>
                 {
-                    generator.Generate();
-                    generator.SaveFile();
+                    await generator.Generate();
                 })
                 );
             await Task.WhenAll(tasks);

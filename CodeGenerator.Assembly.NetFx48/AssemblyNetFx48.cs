@@ -10,7 +10,7 @@ namespace CodeGenerator.Assembly.NetFx48
     {
         public IMediator Mediator { get; private set; }
         public IDirectory Directory { get; private set; }
-        public string AssemblyName { get => Directory.Name; }
+        public string AssemblyName { get; private set; }
         private XDocument _CsprojContent { get; set; }
         public XDocument CsprojContent
         {
@@ -24,15 +24,16 @@ namespace CodeGenerator.Assembly.NetFx48
         public IFile CsprojFile { get; private set; }
 
 
-        private AssemblyNetFx48(IMediator mediator, IDirectory directory)
+        private AssemblyNetFx48(IMediator mediator, IDirectory directory, string assemblyName)
         {
             Directory = directory;
             Mediator = mediator;
+            AssemblyName = assemblyName;
 
         }
         public static async Task<AssemblyNetFx48> CreateAsync(IMediator mediator, IDirectory directory, string assemblyName)
         {
-            AssemblyNetFx48 assemblyProject = new(mediator, directory);
+            AssemblyNetFx48 assemblyProject = new(mediator, directory, assemblyName);
             await assemblyProject.CreateCSprojFile();
             await mediator.Publish(new AssemblyAddedNotification(assemblyProject));
             return assemblyProject;

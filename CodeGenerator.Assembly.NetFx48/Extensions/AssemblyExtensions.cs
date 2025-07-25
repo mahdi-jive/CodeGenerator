@@ -1,7 +1,5 @@
 ﻿using CodeGenerator.Assembly.Abstractions;
 using CodeGenerator.FileSystem.Abstractions;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 
 namespace CodeGenerator.Assembly.NetFx48.Extensions
 {
@@ -19,23 +17,23 @@ namespace CodeGenerator.Assembly.NetFx48.Extensions
         //}
         public static async Task AddSourceFileAsync(this IDirectory directory, IAssembly assembly, ICodeFile codeFile)
         {
-            if (!assembly.Directory.IsPathInFolder(directory))
-            {
-                throw new Exception($"Folder Path :{directory.FullPath} Not In Path {assembly.Directory.FullPath}");
-            }
+            //if (!assembly.Directory.IsPathInFolder(directory))
+            //{
+            //    throw new Exception($"Folder Path :{directory.FullPath} Not In Path {assembly.Directory.FullPath}");
+            //}
             // ساخت فضای نام پایه: AssemblyName + فولدرهای زیرین (اگر بود)
-            string namespaceName = assembly.AssemblyName;
+            //string namespaceName = assembly.AssemblyName;
 
             // اصلاح فضای نام در CompilationUnitSyntax (فرض بر این است که فضای نام در AST باید جایگزین شود)
-            var newNamespace = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName))
-                .WithMembers(codeFile.CompilationUnit.Members)
-                .NormalizeWhitespace();
+            //var newNamespace = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName))
+            //    .WithMembers(codeFile.CompilationUnit.Members)
+            //    .NormalizeWhitespace();
 
-            var newCompilationUnit = SyntaxFactory.CompilationUnit()
-                .AddMembers(newNamespace)
-                .NormalizeWhitespace();
+            //var newCompilationUnit = SyntaxFactory.CompilationUnit()
+            //    .AddMembers(newNamespace)
+            //    .NormalizeWhitespace();
 
-            string code = newCompilationUnit.ToFullString();
+            string code = codeFile.CompilationUnit.ToFullString();
 
             // مسیر فایل در سیستم فایل:
 

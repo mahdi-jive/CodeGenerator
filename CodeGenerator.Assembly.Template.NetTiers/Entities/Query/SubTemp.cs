@@ -5,9 +5,9 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeGenerator.Assembly.Template.NetTiers.Entities
+namespace CodeGenerator.Assembly.Template.NetTiers.Entities.Query
 {
-    public class EntityBaseTemp : ICodeTemplate<EntitiesFactory, EntitiesContextModel>
+    public class SubTemp : ICodeTemplate<QueryFolder, EntitiesContextModel>
     {
         CompilationUnitSyntax compilationUnit = CompilationUnit()
     .WithUsings(
@@ -30,7 +30,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
             NamespaceDeclaration(QualifiedName(IdentifierName("Behsaz"), IdentifierName("Entities")))
             .WithMembers(
                 SingletonList<MemberDeclarationSyntax>(
-                    ClassDeclaration("EntityBase")
+                    ClassDeclaration("Sub")
                     .WithModifiers(TokenList(new[]{
                         Token(SyntaxKind.PublicKeyword),
                         Token(SyntaxKind.AbstractKeyword),
@@ -75,7 +75,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
     .NormalizeWhitespace();
         public IEnumerable<ICodeFile> Generate(IContextModel contextModel)
         {
-            List<ICodeFile> codeFiles = new List<ICodeFile>() { new CodeFile("EntityBase", compilationUnit) };
+            List<ICodeFile> codeFiles = new List<ICodeFile>() { new CodeFile("Sub", compilationUnit) };
             return codeFiles;
         }
     }

@@ -48,7 +48,8 @@ internal class Program
 
         //ICodeFile codeFile = new CodeFile("EntityBase.cs", a);
         //await behsaz_Entities.Directory.AddSourceFileAsync(behsaz_Entities, codeFile);
-        List<IGenerator> generators = new List<IGenerator>() { await EntitiesFactory.GenerateAssembly(Mediator, directory, "Entities") };
+        var entitiesDirectory = await directory.AddDirectoryAsync("Behsaz");
+        List<IGenerator> generators = new List<IGenerator>() { await EntitiesFactory.GenerateAssembly(Mediator, entitiesDirectory) };
         var generationManager = new CodeGenerationManager(generators);
         await generationManager.GenerateAllAsync();
 
