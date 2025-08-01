@@ -1,10 +1,10 @@
-﻿using CodeGenerator.Assembly.Template.NetTiers.SqlQueries.Model;
+﻿using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.StoredProcedure.Parameter;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
 public static class SqlParameterConverter
 {
-    public static SqlParameter ToSqlParameter(this ProceduresParameterInfo paramInfo)
+    public static SqlParameter ToSqlParameter(this ParameterProcedure paramInfo)
     {
         var sqlParam = new SqlParameter
         {

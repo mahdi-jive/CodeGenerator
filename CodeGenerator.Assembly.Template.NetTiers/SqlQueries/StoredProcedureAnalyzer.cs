@@ -1,4 +1,4 @@
-﻿using CodeGenerator.Assembly.Template.NetTiers.SqlQueries.Model;
+﻿using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.StoredProcedure.Output;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using System.Text;
@@ -15,14 +15,14 @@ namespace CodeGenerator.Assembly.Template.NetTiers.SqlQueries
             _connection = new SqlConnection(connectionString);
         }
 
-        public List<StoredProcedureOutputColumn> AnalyzeAsync(string spText, List<SqlParameter> parameters)
+        public List<OutputProcedure> AnalyzeAsync(string spText, List<SqlParameter> parameters)
         {
             string preparedText = PrepareText(spText, parameters);
             return ExtractOutputSchema(preparedText, parameters);
         }
-        public List<StoredProcedureOutputColumn> AnalyzeBasicAsync(string storedProcedureName, List<SqlParameter> parameters)
+        public List<OutputProcedure> AnalyzeBasicAsync(string storedProcedureName, List<SqlParameter> parameters)
         {
-            var output = new List<StoredProcedureOutputColumn>();
+            var output = new List<OutputProcedure>();
 
             try
             {
@@ -65,13 +65,11 @@ namespace CodeGenerator.Assembly.Template.NetTiers.SqlQueries
                     {
                         foreach (DataRow row in schemaTable.Rows)
                         {
-                            output.Add(new StoredProcedureOutputColumn
-                            {
-                                Name = row["ColumnName"].ToString()!,
-                                DataType = row["DataTypeName"].ToString()!,
-                                IsNullable = (bool)row["AllowDBNull"],
-                                MaxLength = Convert.ToInt32(row["ColumnSize"])
-                            });
+                            string name = row["ColumnName"].ToString()!;
+                            string dataType = row["DataTypeName"].ToString()!;
+                            bool isNullable = (bool)row["AllowDBNull"];
+                            int maxLength = Convert.ToInt32(row["ColumnSize"]);
+                            output.Add(new OutputProcedure(name, dataType, isNullable, maxLength));
                         }
                     }
                 }
@@ -227,9 +225,9 @@ namespace CodeGenerator.Assembly.Template.NetTiers.SqlQueries
 
             return sb.ToString();
         }
-        private List<StoredProcedureOutputColumn> ExtractOutputSchema(string sqlText, List<SqlParameter> parameters)
+        private List<OutputProcedure> ExtractOutputSchema(string sqlText, List<SqlParameter> parameters)
         {
-            var output = new List<StoredProcedureOutputColumn>();
+            var output = new List<OutputProcedure>();
 
             try
             {
@@ -254,13 +252,11 @@ namespace CodeGenerator.Assembly.Template.NetTiers.SqlQueries
                     {
                         foreach (DataRow row in schemaTable.Rows)
                         {
-                            output.Add(new StoredProcedureOutputColumn
-                            {
-                                Name = row["ColumnName"].ToString()!,
-                                DataType = row["DataTypeName"].ToString()!,
-                                IsNullable = (bool)row["AllowDBNull"],
-                                MaxLength = Convert.ToInt32(row["ColumnSize"])
-                            });
+                            string name = row["ColumnName"].ToString()!;
+                            string dataType = row["DataTypeName"].ToString()!;
+                            bool isNullable = (bool)row["AllowDBNull"];
+                            int maxLength = Convert.ToInt32(row["ColumnSize"]);
+                            output.Add(new OutputProcedure(name, dataType, isNullable, maxLength));
                         }
                     }
                 }

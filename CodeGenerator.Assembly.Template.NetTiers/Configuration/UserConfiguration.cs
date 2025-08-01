@@ -2,19 +2,23 @@
 {
     public class UserConfiguration : IUserConfiguration
     {
-        public IReadOnlyCollection<string> SelectedTables { get; private set; }
-        public string ConnectionString { get; private set; }
-
-
-        public UserConfiguration(IReadOnlyCollection<string> selectedTables, string connectionString)
+        public UserConfiguration(string customProcedureStartsWith, string companyName, string companyURL, string rootNameSpace, IReadOnlyCollection<string> selectedTables, IReadOnlyCollection<string> selectedTableEnums, IReadOnlyCollection<string> selectedViews)
         {
+            CustomProcedureStartsWith = customProcedureStartsWith;
+            CompanyName = companyName;
+            CompanyURL = companyURL;
+            RootNameSpace = rootNameSpace;
             SelectedTables = selectedTables;
-            ConnectionString = connectionString;
+            SelectedTableEnums = selectedTableEnums;
+            SelectedViews = selectedViews;
         }
 
-        public string StartCustomSp { get; private set; }
-
-
+        public string ConnectionString { get; private set; }
+        public string CustomProcedureStartsWith { get; private set; }
+        public string CompanyName { get; private set; }
+        public string CompanyURL { get; private set; }
+        public string RootNameSpace { get; private set; }
+        public IReadOnlyCollection<string> SelectedTables { get; private set; }
 
         public IReadOnlyCollection<string> SelectedTableEnums { get; private set; }
 

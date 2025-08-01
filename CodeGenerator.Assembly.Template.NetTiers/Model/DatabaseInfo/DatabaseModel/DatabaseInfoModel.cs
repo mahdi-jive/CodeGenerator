@@ -1,31 +1,26 @@
-﻿using CodeGenerator.Assembly.Template.NetTiers.Model.Abstractions;
-using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.StoredProcedure;
+﻿using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.StoredProcedure;
+using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.TableEnum;
-using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Tables;
+using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.View;
 
 namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseModel
 {
     public class DatabaseInfoModel : IDatabaseInfoModel
     {
-        public DatabaseInfoModel(ITableCollection tables, IViewCollection views, ITableEnumCollection tableEnums)
+        public DatabaseInfoModel(IReadOnlyCollection<ITable> tables, IReadOnlyCollection<IView> views, IReadOnlyCollection<ITableEnum> tableEnums, IReadOnlyCollection<IStoredProcedure> storedProcedures)
         {
             Tables = tables;
             Views = views;
             TableEnums = tableEnums;
+            StoredProcedures = storedProcedures;
         }
 
-        public ITableCollection Tables { get; private set; }
+        public IReadOnlyCollection<ITable> Tables { get; private set; }
 
-        public IViewCollection Views { get; private set; }
+        public IReadOnlyCollection<IView> Views { get; private set; }
 
-        public ITableEnumCollection TableEnums { get; private set; }
+        public IReadOnlyCollection<ITableEnum> TableEnums { get; private set; }
 
-        public IStoredProcedureCollection StoredProcedures { get; private set; }
-
-        public IReadOnlyCollection<string> SelectedTables => throw new NotImplementedException();
-
-        public IReadOnlyCollection<string> SelectedViews => throw new NotImplementedException();
-
-        public IReadOnlyCollection<string> SelectedTableEnums => throw new NotImplementedException();
+        public IReadOnlyCollection<IStoredProcedure> StoredProcedures { get; private set; }
     }
 }

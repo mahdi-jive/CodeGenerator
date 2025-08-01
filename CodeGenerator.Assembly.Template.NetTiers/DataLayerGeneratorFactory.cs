@@ -1,7 +1,6 @@
 ﻿using CodeGenerator.Assembly.Template.NetTiers.Configuration;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseModel;
-using CodeGenerator.Assembly.Template.NetTiers.SqlQueries;
 
 namespace CodeGenerator.Assembly.Template.NetTiers
 {
@@ -17,15 +16,15 @@ namespace CodeGenerator.Assembly.Template.NetTiers
         public static void Generate(string connectionString, IEnumerable<string> selectedTables)
         {
             var userConfiguration = new UserConfiguration(selectedTables.ToList(), connectionString);
-            var sqlQueryService = new SqlQueryService(userConfiguration.ConnectionString);
 
-            var databaseInformation = GetDataInfo(sqlQueryService, userConfiguration);
+
+            var databaseInformation = GetDataInfo(userConfiguration);
             new DataLayerGeneratorFactory(databaseInformation);
         }
-        private static DatabaseInfoModel GetDataInfo(ISqlQueryService sqlQueryService, IUserConfiguration userConfiguration)
+        private static DatabaseInfoModel GetDataInfo(IUserConfiguration userConfiguration)
         {
 
-            var databaseModelBuilder = new DatabaseModelBuilder(userConfiguration, sqlQueryService);
+            var databaseModelBuilder = new DatabaseModelBuilder(userConfiguration);
             var databaseInfoModel = databaseModelBuilder
                 .LoadStoredProcedures()
                 .LoadTable()

@@ -24,28 +24,4 @@
     <ProjectReference Include="..\FileSystem\CodeGenerator.FileSystem.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="SqlQueries\Files\GetStoredProcedures.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SqlQueries\Files\GetStoredProceduresAndParameters.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SqlQueries\Files\GetTableColumns.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SqlQueries\Files\GetTables.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SqlQueries\Files\GetTablesEnumAndItems.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SqlQueries\Files\GetViews.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SqlQueries\Files\GetViewsColumns.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
