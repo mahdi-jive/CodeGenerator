@@ -6,5 +6,6 @@ namespace CodeGenerator.Assembly.Abstractions
     {
         CompilationUnitSyntax CompilationUnit { get; }
         string ClassName { get; }
+        string FileName { get; }
     }
 }

@@ -7,11 +7,12 @@ namespace CodeGenerator.Assembly
     {
         public CompilationUnitSyntax CompilationUnit { get; private set; }
         public string ClassName { get; private set; }
-
-        public CodeFile(string className, CompilationUnitSyntax compilationUnit)
+        public string FileName { get; private set; }
+        public CodeFile(string fileName, string className, CompilationUnitSyntax compilationUnit)
         {
             ClassName = className;
             CompilationUnit = compilationUnit;
+            FileName = fileName;
         }
     }
 }

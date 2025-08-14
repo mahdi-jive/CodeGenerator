@@ -2,7 +2,7 @@
 {
     public class UserConfiguration : IUserConfiguration
     {
-        public UserConfiguration(string customProcedureStartsWith, string companyName, string companyURL, string rootNameSpace, IReadOnlyCollection<string> selectedTables, IReadOnlyCollection<string> selectedTableEnums, IReadOnlyCollection<string> selectedViews)
+        public UserConfiguration(string connectionString, string customProcedureStartsWith, string companyName, string companyURL, string rootNameSpace, IReadOnlyCollection<string> selectedTables, IReadOnlyCollection<string> selectedTableEnums, IReadOnlyCollection<string> selectedViews)
         {
             CustomProcedureStartsWith = customProcedureStartsWith;
             CompanyName = companyName;
@@ -11,6 +11,7 @@
             SelectedTables = selectedTables;
             SelectedTableEnums = selectedTableEnums;
             SelectedViews = selectedViews;
+            ConnectionString = connectionString;
         }
 
         public string ConnectionString { get; private set; }

@@ -13,5 +13,6 @@
 
         public int ObjectId { get; set; }
         public string? Description { get; set; }
+        public string? _Description { get; set; }
     }
 }

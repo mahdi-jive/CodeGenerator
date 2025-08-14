@@ -4,7 +4,7 @@ using System.Data;
 
 public static class SqlParameterConverter
 {
-    public static SqlParameter ToSqlParameter(this ParameterProcedure paramInfo)
+    public static SqlParameter ToSqlParameter(this IParameterProcedure paramInfo)
     {
         var sqlParam = new SqlParameter
         {

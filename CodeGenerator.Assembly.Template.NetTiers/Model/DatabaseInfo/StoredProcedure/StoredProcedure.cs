@@ -5,14 +5,16 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.StoredProc
 {
     public class StoredProcedure : SchemaObject, IStoredProcedure
     {
-        public StoredProcedure(string name, int objectId, string? description, IReadOnlyCollection<IParameterProcedure> parametersInfo, IReadOnlyCollection<IOutputProcedure> outputColumn)
+        public StoredProcedure(string name, int objectId, string? description, Lazy<IEnumerable<IParameterProcedure>> parametersInfo, Lazy<IEnumerable<IOutputProcedure>> outputColumn)
             : base(name, objectId, description)
         {
-            ParametersInfo = parametersInfo;
-            OutputColumn = outputColumn;
+            _ParametersInfo = parametersInfo;
+            _OutputColumn = outputColumn;
         }
-        public IReadOnlyCollection<IParameterProcedure> ParametersInfo { get; set; }
-        public IReadOnlyCollection<IOutputProcedure> OutputColumn { get; set; }
+        public IEnumerable<IParameterProcedure> ParametersInfo { get => _ParametersInfo.Value; }
+        private Lazy<IEnumerable<IParameterProcedure>> _ParametersInfo { get; set; }
+        public IEnumerable<IOutputProcedure> OutputColumn { get => _OutputColumn.Value; }
+        public Lazy<IEnumerable<IOutputProcedure>> _OutputColumn { get; set; }
 
 
     }

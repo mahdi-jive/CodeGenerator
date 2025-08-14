@@ -37,7 +37,7 @@ namespace CodeGenerator.Assembly.NetFx48.Extensions
 
             // مسیر فایل در سیستم فایل:
 
-            string fileName = codeFile.ClassName + ".cs";
+            string fileName = codeFile.FileName;
             var file = await directory.AddFileAsync(fileName, code);
         }
         public static bool IsPathInFolder(this IFullPath folderPath, IFullPath pathInFolder)

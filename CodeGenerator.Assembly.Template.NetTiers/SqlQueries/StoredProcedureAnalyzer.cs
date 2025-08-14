@@ -23,7 +23,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.SqlQueries
         public List<OutputProcedure> AnalyzeBasicAsync(string storedProcedureName, List<SqlParameter> parameters)
         {
             var output = new List<OutputProcedure>();
-
+            Console.WriteLine(storedProcedureName);
             try
             {
                 _connection.Open();

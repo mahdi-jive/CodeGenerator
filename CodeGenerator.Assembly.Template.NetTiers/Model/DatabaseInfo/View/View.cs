@@ -5,13 +5,15 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.View
 {
     public class View : SchemaObject, IView
     {
-        public IReadOnlyCollection<IColumnView> Columns { get; private set; }
-        public IReadOnlyCollection<IStoredProcedure> StoredProcedures { get; private set; }
-        public View(string name, int objectId, string? description, IReadOnlyCollection<IColumnView> columns, IReadOnlyCollection<IStoredProcedure> storedProcedures)
+        public IEnumerable<IColumnView> Columns { get => _Columns.Value; }
+        private Lazy<IEnumerable<IColumnView>> _Columns { get; set; }
+        public IEnumerable<IStoredProcedure> StoredProcedures { get => _StoredProcedures.Value; }
+        private Lazy<IEnumerable<IStoredProcedure>> _StoredProcedures { get; set; }
+        public View(string name, int objectId, string? description, Lazy<IEnumerable<IColumnView>> columns, Lazy<IEnumerable<IStoredProcedure>> storedProcedures)
             : base(name, objectId, description)
         {
-            Columns = columns;
-            StoredProcedures = storedProcedures;
+            _Columns = columns;
+            _StoredProcedures = storedProcedures;
         }
     }
 }

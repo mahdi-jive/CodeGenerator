@@ -6,27 +6,20 @@ namespace CodeGenerator.Assembly.Template.NetTiers
 {
     public class DataLayerGeneratorFactory
     {
-        private DataLayerGeneratorFactory(DatabaseInfoModel databaseInformation)
+        private static string connectionString = @"Data Source=DESKTOP-O7IL2PH;Initial Catalog=BehsazTestLastVersionMain;User ID=sa;Password=123;TrustServerCertificate=True;";
+
+        public static DatabaseInfoModel Generate(IUserConfiguration userConfiguration)
         {
+            var userConfigurationTest = new UserConfiguration(connectionString, "sp_", "Rapco", "www.Rapco-rpk.com", "Behsaz", selectedTables.ToList(), selectedTables.ToList(), selectedTables.ToList());
 
-        }
-        public DatabaseInfoModel DatabaseInfoModel { get; private set; }
-        string connectionString = @"Data Source=DESKTOP-O7IL2PH;Initial Catalog=BehsazTestLastVersionMain;User ID=sa;Password=123;TrustServerCertificate=True;";
-
-        public static void Generate(string connectionString, IEnumerable<string> selectedTables)
-        {
-            var userConfiguration = new UserConfiguration(selectedTables.ToList(), connectionString);
-
-
-            var databaseInformation = GetDataInfo(userConfiguration);
-            new DataLayerGeneratorFactory(databaseInformation);
+            var databaseInformation = GetDataInfo(userConfigurationTest);
+            return databaseInformation;
         }
         private static DatabaseInfoModel GetDataInfo(IUserConfiguration userConfiguration)
         {
 
             var databaseModelBuilder = new DatabaseModelBuilder(userConfiguration);
             var databaseInfoModel = databaseModelBuilder
-                .LoadStoredProcedures()
                 .LoadTable()
                 .LoadViews()
                 .LoadTableEnums()
@@ -37,7 +30,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers
 
 
 
-        List<string> selectedTables = new List<string>()
+        private static List<string> selectedTables = new List<string>()
             {
 "TAccYear",
 "TBASActivity",

@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Entities\Query\**" />
+    <EmbeddedResource Remove="Entities\Query\**" />
+    <None Remove="Entities\Query\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Data.SqlClient\" />
     <Folder Include="Data\" />
   </ItemGroup>
@@ -22,6 +28,21 @@
     <ProjectReference Include="..\CodeGenerator.Assembly\CodeGenerator.Assembly.csproj" />
     <ProjectReference Include="..\CodeGenerator\CodeGenerator.csproj" />
     <ProjectReference Include="..\FileSystem\CodeGenerator.FileSystem.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Entities\StaticFile\StaticFileResource.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>StaticFileResource.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Entities\StaticFile\StaticFileResource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>StaticFileResource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

@@ -2,12 +2,13 @@
 using CodeGenerator.Assembly.Abstractions;
 using CodeGenerator.Assembly.NetFx48;
 using CodeGenerator.Assembly.NetFx48.Extensions;
+using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseModel;
 using CodeGenerator.FileSystem.Abstractions;
 using MediatR;
 
 namespace CodeGenerator.Assembly.Template.NetTiers.Entities
 {
-    public class EntitiesFactory : DirectoryMarkerBase<EntitiesFactory, EntitiesContextModel>, IGenerator
+    public class EntitiesFactory : DirectoryMarkerBase<EntitiesFactory, DatabaseInfoModel>, IGenerator
     {
         private static readonly string LayerNamePosfix = "Entities";
         private EntitiesFactory(IAssembly assembly)
@@ -26,7 +27,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
 
         public async Task Generate()
         {
-            await Generate(Assembly.Directory, Assembly, new EntitiesContext().GetContextModel());
+            await Generate(Assembly.Directory, Assembly, DataLayerGeneratorFactory.Generate(null));
         }
 
         //public async Task Generate()
@@ -39,17 +40,6 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
         public override async Task SaveFileAsync(IDirectory directory, IAssembly assembly, ICodeFile codeFile)
         {
             await directory.AddSourceFileAsync(assembly, codeFile);
-        }
-    }
-    public class EntitiesContextModel : IContextModel
-    {
-        public string Test { get => "testData"; }
-    }
-    public class EntitiesContext : ITemplateContext<EntitiesContextModel>
-    {
-        public EntitiesContextModel GetContextModel()
-        {
-            return new EntitiesContextModel();
         }
     }
 }

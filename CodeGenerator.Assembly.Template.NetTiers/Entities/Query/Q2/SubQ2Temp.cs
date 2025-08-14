@@ -75,7 +75,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
     .NormalizeWhitespace();
         public IEnumerable<ICodeFile> Generate(IContextModel contextModel)
         {
-            List<ICodeFile> codeFiles = new List<ICodeFile>() { new CodeFile("SubQ2", compilationUnit) };
+            List<ICodeFile> codeFiles = new List<ICodeFile>() { new CodeFile("SubQ2", "SubQ2", compilationUnit) };
             return codeFiles;
         }
     }

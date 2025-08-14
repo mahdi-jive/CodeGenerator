@@ -33,7 +33,8 @@ namespace CodeGenerator.Assembly.NetFx48
         }
         public static async Task<AssemblyNetFx48> CreateAsync(IMediator mediator, IDirectory directory, string assemblyName)
         {
-            AssemblyNetFx48 assemblyProject = new(mediator, directory, assemblyName);
+            var assemblyDirectory = await directory.AddDirectoryAsync(assemblyName);
+            AssemblyNetFx48 assemblyProject = new(mediator, assemblyDirectory, assemblyName);
             await assemblyProject.CreateCSprojFile();
             await mediator.Publish(new AssemblyAddedNotification(assemblyProject));
             return assemblyProject;
