@@ -5,15 +5,20 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table
 {
     public class Table : SchemaObject, ITable
     {
-        public IEnumerable<IColumnTable> Columns { get => _Columns.Value; }
-        private Lazy<IEnumerable<IColumnTable>> _Columns { get; set; }
-        public IEnumerable<IStoredProcedure> StoredProcedures { get => _StoredProcedures.Value; }
-        private Lazy<IEnumerable<IStoredProcedure>> _StoredProcedures { get; set; }
-        public Table(string name, int objectId, string? description, Lazy<IEnumerable<IColumnTable>> columns, Lazy<IEnumerable<IStoredProcedure>> storedProcedures)
+        public Task<IEnumerable<IColumnTable>> Columns { get => _Columns.Value; }
+        private Lazy<Task<IEnumerable<IColumnTable>>> _Columns { get; set; }
+        public Task<IEnumerable<IStoredProcedure>> StoredProcedures { get => _StoredProcedures.Value; }
+        private Lazy<Task<IEnumerable<IStoredProcedure>>> _StoredProcedures { get; set; }
+
+        public Task<IEnumerable<IRelationTable>> Relations { get => _Relations.Value; }
+        private Lazy<Task<IEnumerable<IRelationTable>>> _Relations { get; set; }
+
+        public Table(string name, int objectId, string? description, Lazy<Task<IEnumerable<IColumnTable>>> columns, Lazy<Task<IEnumerable<IStoredProcedure>>> storedProcedures, Lazy<Task<IEnumerable<IRelationTable>>> relations)
             : base(name, objectId, description)
         {
             _Columns = columns;
             _StoredProcedures = storedProcedures;
+            _Relations = relations;
         }
     }
 }

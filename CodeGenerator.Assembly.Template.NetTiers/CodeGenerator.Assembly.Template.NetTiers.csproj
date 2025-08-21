@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Humanizer.Core" Version="2.14.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
     <PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="172.76.0" />
   </ItemGroup>

@@ -7,6 +7,6 @@ namespace CodeGenerator.Abstractions
     }
     public interface ICodeTemplateBase
     {
-        IEnumerable<ICodeFile> Generate(IContextModel contextModel);
+        Task<IEnumerable<ICodeFile>> Generate(IContextModel contextModel);
     }
 }

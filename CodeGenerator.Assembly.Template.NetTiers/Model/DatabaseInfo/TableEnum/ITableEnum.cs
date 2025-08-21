@@ -4,7 +4,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.TableEnum
 {
     public interface ITableEnum : ISchemaObject
     {
-        public IEnumerable<IEnumItem> Items { get; }
+        public Task<IEnumerable<IEnumItem>> Items { get; }
 
     }
 

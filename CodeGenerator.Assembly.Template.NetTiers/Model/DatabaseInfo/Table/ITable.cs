@@ -5,8 +5,9 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table
 {
     public interface ITable : ISchemaObject
     {
-        IEnumerable<IColumnTable> Columns { get; }
-        IEnumerable<IStoredProcedure> StoredProcedures { get; }
+        Task<IEnumerable<IColumnTable>> Columns { get; }
+        Task<IEnumerable<IStoredProcedure>> StoredProcedures { get; }
+        Task<IEnumerable<IRelationTable>> Relations { get; }
     }
 
 

@@ -11,8 +11,8 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseMo
         string CompanyName { get; }
         string CompanyURL { get; }
         string RootNameSpace { get; }
-        IEnumerable<ITable> Tables { get; }
-        IEnumerable<IView> Views { get; }
-        IEnumerable<ITableEnum> TableEnums { get; }
+        Task<IEnumerable<ITable>> Tables { get; }
+        Task<IEnumerable<IView>> Views { get; }
+        Task<IEnumerable<ITableEnum>> TableEnums { get; }
     }
 }

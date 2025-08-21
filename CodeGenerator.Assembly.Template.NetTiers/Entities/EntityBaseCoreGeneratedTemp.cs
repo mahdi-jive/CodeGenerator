@@ -15,18 +15,18 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
         {
             return IdentifierName($"{contextModel.RootNameSpace}.Entities");
         }
-        public IEnumerable<ICodeFile> Generate(IContextModel contextModel)
+        public async Task<IEnumerable<ICodeFile>> Generate(IContextModel contextModel)
         {
             string className = "EntityBaseCore";
             var model = contextModel as DatabaseInfoModel;
-            List<ICodeFile> codeFiles = new List<ICodeFile>() { new CodeFile($"{className}.generated.cs", className, GetCompilationUnit(model, className)) };
+            List<ICodeFile> codeFiles = new List<ICodeFile>() { new CodeFile($"{className}.generated.cs", className, await GetCompilationUnit(model, className)) };
             return codeFiles;
         }
-        private CompilationUnitSyntax GetCompilationUnit(DatabaseInfoModel model, string className)
+        private async Task<CompilationUnitSyntax> GetCompilationUnit(DatabaseInfoModel model, string className)
         {
 
             var tree = CSharpSyntaxTree.ParseText(StaticFileResource.EntityBaseCore_generated);
-            var compilationUnitSyntax = (CompilationUnitSyntax)tree.GetRoot();
+            var compilationUnitSyntax = (CompilationUnitSyntax)await tree.GetRootAsync();
 
             var commentText = SyntaxFactory.Comment(
                 @$"/*

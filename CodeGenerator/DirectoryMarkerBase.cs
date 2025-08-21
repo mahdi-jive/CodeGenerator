@@ -27,7 +27,7 @@ namespace CodeGenerator
             {
                 if (Activator.CreateInstance(template) is ICodeTemplateBase fileInstance)
                 {
-                    foreach (var file in fileInstance.Generate((TContextModel)contextModel))
+                    foreach (var file in await fileInstance.Generate((TContextModel)contextModel))
                     {
                         await SaveFileAsync(directory, assembly, file);
                     }

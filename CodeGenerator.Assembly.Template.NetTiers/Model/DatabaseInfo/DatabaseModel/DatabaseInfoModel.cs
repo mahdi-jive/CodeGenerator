@@ -11,9 +11,9 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseMo
             string companyName,
             string companyURL,
             string rootNameSpace,
-            Lazy<IEnumerable<ITable>> tables,
-            Lazy<IEnumerable<IView>> views,
-            Lazy<IEnumerable<ITableEnum>> tableEnums)
+            Lazy<Task<IEnumerable<ITable>>> tables,
+            Lazy<Task<IEnumerable<IView>>> views,
+            Lazy<Task<IEnumerable<ITableEnum>>> tableEnums)
         {
             CustomProcedureStartsWith = customProcedureStartsWith;
             CompanyName = companyName;
@@ -23,16 +23,16 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseMo
             _Views = views;
             _TableEnums = tableEnums;
         }
-        private Lazy<IEnumerable<ITable>> _Tables { get; set; }
-        private Lazy<IEnumerable<IView>> _Views { get; set; }
-        private Lazy<IEnumerable<ITableEnum>> _TableEnums { get; set; }
+        private Lazy<Task<IEnumerable<ITable>>> _Tables { get; set; }
+        private Lazy<Task<IEnumerable<IView>>> _Views { get; set; }
+        private Lazy<Task<IEnumerable<ITableEnum>>> _TableEnums { get; set; }
 
         public string CustomProcedureStartsWith { get; private set; }
         public string CompanyName { get; private set; }
         public string CompanyURL { get; private set; }
         public string RootNameSpace { get; private set; }
-        public IEnumerable<ITable> Tables => _Tables.Value;
-        public IEnumerable<IView> Views => _Views.Value;
-        public IEnumerable<ITableEnum> TableEnums => _TableEnums.Value;
+        public Task<IEnumerable<ITable>> Tables => _Tables.Value;
+        public Task<IEnumerable<IView>> Views => _Views.Value;
+        public Task<IEnumerable<ITableEnum>> TableEnums => _TableEnums.Value;
     }
 }

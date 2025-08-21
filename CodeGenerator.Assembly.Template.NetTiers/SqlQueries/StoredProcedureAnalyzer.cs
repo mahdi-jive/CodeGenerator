@@ -20,7 +20,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.SqlQueries
             string preparedText = PrepareText(spText, parameters);
             return ExtractOutputSchema(preparedText, parameters);
         }
-        public List<OutputProcedure> AnalyzeBasicAsync(string storedProcedureName, List<SqlParameter> parameters)
+        public async Task<List<OutputProcedure>> AnalyzeBasicAsync(string storedProcedureName, List<SqlParameter> parameters)
         {
             var output = new List<OutputProcedure>();
             Console.WriteLine(storedProcedureName);
@@ -58,7 +58,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.SqlQueries
                 {
                     schemaCmd.Transaction = transaction;
                     schemaCmd.CommandText = sql;
-                    using var reader = schemaCmd.ExecuteReader();
+                    using var reader = await schemaCmd.ExecuteReaderAsync();
 
                     var schemaTable = reader.GetSchemaTable();
                     if (schemaTable != null)

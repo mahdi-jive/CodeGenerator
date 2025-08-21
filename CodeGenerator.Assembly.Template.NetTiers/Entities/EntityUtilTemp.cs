@@ -9,17 +9,17 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
 {
     public class EntityUtilTemp : ICodeTemplate<EntitiesFactory, DatabaseInfoModel>
     {
-        private CompilationUnitSyntax GetCompilationUnit(DatabaseInfoModel model, string className)
+        private async Task<CompilationUnitSyntax> GetCompilationUnit(DatabaseInfoModel model, string className)
         {
             var tree = CSharpSyntaxTree.ParseText(StaticFileResource.EntityUtil);
-            var compilationUnitSyntax = (CompilationUnitSyntax)tree.GetRoot();
+            var compilationUnitSyntax = (CompilationUnitSyntax)await tree.GetRootAsync();
             return compilationUnitSyntax;
         }
-        public IEnumerable<ICodeFile> Generate(IContextModel contextModel)
+        public async Task<IEnumerable<ICodeFile>> Generate(IContextModel contextModel)
         {
             string className = "EntityUtil";
             var model = contextModel as DatabaseInfoModel;
-            List<ICodeFile> codeFiles = new List<ICodeFile>() { new CodeFile($"{className}.cs", className, GetCompilationUnit(model, className)) };
+            List<ICodeFile> codeFiles = new List<ICodeFile>() { new CodeFile($"{className}.cs", className, await GetCompilationUnit(model, className)) };
             return codeFiles;
         }
     }

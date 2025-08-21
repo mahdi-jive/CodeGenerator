@@ -11,17 +11,10 @@ using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.View;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.View.Column;
 using CodeGenerator.Assembly.Template.NetTiers.SqlQueries;
 using Microsoft.Data.SqlClient;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
 using System.Text.RegularExpressions;
-using ColumnSmo = Microsoft.SqlServer.Management.Smo.Column;
-using IndexSmo = Microsoft.SqlServer.Management.Smo.Index;
 using StoredProcedureInfo = CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.StoredProcedure.StoredProcedure;
-using StoredProcedureSmo = Microsoft.SqlServer.Management.Smo.StoredProcedure;
 using TableInfo = CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.Table;
-using TableSmo = Microsoft.SqlServer.Management.Smo.Table;
 using ViewInfo = CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.View.View;
-using ViewSmo = Microsoft.SqlServer.Management.Smo.View;
 
 
 namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo
@@ -29,267 +22,471 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo
     internal class DatabaseModelBuilder : IDatabaseModelBuilder
     {
         private readonly IUserConfiguration userConfiguration;
-        private readonly Database database;
-        private readonly Regex regexSp;
 
-        private Lazy<IEnumerable<ITable>> TablesInfo { get; set; }
-        private Lazy<IEnumerable<IView>> ViewsInfo { get; set; }
-        private Lazy<IEnumerable<ITableEnum>> TablesEnumInfo { get; set; }
+        private Lazy<Task<IEnumerable<ITable>>> TablesInfo { get; set; }
+        private Lazy<Task<IEnumerable<IView>>> ViewsInfo { get; set; }
+        private Lazy<Task<IEnumerable<ITableEnum>>> TablesEnumInfo { get; set; }
         public DatabaseModelBuilder(IUserConfiguration userConfiguration)
         {
             this.userConfiguration = userConfiguration;
+
+        }
+        private async Task<IEnumerable<IStoredProcedure>> GetStoredProcedures(string contain = null)
+        {
+            List<IStoredProcedure> storedProcedures = new List<IStoredProcedure>();
             using (var connection = new SqlConnection(userConfiguration.ConnectionString))
             {
-                var serverConnection = new ServerConnection(connection);
-                database = new Server(serverConnection).Databases[connection.Database];
-            }
-            regexSp = new Regex(@$"^{userConfiguration.CustomProcedureStartsWith}_([^_]+)_");
-        }
-        private IEnumerable<IStoredProcedure> GetStoredProcedures(Regex regex = null)
-        {
-            foreach (StoredProcedureSmo storedProcedure in database.StoredProcedures)
-            {
-                // Ignore system stored procedures
-                if (storedProcedure.IsSystemObject && (regex == null || !regex.IsMatch(storedProcedure.Name)))
-                    continue;
 
-                string name = storedProcedure.Name;
-                int objectId = storedProcedure.ID;
-                string? description = storedProcedure.ExtendedProperties["MS_Description"]?.Value?.ToString();
+                connection.Open();
 
+                string query = @$"
+                SELECT
+                    p.name AS Name,
+                    p.object_id AS ObjectId,
+                    ep.value AS Description
+                FROM sys.procedures p
+                LEFT JOIN sys.extended_properties ep
+                    ON ep.major_id = p.object_id
+                    AND ep.minor_id = 0
+                    AND ep.name = 'MS_Description'
+                WHERE p.is_ms_shipped = 0
+                     AND (LOWER(p.name)  LIKE '{contain}_%' OR LOWER(p.name) LIKE '{userConfiguration.CustomProcedureStartsWith}_{contain}_%')
+                ORDER BY p.name;";
 
-
-                var parametersInfo = new Lazy<IEnumerable<IParameterProcedure>>(GetParameterProcedures(storedProcedure));
-                // اگر ستون‌های خروجی رو بعدا استخراج می‌کنی، فعلاً لیست خالی بفرست
-                var spInfo = new StoredProcedureInfo(
-                    name: storedProcedure.Name,
-                    objectId: storedProcedure.ID,
-                    description: description,
-                    parametersInfo: parametersInfo,
-                    outputColumn: new Lazy<IEnumerable<IOutputProcedure>>(GetOutputProcedure(userConfiguration.ConnectionString, storedProcedure.Name, parametersInfo.Value))
-                );
-
-                Console.WriteLine(spInfo.Name);
-                yield return spInfo;
-            }
-        }
-        private IEnumerable<IParameterProcedure> GetParameterProcedures(StoredProcedureSmo storedProcedure)
-        {
-            foreach (StoredProcedureParameter parameter in storedProcedure.Parameters)
-            {
-                string resolvedType;
-                bool isTableType = parameter.DataType.SqlDataType == SqlDataType.UserDefinedTableType;
-
-                if (parameter.DataType.SqlDataType == SqlDataType.UserDefinedDataType)
+                using (var command = new SqlCommand(query, connection))
+                using (var reader = await command.ExecuteReaderAsync())
                 {
-                    // برای user-defined data type باید از دیتابیس معادل سیستمیشو بگیریم
-                    var userType = database.UserDefinedDataTypes[parameter.DataType.Name];
-                    resolvedType = userType != null ? userType.SystemType : parameter.DataType.Name;
-                }
-                else if (isTableType)
-                    resolvedType = parameter.DataType.Name;
-                else
-                    resolvedType = parameter.DataType.Name;
+                    while (reader.Read())
+                    {
+                        string name = reader["Name"].ToString()!;
+                        int objectId = Convert.ToInt32(reader["ObjectId"]);
+                        string description = reader["Description"] != DBNull.Value
+                                ? reader["Description"].ToString()
+                                : null;
 
-                var descriptionParameter = parameter.ExtendedProperties["MS_Description"]?.Value?.ToString();
-                yield return new ParameterProcedure
-                (
-                    name: parameter.Name,
-                    objectId: storedProcedure.ID,
-                    description: descriptionParameter,
-                    parameterType: resolvedType,
-                    isTableType: isTableType,
-                    maxLength: parameter.DataType.MaximumLength,
-                    isOutput: parameter.IsOutputParameter,
-                    parameterOrder: parameter.ID
-                );
+                        var parametersInfo = new Lazy<Task<IEnumerable<IParameterProcedure>>>(() => GetParameterProcedures(name));
+                        // اگر ستون‌های خروجی رو بعدا استخراج می‌کنی، فعلاً لیست خالی بفرست
+                        var spInfo = new StoredProcedureInfo(
+                            name: name,
+                            objectId: objectId,
+                            description: description,
+                            parametersInfo: parametersInfo,
+                            outputColumn: new Lazy<Task<IEnumerable<IOutputProcedure>>>(() => GetOutputProcedure(userConfiguration.ConnectionString, name, parametersInfo))
+                        );
+
+                        Console.WriteLine(spInfo.Name);
+                        storedProcedures.Add(spInfo);
+                    }
+                }
             }
+            return storedProcedures;
+
         }
-        private IEnumerable<IOutputProcedure> GetOutputProcedure(string connectionString, string storedProcedureName, IEnumerable<IParameterProcedure> parameterProcedures)
+        private async Task<IEnumerable<IParameterProcedure>> GetParameterProcedures(string storedProcedureName)
         {
+            List<IParameterProcedure> parameterProcedures = new List<IParameterProcedure>();
+            using (var connection = new SqlConnection(userConfiguration.ConnectionString))
+            {
+                connection.Open();
+
+                string query = @"SELECT
+    p.name AS StoredProcedureName,
+    p.object_id AS StoredProcedureObjectID,
+    pr.name AS ParameterName,
+    ty.name AS ParameterType,
+    pr.max_length AS MaxLength,
+    pr.is_output AS IsOutput,
+    pr.parameter_id AS ParameterOrder,
+    ep.value AS Description,
+    CASE WHEN ty.is_table_type = 1 THEN 1 ELSE 0 END AS IsTableType
+FROM sys.procedures p
+JOIN sys.parameters pr ON pr.object_id = p.object_id
+LEFT JOIN sys.types ty ON ty.user_type_id = pr.user_type_id
+LEFT JOIN sys.extended_properties ep
+    ON ep.major_id = p.object_id
+    AND ep.minor_id = pr.parameter_id
+    AND ep.name = 'MS_Description'
+WHERE p.name = @StoredProcedureName
+ORDER BY pr.parameter_id;";
+
+                using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@StoredProcedureName", storedProcedureName);
+
+                using var reader = await command.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    var parameterProcedure = new ParameterProcedure(
+                        name: reader["ParameterName"].ToString()!,
+                        objectId: Convert.ToInt32(reader["StoredProcedureObjectID"]),
+                        description: reader["Description"] != DBNull.Value ? reader["Description"].ToString() : null,
+                        parameterType: reader["ParameterType"].ToString()!,
+                        isTableType: Convert.ToBoolean(reader["IsTableType"]),
+                        maxLength: Convert.ToInt16(reader["MaxLength"]),
+                        isOutput: Convert.ToBoolean(reader["IsOutput"]),
+                        parameterOrder: Convert.ToInt32(reader["ParameterOrder"])
+                    );
+                    Console.WriteLine($"{storedProcedureName}.{parameterProcedure.Name}");
+                    parameterProcedures.Add(parameterProcedure);
+                }
+                return parameterProcedures;
+            }
+
+        }
+        private async Task<IEnumerable<IOutputProcedure>> GetOutputProcedure(string connectionString, string storedProcedureName, Lazy<Task<IEnumerable<IParameterProcedure>>> parameterProceduresLazy)
+        {
+            var parameterProcedures = parameterProceduresLazy.Value;
             var analyzer = new StoredProcedureAnalyzer(connectionString);
-            var outputColumn = analyzer.AnalyzeBasicAsync(storedProcedureName, parameterProcedures.Select(parameter => parameter.ToSqlParameter()).ToList());
+            var outputColumn = await analyzer.AnalyzeBasicAsync(storedProcedureName, (await parameterProcedures).Select(parameter => parameter.ToSqlParameter()).ToList());
             return outputColumn;
         }
         public IFluentViewStep LoadTable()
         {
-            TablesInfo = new Lazy<IEnumerable<ITable>>(GetTable);
+            TablesInfo = new Lazy<Task<IEnumerable<ITable>>>(() => GetTable());
             return this;
         }
-        private IEnumerable<ITable> GetTable()
+        private async Task<IEnumerable<ITable>> GetTable()
         {
-            foreach (TableSmo table in database.Tables)
+            List<ITable> tables = new List<ITable>();
+            using (var connection = new SqlConnection(userConfiguration.ConnectionString))
             {
-                if (table.IsSystemObject)
-                    continue;
+                connection.Open();
 
-                Regex regexSp = new Regex(@$"^{userConfiguration.CustomProcedureStartsWith}_([^_]+)_");
-                var tableInfo = new TableInfo(table.Name,
-                                                table.ID,
-                                                table.ExtendedProperties["MS_Description"]?.Value?.ToString(),
-                                                new Lazy<IEnumerable<IColumnTable>>(GetColumnTable(table)),
-                                                new Lazy<IEnumerable<IStoredProcedure>>(GetStoredProcedures(regexSp)));
-                Console.WriteLine(tableInfo.Name);
-                yield return tableInfo;
-            }
-        }
-        private IEnumerable<IColumnTable> GetColumnTable(TableSmo table)
-        {
-            foreach (ColumnSmo column in table.Columns)
-            {
+                string query = @"
+                SELECT
+                    t.name AS Name,
+                    t.object_id AS ObjectID,
+                    ep.value AS Description
+                FROM sys.tables t
+                LEFT JOIN sys.extended_properties ep
+                    ON ep.major_id = t.object_id
+                    AND ep.minor_id = 0
+                    AND ep.name = 'MS_Description'
+                WHERE t.schema_id = 1
+                ORDER BY t.name;";
 
-                string resolvedType;
-
-                if (column.DataType.SqlDataType == SqlDataType.UserDefinedDataType)
+                using (var command = new SqlCommand(query, connection))
+                using (var reader = await command.ExecuteReaderAsync())
                 {
-                    // برای user-defined data type باید از دیتابیس معادل سیستمیشو بگیریم
-                    var userType = database.UserDefinedDataTypes[column.DataType.Name];
-                    resolvedType = userType != null ? userType.SystemType : column.DataType.Name;
-                }
-                else
-                    resolvedType = column.DataType.Name;
-
-                bool isPrimaryKey = false;
-                // بررسی اینکه ستون کلید اصلی هست یا نه
-                foreach (IndexSmo index in table.Indexes)
-                {
-                    if (index.IndexKeyType == IndexKeyType.DriPrimaryKey && index.IndexedColumns.Contains(column.Name))
+                    while (reader.Read())
                     {
-                        isPrimaryKey = true;
-                        break;
+                        string name = reader["Name"].ToString()!;
+                        int objectID = Convert.ToInt32(reader["ObjectID"]);
+                        string description = reader["Description"] != DBNull.Value ? reader["Description"].ToString() : null;
+
+                        var tableInfo = new TableInfo(name,
+                                                  objectID,
+                                                   description,
+                                                   new Lazy<Task<IEnumerable<IColumnTable>>>(() => GetColumnTable(name)),
+                                                   new Lazy<Task<IEnumerable<IStoredProcedure>>>(() => GetStoredProcedures(name)),
+                                                   new Lazy<Task<IEnumerable<IRelationTable>>>(() => GetRelations(name)));
+                        Console.WriteLine(tableInfo.Name);
+                        tables.Add(tableInfo);
                     }
                 }
-
-                var colInfo = new ColumnTable(
-                name: column.Name,
-                objectId: column.ID,
-                description: column.ExtendedProperties["MS_Description"]?.Value?.ToString(),
-                tableName: table.Name,
-                tableObjectId: table.ID,
-                dataType: column.DataType.Name,
-                maxLength: column.DataType.MaximumLength,
-                precision: column.DataType.NumericPrecision,
-                scale: column.DataType.NumericScale,
-                collation: column.Collation,
-                isNullable: column.Nullable,
-                isIdentity: column.Identity,
-                isComputed: column.Computed,
-                isRowGuid: column.RowGuidCol,
-                isSparse: column.IsSparse,
-                generatedAlwaysType: column.GeneratedAlwaysType.ToString(),
-                isPrimaryKey: isPrimaryKey,
-                defaultValue: column.Default == null ? null : column.Default
-            );
-
-                yield return colInfo;
             }
+            return tables;
+        }
+        private async Task<IEnumerable<IColumnTable>> GetColumnTable(string tableName)
+        {
+            List<IColumnTable> columns = new List<IColumnTable>();
+            using (var connection = new SqlConnection(userConfiguration.ConnectionString))
+            {
+                connection.Open();
+
+                string query = @"SELECT
+    c.name AS ColumnName,
+    c.column_id AS ColumnID,
+    ep.value AS Description,
+    t.name AS TableName,
+    t.object_id AS TableObjectID,
+    ty.name AS DataType,
+    c.max_length AS MaxLength,
+    c.precision AS Precision,
+    c.scale AS Scale,
+    c.collation_name AS Collation,
+    c.is_nullable AS IsNullable,
+    c.is_identity AS IsIdentity,
+    c.is_computed AS IsComputed,
+    c.is_rowguidcol AS IsRowGuid,
+    c.is_sparse AS IsSparse,
+    c.generated_always_type AS GeneratedAlwaysType,
+    CASE WHEN i.is_primary_key = 1 THEN 1 ELSE 0 END AS IsPrimaryKey,
+    dc.definition AS DefaultValue
+FROM sys.columns c
+JOIN sys.tables t ON t.object_id = c.object_id
+LEFT JOIN sys.types ty ON c.system_type_id = ty.user_type_id
+LEFT JOIN sys.extended_properties ep
+    ON ep.major_id = c.object_id
+    AND ep.minor_id = c.column_id
+    AND ep.name = 'MS_Description'
+LEFT JOIN sys.index_columns ic
+    ON ic.object_id = c.object_id
+    AND ic.column_id = c.column_id
+LEFT JOIN sys.indexes i
+    ON i.object_id = ic.object_id
+    AND i.index_id = ic.index_id
+    AND i.is_primary_key = 1
+LEFT JOIN sys.default_constraints dc
+    ON dc.parent_object_id = c.object_id
+    AND dc.parent_column_id = c.column_id
+WHERE t.name = @TableName
+ORDER BY c.column_id;";
+
+                using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@TableName", tableName);
+
+                using var reader = await command.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    var colInfo = new ColumnTable
+                      (
+                          name: reader["ColumnName"].ToString()!,
+                          objectId: Convert.ToInt32(reader["ColumnID"]),
+                          description: reader["Description"] != DBNull.Value ? reader["Description"].ToString() : null,
+                          tableName: reader["TableName"].ToString()!,
+                          tableObjectId: Convert.ToInt32(reader["TableObjectID"]),
+                          dataType: reader["DataType"].ToString()!,
+                          maxLength: Convert.ToInt16(reader["MaxLength"]),
+                          precision: Convert.ToByte(reader["Precision"]),
+                          scale: Convert.ToByte(reader["Scale"]),
+                          collation: reader["Collation"] != DBNull.Value ? reader["Collation"].ToString() : null,
+                          isNullable: Convert.ToBoolean(reader["IsNullable"]),
+                          isIdentity: Convert.ToBoolean(reader["IsIdentity"]),
+                          isComputed: Convert.ToBoolean(reader["IsComputed"]),
+                          isRowGuid: Convert.ToBoolean(reader["IsRowGuid"]),
+                          isSparse: Convert.ToBoolean(reader["IsSparse"]),
+                          generatedAlwaysType: reader["GeneratedAlwaysType"].ToString()!,
+                          isPrimaryKey: Convert.ToBoolean(reader["IsPrimaryKey"]),
+                          defaultValue: reader["DefaultValue"] != DBNull.Value ? reader["DefaultValue"].ToString() : null
+                      );
+                    Console.WriteLine($"{colInfo.TableName}.{colInfo.Name}");
+                    columns.Add(colInfo);
+                }
+            }
+            return columns;
         }
 
-        private IEnumerable<IColumnView> GetColumnView(ViewSmo view)
+        private async Task<IEnumerable<IRelationTable>> GetRelations(string referencedTableName)
         {
-            foreach (ColumnSmo column in view.Columns)
+            List<IRelationTable> relations = new List<IRelationTable>();
+            var query = @"
+            SELECT  
+                tp.name AS TableName,
+                tp.object_id AS TableId,
+                cp.name AS ColumnName,
+                cp.column_id AS ColumnId
+            FROM sys.foreign_keys fk
+            INNER JOIN sys.foreign_key_columns fkc 
+                ON fk.object_id = fkc.constraint_object_id
+            INNER JOIN sys.tables tp 
+                ON fkc.parent_object_id = tp.object_id
+            INNER JOIN sys.columns cp 
+                ON fkc.parent_object_id = cp.object_id 
+               AND fkc.parent_column_id = cp.column_id
+            INNER JOIN sys.tables tr 
+                ON fkc.referenced_object_id = tr.object_id
+            WHERE tr.name = @TableName;";
+
+            using (var connection = new SqlConnection(userConfiguration.ConnectionString))
+            using (var command = new SqlCommand(query, connection))
             {
+                command.Parameters.AddWithValue("@TableName", referencedTableName);
 
-                string resolvedType;
-
-                if (column.DataType.SqlDataType == SqlDataType.UserDefinedDataType)
+                connection.Open();
+                using (var reader = await command.ExecuteReaderAsync())
                 {
-                    // برای user-defined data type باید از دیتابیس معادل سیستمیشو بگیریم
-                    var userType = database.UserDefinedDataTypes[column.DataType.Name];
-                    resolvedType = userType != null ? userType.SystemType : column.DataType.Name;
+                    while (reader.Read())
+                    {
+                        relations.Add(new RelationTable(
+
+                             tableName: reader["TableName"] as string,
+                             tableId: (int)reader["TableId"],
+                             columnName: reader["ColumnName"] as string,
+                             columnId: (int)reader["ColumnId"]
+                         ));
+                    }
                 }
-                else
-                    resolvedType = column.DataType.Name;
-
-                var colInfo = new ColumnView(
-                name: column.Name,
-                objectId: column.ID,
-                description: column.ExtendedProperties["MS_Description"]?.Value?.ToString(),
-                viewName: view.Name,
-                viewObjectId: view.ID,
-                dataType: column.DataType.Name,
-                collation: column.Collation,
-                isNullable: column.Nullable
-            );
-
-                yield return colInfo;
             }
+            return relations;
+        }
+
+        private async Task<IEnumerable<IColumnView>> GetColumnView(string viewName)
+        {
+            var columns = new List<IColumnView>();
+
+            var query = @"
+        SELECT  
+            c.name AS ColumnName,
+            c.column_id AS ObjectId,
+            ep.value AS Description,
+            v.name AS ViewName,
+            v.object_id AS ViewObjectId,
+            t.name AS DataType,
+            c.collation_name AS Collation,
+            c.is_nullable AS IsNullable
+        FROM sys.columns c
+        JOIN sys.views v ON c.object_id = v.object_id
+        JOIN sys.types t ON c.user_type_id = t.user_type_id
+        LEFT JOIN sys.extended_properties ep 
+               ON ep.major_id = c.object_id 
+              AND ep.minor_id = c.column_id 
+              AND ep.name = 'MS_Description'
+        WHERE v.name = @ViewName";
+
+            using (var connection = new SqlConnection(userConfiguration.ConnectionString))
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@ViewName", viewName);
+
+                await connection.OpenAsync();
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var colInfo = new ColumnView(
+                            name: reader["ColumnName"].ToString(),
+                            objectId: (int)reader["ObjectId"],
+                            description: reader["Description"]?.ToString(),
+                            viewName: reader["ViewName"].ToString(),
+                            viewObjectId: (int)reader["ViewObjectId"],
+                            dataType: reader["DataType"].ToString(),
+                            collation: reader["Collation"] as string,
+                            isNullable: (bool)reader["IsNullable"]
+                        );
+                        columns.Add(colInfo);
+                    }
+                }
+            }
+
+            return columns;
         }
         public IFluentEnumStep LoadViews()
         {
-            ViewsInfo = new Lazy<IEnumerable<IView>>(GetViews);
+            ViewsInfo = new Lazy<Task<IEnumerable<IView>>>(() => GetViews());
             return this;
         }
-        public IEnumerable<ViewInfo> GetViews()
+        public async Task<IEnumerable<IView>> GetViews()
         {
-            foreach (ViewSmo view in database.Views)
-            {
-                if (view.IsSystemObject)
-                    continue;
+            var views = new List<IView>();
 
-                var viewInfo = new ViewInfo(view.Name,
-                    view.ID,
-                    view.ExtendedProperties["MS_Description"]?.Value?.ToString(),
-                    new Lazy<IEnumerable<IColumnView>>(GetColumnView(view)),
-                    new Lazy<IEnumerable<IStoredProcedure>>(GetStoredProcedures(regexSp)));
-                yield return viewInfo;
+            var query = @"
+        SELECT 
+            v.name AS ViewName,
+            v.object_id AS ViewId,
+            ep.value AS Description
+        FROM sys.views v
+        LEFT JOIN sys.extended_properties ep 
+               ON ep.major_id = v.object_id 
+              AND ep.minor_id = 0 
+              AND ep.name = 'MS_Description'
+        WHERE v.is_ms_shipped = 0";
+
+            using (var connection = new SqlConnection(userConfiguration.ConnectionString))
+            using (var command = new SqlCommand(query, connection))
+            {
+                await connection.OpenAsync();
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var viewName = reader["ViewName"].ToString();
+                        var viewId = (int)reader["ViewId"];
+                        var description = reader["Description"]?.ToString();
+
+                        // Regex مشابه کدی که داشتی
+                        var regex = new Regex(
+                            $"^{Regex.Escape(userConfiguration.CustomProcedureStartsWith)}_({Regex.Escape(viewName)})_.+$",
+                            RegexOptions.IgnoreCase);
+
+                        var viewInfo = new ViewInfo(
+                            viewName,
+                            viewId,
+                            description,
+                            new Lazy<Task<IEnumerable<IColumnView>>>(() => GetColumnView(viewName)),
+                            new Lazy<Task<IEnumerable<IStoredProcedure>>>(() => GetStoredProcedures(viewName))
+                        );
+
+                        views.Add(viewInfo);
+                    }
+                }
             }
+
+            return views;
         }
         public IFluentBuildStep LoadTableEnums()
         {
-            TablesEnumInfo = new Lazy<IEnumerable<ITableEnum>>(GetTableEnums);
+            TablesEnumInfo = new Lazy<Task<IEnumerable<ITableEnum>>>(() => GetTableEnums());
             return this;
         }
-        public IEnumerable<TablesEnum> GetTableEnums()
+        private async Task<IEnumerable<ITableEnum>> GetTableEnums()
         {
-            foreach (TableSmo table in database.Tables)
+            var enums = new List<ITableEnum>();
+
+            var query = @"
+        SELECT 
+            t.name AS TableName,
+            t.object_id AS TableId,
+            ep.value AS Description
+        FROM sys.tables t
+        LEFT JOIN sys.extended_properties ep 
+               ON ep.major_id = t.object_id 
+              AND ep.minor_id = 0 
+              AND ep.name = 'MS_Description'
+        WHERE t.is_ms_shipped = 0
+          AND (
+                SELECT COUNT(*) 
+                FROM sys.columns c 
+                WHERE c.object_id = t.object_id
+              ) >= 3
+          AND EXISTS (SELECT 1 FROM sys.columns c WHERE c.object_id = t.object_id AND c.name = 'Id')
+          AND EXISTS (SELECT 1 FROM sys.columns c WHERE c.object_id = t.object_id AND c.name = 'Name')
+          AND EXISTS (SELECT 1 FROM sys.columns c WHERE c.object_id = t.object_id AND c.name = 'Title')
+          AND EXISTS (
+                SELECT 1
+                FROM sys.indexes i
+                JOIN sys.index_columns ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+                JOIN sys.columns c ON ic.object_id = c.object_id AND ic.column_id = c.column_id
+                WHERE i.object_id = t.object_id
+                  AND i.is_unique = 1
+                  AND c.name = 'Name'
+              )";
+
+            using (var connection = new SqlConnection(userConfiguration.ConnectionString))
+            using (var command = new SqlCommand(query, connection))
             {
-                // رد کردن جداول سیستمی
-                if (table.IsSystemObject)
-                    continue;
-
-                // بررسی تعداد ستون‌ها
-                if (table.Columns.Count < 3)
-                    continue;
-
-                // بررسی نام ستون‌ها
-                var columnNames = table.Columns.Cast<ColumnSmo>().Select(c => c.Name).ToList();
-                var requiredNames = new[] { "Id", "Name", "Title" };
-                if (!requiredNames.All(name => columnNames.Contains(name)))
-                    continue;
-
-                // بررسی اینکه ستون Name ایندکس یونیک دارد
-                bool isNameUnique = false;
-                foreach (IndexSmo index in table.Indexes)
+                await connection.OpenAsync();
+                using (var reader = await command.ExecuteReaderAsync())
                 {
-                    if (index.IsUnique && index.IndexedColumns.Cast<IndexedColumn>().Any(ic => ic.Name == "Name"))
+                    while (await reader.ReadAsync())
                     {
-                        isNameUnique = true;
-                        break;
+                        var tableName = reader["TableName"].ToString();
+                        var tableId = (int)reader["TableId"];
+                        var description = reader["Description"]?.ToString();
+
+                        enums.Add(new TablesEnum(
+                            tableName,
+                            tableId,
+                            description,
+                            new Lazy<Task<IEnumerable<IEnumItem>>>(() => GetEnumItems(tableName))
+                        ));
                     }
                 }
-                if (!isNameUnique)
-                    continue;
-
-
-                string? description = table.ExtendedProperties["MS_Description"]?.Value?.ToString();
-                yield return new TablesEnum(table.Name,
-                    table.ID,
-                    description,
-                    new Lazy<IEnumerable<IEnumItem>>(GetEnumItems(table.Name)));
             }
 
+            return enums;
         }
 
-        private IEnumerable<IEnumItem> GetEnumItems(string tableName)
+
+        private async Task<IEnumerable<IEnumItem>> GetEnumItems(string tableName)
         {
+            List<IEnumItem> items = new List<IEnumItem>();
             using (var connection = new SqlConnection(userConfiguration.ConnectionString))
             {
                 string query = $"SELECT [ID], [Name], [Title] FROM {tableName}";
                 using (var cmd = new SqlCommand(query, connection))
                 {
 
-                    using (var reader = cmd.ExecuteReader())
+                    using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (reader.Read())
                         {
@@ -298,12 +495,13 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo
                             string title = Convert.ToString(reader["Title"]) ?? "";
 
                             Console.WriteLine($"  ➡️ Id: {id}, Name: {name}, Title: {title}");
-                            yield return new EnumItem(id, name, title);
+                            items.Add(new EnumItem(id, name, title));
                         }
                     }
                 }
 
             }
+            return items;
         }
         public DatabaseInfoModel Build()
         {
@@ -346,4 +544,5 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo
     {
         DatabaseInfoModel Build();
     }
+
 }
