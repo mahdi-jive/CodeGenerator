@@ -271,6 +271,9 @@ ORDER BY c.column_id;";
             List<IRelationTable> relations = new List<IRelationTable>();
             var query = @"
             SELECT  
+                fk.name AS Name,
+                fk.object_id AS ObjectId,
+                ep.value AS Description,
                 tp.name AS TableName,
                 tp.object_id AS TableId,
                 cp.name AS ColumnName,
@@ -285,6 +288,10 @@ ORDER BY c.column_id;";
                AND fkc.parent_column_id = cp.column_id
             INNER JOIN sys.tables tr 
                 ON fkc.referenced_object_id = tr.object_id
+LEFT JOIN sys.extended_properties ep
+    ON ep.major_id = fk.object_id
+   AND ep.minor_id = 0
+   AND ep.name = 'MS_Description'
             WHERE tr.name = @TableName;";
 
             using (var connection = new SqlConnection(userConfiguration.ConnectionString))
@@ -298,7 +305,9 @@ ORDER BY c.column_id;";
                     while (reader.Read())
                     {
                         relations.Add(new RelationTable(
-
+                             Name: reader["Name"] as string,
+                             objectId: (int)reader["ObjectId"],
+                             description: reader["Description"] as string,
                              tableName: reader["TableName"] as string,
                              tableId: (int)reader["TableId"],
                              columnName: reader["ColumnName"] as string,

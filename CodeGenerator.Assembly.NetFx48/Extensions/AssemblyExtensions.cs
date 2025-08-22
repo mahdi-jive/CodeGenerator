@@ -1,6 +1,5 @@
 ﻿using CodeGenerator.Assembly.Abstractions;
 using CodeGenerator.FileSystem.Abstractions;
-
 namespace CodeGenerator.Assembly.NetFx48.Extensions
 {
     public static class AssemblyExtensions
@@ -32,8 +31,12 @@ namespace CodeGenerator.Assembly.NetFx48.Extensions
             //var newCompilationUnit = SyntaxFactory.CompilationUnit()
             //    .AddMembers(newNamespace)
             //    .NormalizeWhitespace();
-
-            string code = codeFile.CompilationUnit.ToFullString();
+            //var workspace = new AdhocWorkspace();
+            //var options = workspace.Options
+            //    .WithChangedOption(FormattingOptions.IndentationSize, LanguageNames.CSharp, 4)
+            //    .WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, "\n");
+            //var formattedNode = Formatter.Format(codeFile.CompilationUnit, workspace, options);
+            var code = codeFile.CompilationUnit.ToFullString();
 
             // مسیر فایل در سیستم فایل:
 
@@ -53,5 +56,7 @@ namespace CodeGenerator.Assembly.NetFx48.Extensions
             // بررسی می‌کنیم که آیا مسیر فایل با مسیر فولدر شروع می‌شود یا نه
             return fileFullPath.StartsWith(folderFullPath, StringComparison.OrdinalIgnoreCase);
         }
+
+
     }
 }

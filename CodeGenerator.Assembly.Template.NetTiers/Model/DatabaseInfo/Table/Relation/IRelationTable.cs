@@ -1,6 +1,6 @@
 ﻿namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.Column
 {
-    public interface IRelationTable
+    public interface IRelationTable : ISchemaObject
     {
         public string TableName { get; }
         public int TableId { get; }
