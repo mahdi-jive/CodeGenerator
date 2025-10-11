@@ -1,6 +1,7 @@
 ﻿using CodeGenerator.Abstractions;
 using CodeGenerator.Assembly.Abstractions;
 using CodeGenerator.FileSystem.Abstractions;
+using CodeGenerator.Infrastructure;
 
 namespace CodeGenerator
 {
@@ -9,8 +10,9 @@ namespace CodeGenerator
         where TContextModel : IContextModel
     {
 
-        public async Task Generate(IDirectory directory, IAssembly assembly, IContextModel contextModel)
+        public async Task Generate(IDirectory directory, IAssembly assembly, ITemplateRenderer renderer, IContextModel contextModel)
         {
+
             var childFolderTypes = TypeFinder.FindDerivedMarkerTypes(this.GetType(), typeof(TContextModel));
 
             foreach (var folderType in childFolderTypes)
@@ -18,7 +20,7 @@ namespace CodeGenerator
                 if (Activator.CreateInstance(folderType) is IDirectoryMarkerParent folderInstance)
                 {
                     var subDirectory = await directory.AddDirectoryAsync(folderType.Name);
-                    await folderInstance.Generate(subDirectory, assembly, (TContextModel)contextModel);
+                    await folderInstance.Generate(subDirectory, assembly, renderer, (TContextModel)contextModel);
                 }
             }
             var templates = TypeFinder.FindFileMarkerTypes(this.GetType(), typeof(TContextModel));
@@ -27,7 +29,7 @@ namespace CodeGenerator
             {
                 if (Activator.CreateInstance(template) is ICodeTemplateBase fileInstance)
                 {
-                    foreach (var file in await fileInstance.Generate((TContextModel)contextModel))
+                    foreach (var file in await fileInstance.Generate(renderer, (TContextModel)contextModel))
                     {
                         await SaveFileAsync(directory, assembly, file);
                     }

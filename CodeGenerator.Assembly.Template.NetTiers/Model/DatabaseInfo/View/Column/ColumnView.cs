@@ -15,7 +15,10 @@
         public string ViewName { get; private set; } = null!;
         public int ViewObjectId { get; private set; }
         public string DataType { get; private set; } = null!;
+        public string CSharpType { get => SqlToCSharpType.GetCSharpType(DataType, IsNullable); }
+        public string DbType { get => SqlToDbType.GetDbType(DataType); }
         public string? Collation { get; private set; }
         public bool IsNullable { get; private set; }
+
     }
 }

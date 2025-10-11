@@ -184,7 +184,7 @@ ORDER BY pr.parameter_id;";
                     }
                 }
             }
-            return tables;
+            return tables.Where(q => !q.Name.Contains("Mapping") && !q.Name.Contains("TMP"));
         }
         private async Task<IEnumerable<IColumnTable>> GetColumnTable(string tableName)
         {
@@ -259,6 +259,7 @@ ORDER BY c.column_id;";
                           isPrimaryKey: Convert.ToBoolean(reader["IsPrimaryKey"]),
                           defaultValue: reader["DefaultValue"] != DBNull.Value ? reader["DefaultValue"].ToString() : null
                       );
+
                     Console.WriteLine($"{colInfo.TableName}.{colInfo.Name}");
                     columns.Add(colInfo);
                 }

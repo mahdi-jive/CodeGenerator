@@ -5,6 +5,8 @@
         string TableName { get; }
         int TableObjectId { get; }
         string DataType { get; }
+        string DbType { get; }
+        string CSharpType { get; }
         int MaxLength { get; }
         int Precision { get; }
         int Scale { get; }

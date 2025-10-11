@@ -4,6 +4,7 @@ using CodeGenerator.Assembly.NetFx48;
 using CodeGenerator.Assembly.NetFx48.Extensions;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseModel;
 using CodeGenerator.FileSystem.Abstractions;
+using CodeGenerator.Infrastructure;
 using MediatR;
 
 namespace CodeGenerator.Assembly.Template.NetTiers.Entities
@@ -25,9 +26,9 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
             return entitiesFactory;
         }
 
-        public async Task Generate()
+        public async Task Generate(ITemplateRenderer renderer)
         {
-            await Generate(Assembly.Directory, Assembly, DataLayerGeneratorFactory.Generate(null));
+            await Generate(Assembly.Directory, Assembly, renderer, DataLayerGeneratorFactory.Generate(null));
         }
 
         //public async Task Generate()

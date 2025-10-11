@@ -1,4 +1,5 @@
 ﻿using CodeGenerator.Abstractions;
+using CodeGenerator.Infrastructure;
 
 namespace CodeGenerator
 {
@@ -13,11 +14,12 @@ namespace CodeGenerator
 
         public async Task GenerateAllAsync()
         {
+            ITemplateRenderer Renderer = new TemplateRenderer(Path.Combine(Directory.GetCurrentDirectory(), "Templates"));
             var tasks = Generators
                 .Select(generator =>
                 Task.Run(async () =>
                 {
-                    await generator.Generate();
+                    await generator.Generate(Renderer);
                 })
                 );
             await Task.WhenAll(tasks);

@@ -1,11 +1,12 @@
 ﻿using CodeGenerator.Abstractions;
 using CodeGenerator.Assembly.Abstractions;
 using CodeGenerator.Assembly.NetFx48.Extensions;
+using CodeGenerator.Assembly.Template.NetTiers.Extensions;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseModel;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.Column;
-using Humanizer;
+using CodeGenerator.Infrastructure;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -36,7 +37,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
         }
         private InterfaceDeclarationSyntax GetInterface(string name)
         {
-            return InterfaceDeclaration($"I{name.Pascalize()}");//TbasBuildingGroup
+            return InterfaceDeclaration($"I{name.PascalCaseCustom()}");//TbasBuildingGroup
         }
         private SyntaxTriviaList GetDocumentInterface(string name)
         {
@@ -90,8 +91,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
         }
         private PropertyDeclarationSyntax GetPropertyColumn(IColumnTable column, SyntaxTriviaList? document = null)
         {
-            var property = PropertyDeclaration(ParseTypeName(column.MapSqlTypeToCSharp()), column.Name)
-                .AddModifiers(Token(SyntaxKind.PublicKeyword))
+            var property = PropertyDeclaration(ParseTypeName(column.MapSqlTypeToCSharp()), column.NamePascal)
                 .AddAccessorListAccessors
                 (
                     AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
@@ -150,8 +150,8 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
         Identifier("TList"))
                 .WithTypeArgumentList(TypeArgumentList(
                     SingletonSeparatedList<TypeSyntax>(
-                        IdentifierName($"{relation.TableName.Pascalize()}")))),
-                        Identifier($"{relation.TableName.Pascalize()}Collection"))
+                        IdentifierName($"{relation.TableName.PascalCaseCustom()}")))),
+                        Identifier($"{relation.TableName.PascalCaseCustom()}Collection"))
                         .WithAccessorList(AccessorList(List<AccessorDeclarationSyntax>(
                             new AccessorDeclarationSyntax[]{
                                             AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
@@ -199,12 +199,12 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
                         TriviaList())))),
                         SyntaxKind.CloseBraceToken,
                         TriviaList())))))).NormalizeWhitespace();
-                codeFiles.Add(new CodeFile($"I{table.Name.Pascalize()}.cs", $"I{table.Name.Pascalize()}", tree));
+                codeFiles.Add(new CodeFile($"I{table.Name.PascalCaseCustom()}.cs", $"I{table.Name.PascalCaseCustom()}", tree));
             }
 
             return codeFiles;
         }
-        public async Task<IEnumerable<ICodeFile>> Generate(IContextModel contextModel)
+        public async Task<IEnumerable<ICodeFile>> Generate(ITemplateRenderer renderer, IContextModel contextModel)
         {
             IEnumerable<ICodeFile> codeFiles = new List<ICodeFile>();
             var model = contextModel as DatabaseInfoModel;

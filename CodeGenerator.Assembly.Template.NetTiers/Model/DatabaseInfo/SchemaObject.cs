@@ -1,4 +1,6 @@
-﻿namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo
+﻿using CodeGenerator.Assembly.Template.NetTiers.Extensions;
+
+namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo
 {
     public class SchemaObject : ISchemaObject
     {
@@ -10,6 +12,8 @@
         }
 
         public string Name { get; set; } = null!;
+        public string NamePascal { get => Name.PascalCaseCustom(); }
+        public string NameCamel { get => Name.GetCamelCaseName(); }
 
         public int ObjectId { get; set; }
         public string? Description { get; set; }
