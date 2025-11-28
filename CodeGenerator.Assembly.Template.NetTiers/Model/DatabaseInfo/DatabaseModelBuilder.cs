@@ -178,7 +178,8 @@ ORDER BY pr.parameter_id;";
                                                    description,
                                                    new Lazy<Task<IEnumerable<IColumnTable>>>(() => GetColumnTable(name)),
                                                    new Lazy<Task<IEnumerable<IStoredProcedure>>>(() => GetStoredProcedures(name)),
-                                                   new Lazy<Task<IEnumerable<IRelationTable>>>(() => GetRelations(name)));
+                                                   new Lazy<Task<IEnumerable<IRelationTable>>>(() => GetRelations(name)),
+                                                   new Lazy<Task<IEnumerable<IRelationTable>>>(() => GetReferencedBy(name)));
                         Console.WriteLine(tableInfo.Name);
                         tables.Add(tableInfo);
                     }
@@ -199,8 +200,8 @@ ORDER BY pr.parameter_id;";
     ep.value AS Description,
     t.name AS TableName,
     t.object_id AS TableObjectID,
-    ty.name AS DataType,
-    c.max_length AS MaxLength,
+    isnull(ty.name,ty2.name) AS DataType,
+    isnull(isc.CHARACTER_MAXIMUM_LENGTH, c.max_length) AS MaxLength,
     c.precision AS Precision,
     c.scale AS Scale,
     c.collation_name AS Collation,
@@ -214,7 +215,12 @@ ORDER BY pr.parameter_id;";
     dc.definition AS DefaultValue
 FROM sys.columns c
 JOIN sys.tables t ON t.object_id = c.object_id
+JOIN INFORMATION_SCHEMA.COLUMNS isc
+    ON isc.TABLE_NAME = t.name
+   AND isc.COLUMN_NAME = c.name
+   AND isc.TABLE_SCHEMA = SCHEMA_NAME(t.schema_id)
 LEFT JOIN sys.types ty ON c.system_type_id = ty.user_type_id
+LEFT JOIN sys.types ty2 ON c.user_type_id = ty2.user_type_id
 LEFT JOIN sys.extended_properties ep
     ON ep.major_id = c.object_id
     AND ep.minor_id = c.column_id
@@ -275,8 +281,8 @@ ORDER BY c.column_id;";
                 fk.name AS Name,
                 fk.object_id AS ObjectId,
                 ep.value AS Description,
-                tp.name AS TableName,
-                tp.object_id AS TableId,
+                tr.name AS TableName,
+                tr.object_id AS TableId,
                 cp.name AS ColumnName,
                 cp.column_id AS ColumnId
             FROM sys.foreign_keys fk
@@ -293,7 +299,58 @@ LEFT JOIN sys.extended_properties ep
     ON ep.major_id = fk.object_id
    AND ep.minor_id = 0
    AND ep.name = 'MS_Description'
-            WHERE tr.name = @TableName;";
+            WHERE tp.name = @TableName;";
+
+            using (var connection = new SqlConnection(userConfiguration.ConnectionString))
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@TableName", referencedTableName);
+
+                connection.Open();
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (reader.Read())
+                    {
+                        relations.Add(new RelationTable(
+                             Name: reader["Name"] as string,
+                             objectId: (int)reader["ObjectId"],
+                             description: reader["Description"] as string,
+                             tableName: reader["TableName"] as string,
+                             tableId: (int)reader["TableId"],
+                             columnName: reader["ColumnName"] as string,
+                             columnId: (int)reader["ColumnId"]
+                         ));
+                    }
+                }
+            }
+            return relations;
+        }
+        private async Task<IEnumerable<IRelationTable>> GetReferencedBy(string referencedTableName)
+        {
+            List<IRelationTable> relations = new List<IRelationTable>();
+            var query = @"SELECT  
+                            fk.name AS Name,
+                            fk.object_id AS ObjectId,
+                            ep.value AS Description,
+                            tp.name AS TableName,
+                            tp.object_id AS TableId,
+                            cp.name AS ColumnName,
+                            cp.column_id AS ColumnId
+                            FROM sys.foreign_keys fk
+                            INNER JOIN sys.foreign_key_columns fkc 
+                                ON fk.object_id = fkc.constraint_object_id
+                            INNER JOIN sys.tables tp          -- جدول فرزند
+                                ON fkc.parent_object_id = tp.object_id
+                            INNER JOIN sys.columns cp         -- ستون‌های جدول فرزند
+                                ON fkc.parent_object_id = cp.object_id
+                               AND fkc.parent_column_id = cp.column_id
+                            INNER JOIN sys.tables tr          -- جدول والد (هدف)
+                                ON fkc.referenced_object_id = tr.object_id
+                            LEFT JOIN sys.extended_properties ep
+                                ON ep.major_id = fk.object_id
+                               AND ep.minor_id = 0
+                               AND ep.name = 'MS_Description'
+                            WHERE tr.name = @TableName;";
 
             using (var connection = new SqlConnection(userConfiguration.ConnectionString))
             using (var command = new SqlCommand(query, connection))

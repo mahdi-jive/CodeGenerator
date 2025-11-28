@@ -2,7 +2,6 @@
 using CodeGenerator.Assembly.Abstractions;
 using CodeGenerator.Assembly.NetFx48.Extensions;
 using CodeGenerator.Assembly.Template.NetTiers.Extensions;
-using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseModel;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.Column;
@@ -69,7 +68,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
                            "keep a copy of the original so it can be used for editable primary keys.",
                            table.Name,
                            table.ObjectId,
-                           column.DataType,
+                           column.DataType.Sql,
                            column.MaxLength,
                            column.Precision,
                            column.Scale,
@@ -91,7 +90,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
         }
         private PropertyDeclarationSyntax GetPropertyColumn(IColumnTable column, SyntaxTriviaList? document = null)
         {
-            var property = PropertyDeclaration(ParseTypeName(column.MapSqlTypeToCSharp()), column.NamePascal)
+            var property = PropertyDeclaration(ParseTypeName(column.DataType.CSharpType), column.NamePascal)
                 .AddAccessorListAccessors
                 (
                     AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)

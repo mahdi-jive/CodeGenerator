@@ -4,10 +4,9 @@
     {
         string TableName { get; }
         int TableObjectId { get; }
-        string DataType { get; }
-        string DbType { get; }
-        string CSharpType { get; }
+        DataTypeSql DataType { get; }
         int MaxLength { get; }
+        bool HasLength { get; }
         int Precision { get; }
         int Scale { get; }
         string? Collation { get; }

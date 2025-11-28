@@ -8,6 +8,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table
         Task<IEnumerable<IColumnTable>> Columns { get; }
         Task<IEnumerable<IStoredProcedure>> StoredProcedures { get; }
         Task<IEnumerable<IRelationTable>> Relations { get; }
+        Task<IEnumerable<IRelationTable>> ReferencedBy { get; }
     }
 
 

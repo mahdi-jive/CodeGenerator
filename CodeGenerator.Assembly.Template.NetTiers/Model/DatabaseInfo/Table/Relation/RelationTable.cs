@@ -1,4 +1,6 @@
-﻿namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.Column
+﻿using CodeGenerator.Assembly.Template.NetTiers.Extensions;
+
+namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.Column
 {
     public class RelationTable : SchemaObject, IRelationTable
     {
@@ -11,8 +13,15 @@
             ColumnId = columnId;
         }
         public string TableName { get; private set; }
+        public string TableNamePascal { get => TableName.PascalCaseCustom(); }
+        public string TableNameCamel { get => TableName.GetCamelCaseName(); }
         public int TableId { get; private set; }
         public string ColumnName { get; private set; }
+        public string ColumnNamePascal { get => ColumnName.PascalCaseCustom(); }
+        public string ColumnNameCamel { get => ColumnName.GetCamelCaseName(); }
         public int ColumnId { get; private set; }
+
+
+
     }
 }

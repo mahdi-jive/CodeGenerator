@@ -1,4 +1,5 @@
 ﻿@using CodeGenerator.Assembly.Template.NetTiers.Extensions
+@using System.Text.RegularExpressions
 @model CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.ITable
 @{
 
@@ -7,6 +8,8 @@
 		: Model.Description;
 
 	var columns = await Model.Columns;
+	var relations = (await Model.Relations).OrderBy(q=>q.TableName);
+	var referencedBy = (await Model.ReferencedBy).OrderByDescending(q=>q.TableName);
 
 }
 
@@ -92,35 +95,36 @@ namespace Behsaz.Entities
 		///<summary>
 		/// Creates a new <see cref="@(Model.NamePascal)Base" /> instance.
 		///</summary>
-@foreach (var item in columns)
+@foreach (var item in columns.Where(c=> !c.IsIdentity))
 {
-	@:		///		<param name="_@(item.NameCamel)"></param>
+	@:		///		<param name="_@(item.NameCamel)">@item.Description</param>
 }
 
-		public @(Model.NamePascal)Base(@(await Model.ToColumnsFieldList()))
+		public @(Model.NamePascal)Base(@(columns.Where(c=> !c.IsIdentity).ToStringParamsSystemType()))
 		{
 			this.entityData = new @(Model.NamePascal)EntityData();
 			this.backupData = null;
-@foreach (var item in columns)
+
+@foreach (var item in columns.Where(c=> !c.IsIdentity))
 {
 
-	@:		this.@(item.NamePascal)=_@(item.NameCamel)
+	@:		this.@(item.NamePascal)=_@(item.NameCamel);
 }
 		}
 		///<summary>
 		/// A simple factory method to create a new <see cref="@(Model.NamePascal)" /> instance.
 		///</summary>
-@foreach (var item in columns)
+@foreach (var item in columns.Where(c=> !c.IsIdentity))
 {
-	@:		///		<param name="_@(item.NameCamel)"></param>
+	@:		///		<param name="_@(item.NameCamel)">@item.Description</param>
 }
-		public static @(Model.NamePascal) Create@(Model.NamePascal)(@(await Model.ToColumnsFieldList()))
+		public static @(Model.NamePascal) Create@(Model.NamePascal)(@( columns.Where(c=> !c.IsIdentity).ToStringParamsSystemType()))
 		{
 			@(Model.NamePascal) new@(Model.NamePascal) = new @(Model.NamePascal)();
-@foreach (var item in columns)
+@foreach (var item in columns.Where(c=> !c.IsIdentity))
 {
 
-	@:		new@(Model.NamePascal).@(item.NamePascal)=_@(item.NameCamel)
+	@:		new@(Model.NamePascal).@(item.NamePascal) = _@(item.NameCamel);
 }
 			return new@(Model.NamePascal);
 		}
@@ -132,43 +136,44 @@ namespace Behsaz.Entities
 		#region Data Properties
 @foreach (var item in columns)
 {
-	@:		/// <summary>
-	@:		/// 	Gets or sets the @(item.NamePascal) property.
-	@:		/// 	@(item.Description)
-	@:		///</summary>
-	@:		/// <value>This type is @(item.DataType).</value>
-	@:		/// <remarks>
+@:		/// <summary>
+@:		/// 	Gets or sets the @(item.NamePascal) property.
+@:		/// 	@(item.Description)
+@:		///</summary>
+@:		/// <value>This type is @(item.DataType.Sql).</value>
+@:		/// <remarks>
 	if (item.IsNullable)
 	{
-		@:		/// This property can be set to null.
-		@:		/// If this column is null it is up to the developer to check using the HasValue property
-		@:		/// and perform business logic appropriately.	
-		@:
-		@:
-		@:
-		@:
-		@:[XmlElement(IsNullable=true)]
+@:		/// This property can be set to null.
+@:		/// If this column is null it is up to the developer to check using the HasValue property
+@:		/// and perform business logic appropriately.	
+@:		/// </remarks>
+@:
+@:
+@:
+@:[XmlElement(IsNullable=true)]
 	}
 	else
 	{
-		@:		/// This property can not be set to null.
-		@:
-		@:		[Required(ErrorMessage = "@item.NamePascal is required")]
-		@:
-		@:
-		@:
-		@:
+@:		/// This property can not be set to null.
+@:		/// </remarks>
+@:		[Required(ErrorMessage = "@item.NamePascal is required")]
+@:
+@:
+@:
+@:
 	}
+
 	if (item.IsPrimaryKey)
 	{
-		@:		[ReadOnlyAttribute(false)/*, XmlIgnoreAttribute()*/, DescriptionAttribute(@@"@item.Description"), System.ComponentModel.Bindable( System.ComponentModel.BindableSupport.Yes)]
+@:		[ReadOnlyAttribute(false)/*, XmlIgnoreAttribute()*/, DescriptionAttribute(@@"@item.Description"), System.ComponentModel.Bindable( System.ComponentModel.BindableSupport.Yes)]
 	}
 	else
 	{
-		@:		[DescriptionAttribute(@@"@(item.Description)"), System.ComponentModel.Bindable( System.ComponentModel.BindableSupport.Yes)]
+@:		[DescriptionAttribute(@@"@(item.Description)"), System.ComponentModel.Bindable( System.ComponentModel.BindableSupport.Yes)]
 	}
-	@:      [DataObjectField(@item.IsPrimaryKey.ToString().ToLower(), @item.IsIdentity.ToString().ToLower(), @item.IsNullable.ToString().ToLower())]
-	@:	public virtual @item.CSharpType @(item.NamePascal)
+@:      [DataObjectField(@item.IsPrimaryKey.ToString().ToLower(), @item.IsIdentity.ToString().ToLower(), @item.IsNullable.ToString().ToLower() @(item.HasLength?$",{@item.MaxLength.ToString()}":""))]
+	@:	public virtual @item.DataType.SystemType@(item.IsNullable&&item.DataType.CSharpType!="string"?"?":"") @(item.NamePascal)
 	@:	{
 	@:		get
 	@:		{
@@ -183,6 +188,9 @@ namespace Behsaz.Entities
     @:            OnPropertyChanging("@(item.NamePascal)");                    
 	@:			OnColumnChanging(@(Model.NamePascal)Column.@(item.NamePascal), this.entityData.@(item.NamePascal));
 	@:			this.entityData.@(item.NamePascal) = value;
+				if(item.IsPrimaryKey){
+	@:			this.EntityId.@(item.NamePascal) = value;
+				}
 	@:			if (this.EntityState == EntityState.Unchanged)
 	@:				this.EntityState = EntityState.Changed;
 	@:			OnColumnChanged(@(Model.NamePascal)Column.@(item.NamePascal), this.entityData.@(item.NamePascal));
@@ -190,45 +198,1072 @@ namespace Behsaz.Entities
 	@:		}
 	@:	}
 }
+		#endregion Data Properties	
+		#region Source Foreign Key Property
+	@if (relations.Any())
+		{
+			foreach (var item in relations)
+			{
+	@:			/// <summary>
+	@:			/// Gets or sets the source <see cref="@item.TableNamePascal"/>.
+	@:			/// </summary>
+	@:			/// <value>The source @item.TableName for @item.ColumnNamePascal </value>
+	@:			[XmlIgnore()]
+	@:			[Browsable(false), System.ComponentModel.Bindable(System.ComponentModel.BindableSupport.Yes)]
+	@:			public virtual @item.TableNamePascal @(item.ColumnNamePascal)Source
+	@:      	{
+	@:            get { return entityData.@(item.ColumnNamePascal)Source; }
+	@:            set { entityData.@(item.ColumnNamePascal)Source = value; }
+	@:      	}
+			}
+		}
 		#endregion
+
+		#region Children Collections
+		@foreach (var item in referencedBy)
+		{
+		@:/// <summary>
+		@:///	Holds a collection of @item.TableNamePascal objects
+		@:///	which are related to this object through the relation @item.Name
+		@:/// </summary>	
+		@:[System.ComponentModel.Bindable(System.ComponentModel.BindableSupport.Yes)]
+		@:public virtual TList<@item.TableNamePascal> @(item.TableNamePascal)Collection
+		@:{
+		@:	get { return entityData.@(item.TableNamePascal)Collection; }
+		@:	set { entityData.@(item.TableNamePascal)Collection = value; }	
+		@:}
+		}
+		#endregion Children Collections
+
+		#endregion
+		#region Validation
+		/// <summary>
+		/// Assigns validation rules to this object based on model definition.
+		/// </summary>
+		/// <remarks>This method overrides the base class to add schema related validation.</remarks>
+		protected override void AddValidationRules()
+		{
+			//Validation rules based on database schema.
+			@foreach (var item in columns.Where(c=>c.HasLength))
+			{
+				if (!item.IsNullable)
+				{
+				@:ValidationRules.AddRule( CommonRules.NotNull,
+				@:	 new ValidationRuleArgs("@item.NamePascal", "@(Regex.Replace(@item.NamePascal, "([a-z])([A-Z])", "$1 $2"))"));
+				}
+				@:ValidationRules.AddRule( CommonRules.StringMaxLength, 
+				@:	new CommonRules.MaxLengthRuleArgs("@item.NamePascal", "@(Regex.Replace(@item.NamePascal, "([a-z])([A-Z])", "$1 $2"))", @item.MaxLength));
+			}
+		}
+    	#endregion
+
+		#region Table Meta Data
+		/// <summary>
+		///		The name of the underlying database table.
+		/// </summary>
+		[BrowsableAttribute(false), XmlIgnoreAttribute()]
+		public override string TableName
+		{
+			get { return "@Model.Name"; }
+		}
+		
+		/// <summary>
+		///		The name of the underlying database table's columns.
+		/// </summary>
+		[BrowsableAttribute(false), XmlIgnoreAttribute()]
+		public override string[] TableColumns
+		{
+			get
+			{
+				@{	
+					string columnParams="";
+					for (int i = 0; i < columns.Count(); i++)
+					{
+						var column =columns.ElementAt(i);
+						if (i == columns.Count()-1)
+						{
+							columnParams+="\""+column.Name+"\"";
+						}
+						else
+						{
+							columnParams+="\""+column.Name+"\", ";
+						}
+					}
+				}
+				return new string[] {@columnParams};
+			}
+		}
+		#endregion 
+		#region IEditableObject
+		
+		#region  CancelAddNew Event
+		/// <summary>
+        /// The delegate for the CancelAddNew event.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+		public delegate void CancelAddNewEventHandler(object sender, EventArgs e);
+    
+    	/// <summary>
+		/// The CancelAddNew event.
+		/// </summary>
+		[field:NonSerialized]
+		public event CancelAddNewEventHandler CancelAddNew ;
+
+		/// <summary>
+        /// Called when [cancel add new].
+        /// </summary>
+        public void OnCancelAddNew()
+        {    
+			if (!SuppressEntityEvents)
+			{
+	            CancelAddNewEventHandler handler = CancelAddNew ;
+            	if (handler != null)
+	            {    
+    	            handler(this, EventArgs.Empty) ;
+        	    }
+	        }
+        }
+		#endregion 
+		
+		/// <summary>
+		/// Begins an edit on an object.
+		/// </summary>
+		void IEditableObject.BeginEdit() 
+	    {
+	        //Console.WriteLine("Start BeginEdit");
+	        if (!inTxn) 
+	        {
+	            this.backupData = this.entityData.Clone() as @(Model.NamePascal)EntityData;
+	            inTxn = true;
+	            //Console.WriteLine("BeginEdit");
+	        }
+	        //Console.WriteLine("End BeginEdit");
+	    }
+	
+		/// <summary>
+		/// Discards changes since the last <c>BeginEdit</c> call.
+		/// </summary>
+	    void IEditableObject.CancelEdit() 
+	    {
+	        //Console.WriteLine("Start CancelEdit");
+	        if (this.inTxn) 
+	        {
+	            this.entityData = this.backupData;
+	            this.backupData = null;
+				this.inTxn = false;
+
+				if (this.bindingIsNew)
+	        	//if (this.EntityState == EntityState.Added)
+	        	{
+					if (this.parentCollection != null)
+						this.parentCollection.Remove( (@Model.NamePascal) this ) ;
+				}	            
+	        }
+	        //Console.WriteLine("End CancelEdit");
+	    }
+	
+		/// <summary>
+		/// Pushes changes since the last <c>BeginEdit</c> or <c>IBindingList.AddNew</c> call into the underlying object.
+		/// </summary>
+	    void IEditableObject.EndEdit() 
+	    {
+	        //Console.WriteLine("Start EndEdit" + this.custData.id + this.custData.lastName);
+	        if (this.inTxn) 
+	        {
+	            this.backupData = null;
+				if (this.IsDirty) 
+				{
+					if (this.bindingIsNew) {
+						this.EntityState = EntityState.Added;
+						this.bindingIsNew = false ;
+					}
+					else
+						if (this.EntityState == EntityState.Unchanged) 
+							this.EntityState = EntityState.Changed ;
+				}
+
+				this.bindingIsNew = false ;
+	            this.inTxn = false;	            
+	        }
+	        //Console.WriteLine("End EndEdit");
+	    }
+	    
+	    /// <summary>
+        /// Gets or sets the parent collection of this current entity, if available.
+        /// </summary>
+        /// <value>The parent collection.</value>
+	    [XmlIgnore]
+        [ScriptIgnore]
+		[Browsable(false)]
+	    public override object ParentCollection
+	    {
+	        get 
+	        {
+	            return this.parentCollection;
+	        }
+	        set 
+	        {
+	            this.parentCollection = value as TList<@Model.NamePascal>;
+	        }
+	    }
+	    
+	    /// <summary>
+        /// Called when the entity is changed.
+        /// </summary>
+	    private void OnEntityChanged() 
+	    {
+	        if (!SuppressEntityEvents && !inTxn && this.parentCollection != null) 
+	        {
+	            this.parentCollection.EntityChanged(this as @Model.NamePascal);
+	        }
+	    }
+		#endregion
+		#region ICloneable Members
+		///<summary>
+		///  Returns a Typed @Model.NamePascal Entity 
+		///</summary>
+		protected virtual @Model.NamePascal Copy(IDictionary existingCopies)
+		{
+			if (existingCopies == null)
+			{
+				// This is the root of the tree to be copied!
+				existingCopies = new Hashtable();
+			}
+
+			//shallow copy entity
+			@Model.NamePascal copy = new @(Model.NamePascal)();
+			existingCopies.Add(this, copy);
+			copy.SuppressEntityEvents = true;
+			@foreach (var item in columns)
+			{
+		@:		copy.@item.NamePascal = this.@item.NamePascal;
+			}
+			@if (relations.Any())
+			{
+				foreach (var item in relations)
+				{
+				@:if (this.@(item.ColumnNamePascal)Source != null && existingCopies.Contains(this.@(item.ColumnNamePascal)Source))
+				@:	copy.@(item.ColumnNamePascal)Source = existingCopies[this.@(item.ColumnNamePascal)Source] as @(item.TableNamePascal);
+				@:else
+				@:	copy.@(item.ColumnNamePascal)Source = MakeCopyOf(this.@(item.ColumnNamePascal)Source, existingCopies) as @(item.TableNamePascal);
+				}
+			}
+			@if (referencedBy.Any())
+			{
+			@://deep copy nested objects
+				foreach (var item in referencedBy)
+				{
+				@:copy.@(item.TableNamePascal)Collection = (TList<@(item.TableNamePascal)>) MakeCopyOf(this.@(item.TableNamePascal)Collection, existingCopies); 
+				}
+			
+			}
+			
+			
+			
+			copy.EntityState = this.EntityState;
+			copy.SuppressEntityEvents = false;
+			return copy;
+		}		
+		
+		
+		
+		///<summary>
+		///  Returns a Typed @Model.NamePascal Entity 
+		///</summary>
+		public virtual @Model.NamePascal Copy()
+		{
+			return this.Copy(null);	
+		}
+		
+		///<summary>
+		/// ICloneable.Clone() Member, returns the Shallow Copy of this entity.
+		///</summary>
+		public object Clone()
+		{
+			return this.Copy(null);
+		}
+		
+		///<summary>
+		/// ICloneableEx.Clone() Member, returns the Shallow Copy of this entity.
+		///</summary>
+		public object Clone(IDictionary existingCopies)
+		{
+			return this.Copy(existingCopies);
+		}
+		
+		///<summary>
+		/// Returns a deep copy of the child collection object passed in.
+		///</summary>
+		public static object MakeCopyOf(object x)
+		{
+			if (x == null)
+				return null;
+				
+			if (x is ICloneable)
+			{
+				// Return a deep copy of the object
+				return ((ICloneable)x).Clone();
+			}
+			else
+				throw new System.NotSupportedException("Object Does Not Implement the ICloneable Interface.");
+		}
+		
+		///<summary>
+		/// Returns a deep copy of the child collection object passed in.
+		///</summary>
+		public static object MakeCopyOf(object x, IDictionary existingCopies)
+		{
+			if (x == null)
+				return null;
+			
+			if (x is ICloneableEx)
+			{
+				// Return a deep copy of the object
+				return ((ICloneableEx)x).Clone(existingCopies);
+			}
+			else if (x is ICloneable)
+			{
+				// Return a deep copy of the object
+				return ((ICloneable)x).Clone();
+			}
+			else
+				throw new System.NotSupportedException("Object Does Not Implement the ICloneable or IClonableEx Interface.");
+		}
+		
+		
+		///<summary>
+		///  Returns a Typed @Model.NamePascal Entity which is a deep copy of the current entity.
+		///</summary>
+		public virtual @Model.NamePascal DeepCopy()
+		{
+			return EntityHelper.Clone<@Model.NamePascal>(this as @Model.NamePascal);	
+		}
+		#endregion
+
+		#region Methods	
+			
+		///<summary>
+		/// Revert all changes and restore original values.
+		///</summary>
+		public override void CancelChanges()
+		{
+			IEditableObject obj = (IEditableObject) this;
+			obj.CancelEdit();
+
+			this.entityData = null;
+			if (this._originalData != null)
+			{
+				this.entityData = this._originalData.Clone() as @(Model.NamePascal)EntityData;
+			}
+			else
+			{
+				//Since this had no _originalData, then just reset the entityData with a new one.  entityData cannot be null.
+				this.entityData = new @(Model.NamePascal)EntityData();
+			}
+		}	
+		
+		/// <summary>
+		/// Accepts the changes made to this object.
+		/// </summary>
+		/// <remarks>
+		/// After calling this method, properties: IsDirty, IsNew are false. IsDeleted flag remains unchanged as it is handled by the parent List.
+		/// </remarks>
+		public override void AcceptChanges()
+		{
+			base.AcceptChanges();
+
+			// we keep of the original version of the data
+			this._originalData = null;
+			this._originalData = this.entityData.Clone() as @(Model.NamePascal)EntityData;
+		}
+		
+		#region Comparision with original data
+		
+		/// <summary>
+		/// Determines whether the property value has changed from the original data.
+		/// </summary>
+		/// <param name="column">The column.</param>
+		/// <returns>
+		/// 	<c>true</c> if the property value has changed; otherwise, <c>false</c>.
+		/// </returns>
+		public bool IsPropertyChanged(@(Model.NamePascal)Column column)
+		{
+			switch(column)
+			{
+					@foreach (var item in columns)
+				{
+	@:				case @(Model.NamePascal)Column.@(item.NamePascal):
+	@:				return entityData.@(item.NamePascal) != _originalData.@(item.NamePascal);
+				}
+				default:
+					return false;
+			}
+		}
+		
+		/// <summary>
+		/// Determines whether the property value has changed from the original data.
+		/// </summary>
+		/// <param name="columnName">The column name.</param>
+		/// <returns>
+		/// 	<c>true</c> if the property value has changed; otherwise, <c>false</c>.
+		/// </returns>
+		public override bool IsPropertyChanged(string columnName)
+		{
+			return 	IsPropertyChanged(EntityHelper.GetEnumValue< @(Model.NamePascal)Column >(columnName));
+		}
+		
+		/// <summary>
+		/// Determines whether the data has changed from original.
+		/// </summary>
+		/// <returns>
+		/// 	<c>true</c> if data has changed; otherwise, <c>false</c>.
+		/// </returns>
+		public bool HasDataChanged()
+		{
+			bool result = false;
+			@foreach (var item in columns)
+				{
+	@:				result = result || entityData.@(item.NamePascal) != _originalData.@(item.NamePascal);
+				}
+			return result;
+		}	
+		
+		///<summary>
+		///  Returns a @(Model.NamePascal) Entity with the original data.
+		///</summary>
+		public @(Model.NamePascal) GetOriginalEntity()
+		{
+			if (_originalData != null)
+				return Create@(Model.NamePascal)(
+					@{
+						var columnsWithoutPK = columns.Where(c => !c.IsPrimaryKey);
+					}
+				@for (int i = 0; i < columnsWithoutPK.Count(); i++)
+				{
+						var item = columnsWithoutPK.ElementAt(i);
+						@:		_originalData.@(item.NamePascal)@(i== columnsWithoutPK.Count()-1?"":",")
+				}
+				);
+				
+			return (@(Model.NamePascal))this.Clone();
+		}
+		#endregion
+	
+	#region Value Semantics Instance Equality
+        ///<summary>
+        /// Returns a value indicating whether this instance is equal to a specified object using value semantics.
+        ///</summary>
+        ///<param name="Object1">An object to compare to this instance.</param>
+        ///<returns>true if Object1 is a <see cref="@(Model.NamePascal)Base"/> and has the same value as this instance; otherwise, false.</returns>
+        public override bool Equals(object Object1)
+        {
+			// Cast exception if Object1 is null or DbNull
+			if (Object1 != null && Object1 != DBNull.Value && Object1 is @(Model.NamePascal)Base)
+				return ValueEquals(this, (@(Model.NamePascal)Base)Object1);
+			else
+				return false;
+        }
+
+        /// <summary>
+		/// Serves as a hash function for a particular type, suitable for use in hashing algorithms and data structures like a hash table.
+        /// Provides a hash function that is appropriate for <see cref="@(Model.NamePascal)Base"/> class 
+        /// and that ensures a better distribution in the hash table
+        /// </summary>
+        /// <returns>number (hash code) that corresponds to the value of an object</returns>
+        public override int GetHashCode()
+        {
+			return @for(int i = 0; i < columns.Count(); i++)
+				{
+					var item = columns.ElementAt(i);
+				if (item.IsNullable)
+					{
+						@:((this.@(item.NamePascal) == null) ? string.Empty : this.@(item.NamePascal).ToString()).GetHashCode()@(i== columns.Count()-1?";":"^")  
+					}
+					else
+					{
+						@:this.@(item.NamePascal).GetHashCode()@(i== columns.Count()-1?";":"^") 
+					}
+					
+
+				}
+        }
+		
+		///<summary>
+		/// Returns a value indicating whether this instance is equal to a specified object using value semantics.
+		///</summary>
+		///<param name="toObject">An object to compare to this instance.</param>
+		///<returns>true if toObject is a <see cref="@(Model.NamePascal)Base"/> and has the same value as this instance; otherwise, false.</returns>
+		public virtual bool Equals(@(Model.NamePascal)Base toObject)
+		{
+			if (toObject == null)
+				return false;
+			return ValueEquals(this, toObject);
+		}
+		#endregion
+		
+		///<summary>
+		/// Determines whether the specified <see cref="@(Model.NamePascal)Base"/> instances are considered equal using value semantics.
+		///</summary>
+		///<param name="Object1">The first <see cref="@(Model.NamePascal)Base"/> to compare.</param>
+		///<param name="Object2">The second <see cref="@(Model.NamePascal)Base"/> to compare. </param>
+		///<returns>true if Object1 is the same instance as Object2 or if both are null references or if objA.Equals(objB) returns true; otherwise, false.</returns>
+		public static bool ValueEquals(@(Model.NamePascal)Base Object1, @(Model.NamePascal)Base Object2)
+		{
+			// both are null
+			if (Object1 == null && Object2 == null)
+				return true;
+
+			// one or the other is null, but not both
+			if (Object1 == null ^ Object2 == null)
+				return false;
+				
+			bool equal = true;
+						@foreach (var item in columns)
+			{
+				if (item.IsNullable)
+				{
+		@:				if ( Object1.@(item.NamePascal) != null && Object2.@(item.NamePascal) != null )
+		@:				{
+		@:					if (Object1.@(item.NamePascal) != Object2.@(item.NamePascal))
+		@:						equal = false;
+		@:				}
+		@:				else if (Object1.@(item.NamePascal) == null ^ Object2.@(item.NamePascal) == null )
+		@:				{
+		@:					equal = false;
+		@:				}
+				}
+				else
+				{
+		@:				if (Object1.@(item.NamePascal) != Object2.@(item.NamePascal))
+		@:				equal = false;	
+				}
+
+			}		
+			return equal;
+		}
+		
+		#endregion
+		
+		#region IComparable Members
+		///<summary>
+		/// Compares this instance to a specified object and returns an indication of their relative values.
+		///<param name="obj">An object to compare to this instance, or a null reference (Nothing in Visual Basic).</param>
+		///</summary>
+		///<returns>A signed integer that indicates the relative order of this instance and obj.</returns>
+		public virtual int CompareTo(object obj)
+		{
+			throw new NotImplementedException();
+			//return this. GetPropertyName(SourceTable.PrimaryKey.MemberColumns[0]) .CompareTo(((@(Model.NamePascal)Base)obj).GetPropertyName(SourceTable.PrimaryKey.MemberColumns[0]));
+		}
+		
+		/*
+		// static method to get a Comparer object
+        public static @(Model.NamePascal)Comparer GetComparer()
+        {
+            return new @(Model.NamePascal)Comparer();
+        }
+        */
+
+        // Comparer delegates back to @(Model.NamePascal)
+        // Employee uses the integer's default
+        // CompareTo method
+        /*
+        public int CompareTo(Item rhs)
+        {
+            return this.Id.CompareTo(rhs.Id);
+        }
+        */
+
+/*
+        // Special implementation to be called by custom comparer
+        public int CompareTo(@(Model.NamePascal) rhs, @(Model.NamePascal)Column which)
+        {
+            switch (which)
+            {
+            				@foreach (var item in columns)
+			{
+@:				case @(Model.NamePascal)Column.@(item.NamePascal):
+@:            		return this.@(item.NamePascal).CompareTo(rhs.@(item.NamePascal));
+			}                 
+            }
+            return 0;
+        }
+        */
+	
+		#endregion
+		#region IComponent Members
+		
+		private ISite _site = null;
+
+		/// <summary>
+		/// Gets or Sets the site where this data is located.
+		/// </summary>
+		[XmlIgnore]
+		[ScriptIgnore]
+		[SoapIgnore]
+		[Browsable(false)]
+		public ISite Site
+		{
+			get{ return this._site; }
+			set{ this._site = value; }
+		}
+
+		#endregion
+
+		#region IDisposable Members
+		
+		/// <summary>
+		/// Notify those that care when we dispose.
+		/// </summary>
+		[field:NonSerialized]
+		public event System.EventHandler Disposed;
+
+		/// <summary>
+		/// Clean up. Nothing here though.
+		/// </summary>
+		public virtual void Dispose()
+		{
+			this.parentCollection = null;
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+		
+		/// <summary>
+		/// Clean up.
+		/// </summary>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				EventHandler handler = Disposed;
+				if (handler != null)
+					handler(this, EventArgs.Empty);
+			}
+		}
+		
+		#endregion
+				
+		#region IEntityKey<@(Model.NamePascal)Key> Members
+		
+		// member variable for the EntityId property
+		private @(Model.NamePascal)Key _entityId;
+
+		/// <summary>
+		/// Gets or sets the EntityId property.
+		/// </summary>
+		[XmlIgnore]
+		[ScriptIgnore]
+		public virtual @(Model.NamePascal)Key EntityId
+		{
+			get
+			{
+				if ( _entityId == null )
+				{
+					_entityId = new @(Model.NamePascal)Key(this);
+				}
+
+				return _entityId;
+			}
+			set
+			{
+				if ( value != null )
+				{
+					value.Entity = this;
+				}
+				
+				_entityId = value;
+			}
+		}
+		
+		#endregion
+		
+		#region EntityState
+		/// <summary>
+		///		Indicates state of object
+		/// </summary>
+		/// <remarks>0=Unchanged, 1=Added, 2=Changed</remarks>
+		[BrowsableAttribute(false) , XmlIgnoreAttribute()]
+		public override EntityState EntityState 
+		{ 
+			get{ return entityData.EntityState;	 } 
+			set{ entityData.EntityState = value; } 
+		}
+		#endregion 
+		
+		#region EntityTrackingKey
+		///<summary>
+		/// Provides the tracking key for the <see cref="EntityLocator"/>
+		///</summary>
+		[XmlIgnore]
+		[ScriptIgnore]
+		public override string EntityTrackingKey
+		{
+			get
+			{
+				if(entityTrackingKey == null)
+					entityTrackingKey = new System.Text.StringBuilder("@(Model.NamePascal)")
+					.Append("|").Append( this.Id.ToString()).ToString();
+				return entityTrackingKey;
+			}
+			set
+		    {
+		        if (value != null)
+                    entityTrackingKey = value;
+		    }
+		}
+		#endregion 
+		
+		#region ToString Method
+		
+		///<summary>
+		/// Returns a String that represents the current object.
+		///</summary>
+		public override string ToString()
+		{
+			return string.Format(System.Globalization.CultureInfo.InvariantCulture,
+						@{
+							int environmentNewLineIndex=columns.Count();
+							int GetTypeIndex=environmentNewLineIndex+1;
+							int errorLengthIndex =GetTypeIndex+1;
+							string stringParam="";
+							string modelToString=$"{{{GetTypeIndex}}}{{{environmentNewLineIndex}}}";
+							for (int i = 0; i < columns.Count(); i++)
+							{
+								var item = columns.ElementAt(i);
+
+								if (item.IsNullable)
+								{
+									stringParam += $"\n				(this.{item.NamePascal} == null) ? string.Empty : this.{item.NamePascal}.ToString(),";
+								}
+								else
+								{
+									stringParam += $"\n				this.{item.NamePascal},";
+								}
+
+								modelToString += $"- {item.NamePascal}: {{{i}}}{{{environmentNewLineIndex}}}";
+							}
+							stringParam += @"
+				System.Environment.NewLine, 
+				this.GetType(),
+				this.Error.Length == 0 ? string.Empty : string.Format(""- Error: {0}\n"",this.Error));";
+							modelToString += $"{{{errorLengthIndex}}}";
+						}
+				"@modelToString",@stringParam
+		}
+		
+		#endregion ToString Method
+		
+		#region Inner data class
+		
+	/// <summary>
+	///		The data structure representation of the '@(Model.Name)' table.
+	/// </summary>
+	/// <remarks>
+	/// 	This struct is generated by a tool and should never be modified.
+	/// </remarks>
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	[Serializable]
+	internal protected class @(Model.NamePascal)EntityData : ICloneable, ICloneableEx
+	{
+		#region Variable Declarations
+		private EntityState currentEntityState = EntityState.Added;
+		
+		#region Primary key(s)
+		@foreach (var item in columns.Where(c=>c.IsPrimaryKey))
+		{
+		@:		
+		@:			/// <summary>			
+		@:			/// @item.Name : @item.Description
+		@:			/// </summary>
+		@:			/// <remarks>Member of the primary key of the underlying table "@(Model.Name)"</remarks>
+		@:			public @(item.DataType.SystemType) @(item.NamePascal);
+		@:				
+		@:			
+		}
+		#endregion
+		#region Non Primary key(s)
+		@foreach (var item in columns.Where(c=>!c.IsPrimaryKey))
+		{
+		@:			
+		@:			/// <summary>
+		@:			/// @item.Name : @item.Description
+		@:			/// </summary>
+		@:			public @(item.DataType.SystemType)@(item.IsNullable && item.DataType.CSharpType!="string"?"?":"") @(item.NamePascal) =@(item.IsNullable?"null" :$"{(item.DataType.CSharpType!="string"  && item.DataType.CSharpType!="DateTime"? item.DataType.CastCode:"")}{item.DataType.DefaultValue}");	
+		}
+		#endregion
+
+		#region Source Foreign Key Property
+
+		@foreach (var item in relations)
+		{
+		@:		private @item.TableNamePascal _@(item.ColumnNameCamel)Source = null;
+		
+		@:		/// <summary>
+		@:		/// Gets or sets the source <see cref="@item.TableName"/>.
+		@:		/// </summary>
+		@:		/// <value>The source @item.TableNamePascal for @(item.ColumnNamePascal).</value>
+		@:		[XmlIgnore()]
+		@:		[Browsable(false)]
+		@:		public virtual @item.TableNamePascal @(item.ColumnNamePascal)Source
+      	@:		{
+        @:		    get { return this._@(item.ColumnNameCamel)Source; }
+        @:		    set { this._@(item.ColumnNameCamel)Source = value; }
+      	@:		}
+		}
+
+		#endregion
+        
+		#endregion Variable Declarations
+
+		#region Data Properties
+		@foreach (var item in referencedBy)
+		{
+			@:
+			@:#region @(item.TableNamePascal)Collection
+			@:private TList<@(item.TableNamePascal)> _@(item.TableNameCamel+item.ColumnNamePascal);
+			@:/// <summary>
+			@:///	Holds a collection of entity objects
+			@:///	which are related to this object through the relation _@(item.TableNameCamel+item.ColumnNamePascal)
+			@:/// </summary>
+			@:public TList<@(item.TableNamePascal)> @(item.TableNamePascal)Collection
+			@:{
+			@:	get
+			@:	{
+			@:		if (_@(item.TableNameCamel+item.ColumnNamePascal) == null)
+			@:		{
+			@:		_@(item.TableNameCamel+item.ColumnNamePascal) = new TList<@(item.TableNamePascal)>();
+			@:		}
+			@:
+			@:		return _@(item.TableNameCamel+item.ColumnNamePascal);
+			@:	}
+			@:	set { _@(item.TableNameCamel+item.ColumnNamePascal) = value; }
+			@:}
+			@:
+			@:#endregion
+			@:
+		}
+		#endregion Data Properties
+		#region Clone Method
+
+		/// <summary>
+		/// Creates a new object that is a copy of the current instance.
+		/// </summary>
+		/// <returns>A new object that is a copy of this instance.</returns>
+		public Object Clone()
+		{
+			@(Model.NamePascal)EntityData _tmp = new @(Model.NamePascal)EntityData();
+			@foreach (var item in columns)
+			{
+				if (item.IsPrimaryKey)
+				{
+			@:
+			@:		_tmp.@(item.NamePascal) = this.@(item.NamePascal);
+			@:
+				}
+				else
+				{
+			@:		_tmp.@(item.NamePascal) = this.@(item.NamePascal);
+				}
+			}			
+			
+			#region Source Parent Composite Entities
+			@foreach (var item in relations)
+			{
+			@:		if (this.@(item.ColumnNamePascal)Source != null)
+			@:			_tmp.@(item.ColumnNamePascal)Source = MakeCopyOf(this.@(item.ColumnNamePascal)Source) as @(item.TableNamePascal);
+			}
+			#endregion
+		
+			#region Child Collections
+			@if (referencedBy.Any())
+			{
+			@://deep copy nested objects
+			foreach (var item in referencedBy)
+			{
+			@:if (this._@(item.TableNameCamel+item.ColumnNamePascal) != null)
+			@:	_tmp.@(item.TableNamePascal)Collection = (TList<@(item.TableNamePascal)>) MakeCopyOf(this.@(item.TableNamePascal)Collection); 
+			}
+			}
+			#endregion Child Collections
+
+			//EntityState
+			_tmp.EntityState = this.EntityState;
+			
+			return _tmp;
+		}
+		
+		/// <summary>
+		/// Creates a new object that is a copy of the current instance.
+		/// </summary>
+		/// <returns>A new object that is a copy of this instance.</returns>
+		public object Clone(IDictionary existingCopies)
+		{
+			if (existingCopies == null)
+				existingCopies = new Hashtable();
+				
+			@(Model.NamePascal)EntityData _tmp = new @(Model.NamePascal)EntityData();	
+			@foreach (var item in columns)
+			{
+				if (item.IsPrimaryKey)
+				{
+			@:
+			@:		_tmp.@(item.NamePascal) = this.@(item.NamePascal);
+			@:
+				}
+				else
+				{
+			@:		_tmp.@(item.NamePascal) = this.@(item.NamePascal);
+				}
+			}		
+			
+			#region Source Parent Composite Entities
+			@foreach (var item in relations)
+			{
+			@:		if (this.@(item.ColumnNamePascal)Source != null && existingCopies.Contains(this.@(item.ColumnNamePascal)Source))
+			@:			_tmp.@(item.ColumnNamePascal)Source = existingCopies[this.@(item.ColumnNamePascal)Source] as @(item.TableNamePascal);
+			@:		else
+			@:			_tmp.@(item.ColumnNamePascal)Source = MakeCopyOf(this.@(item.ColumnNamePascal)Source, existingCopies) as @(item.TableNamePascal);
+			}
+			#endregion
+		
+			#region Child Collections
+			@if (referencedBy.Any())
+			{
+			@://deep copy nested objects
+			foreach (var item in referencedBy)
+			{
+			@:	_tmp.@(item.TableNamePascal)Collection = (TList<@(item.TableNamePascal)>) MakeCopyOf(this.@(item.TableNamePascal)Collection, existingCopies); 
+			}
+			}
+			#endregion Child Collections
+			
+			//EntityState
+			_tmp.EntityState = this.EntityState;
+			
+			return _tmp;
+		}
+		
+		#endregion Clone Method
+		
+		/// <summary>
+		///		Indicates state of object
+		/// </summary>
+		/// <remarks>0=Unchanged, 1=Added, 2=Changed</remarks>
+		[BrowsableAttribute(false), XmlIgnoreAttribute()]
+		public EntityState	EntityState
+		{
+			get { return currentEntityState;  }
+			set { currentEntityState = value; }
+		}
+	
+	}//End struct
+
+		#endregion
+		
+				
+		
+		#region Events trigger
+		/// <summary>
+		/// Raises the <see cref="ColumnChanging" /> event.
+		/// </summary>
+		/// <param name="column">The <see cref="@(Model.NamePascal)Column"/> which has raised the event.</param>
+		public virtual void OnColumnChanging(@(Model.NamePascal)Column column)
+		{
+			OnColumnChanging(column, null);
+			return;
+		}
+		
+		/// <summary>
+		/// Raises the <see cref="ColumnChanged" /> event.
+		/// </summary>
+		/// <param name="column">The <see cref="@(Model.NamePascal)Column"/> which has raised the event.</param>
+		public virtual void OnColumnChanged(@(Model.NamePascal)Column column)
+		{
+			OnColumnChanged(column, null);
+			return;
+		} 
+		
+		
+		/// <summary>
+		/// Raises the <see cref="ColumnChanging" /> event.
+		/// </summary>
+		/// <param name="column">The <see cref="@(Model.NamePascal)Column"/> which has raised the event.</param>
+		/// <param name="value">The changed value.</param>
+		public virtual void OnColumnChanging(@(Model.NamePascal)Column column, object value)
+		{
+			if(IsEntityTracked && EntityState != EntityState.Added && !EntityManager.TrackChangedEntities)
+                EntityManager.StopTracking(entityTrackingKey);
+                
+			if (!SuppressEntityEvents)
+			{
+				@(Model.NamePascal)EventHandler handler = ColumnChanging;
+				if(handler != null)
+				{
+					handler(this, new @(Model.NamePascal)EventArgs(column, value));
+				}
+			}
+		}
+		
+		/// <summary>
+		/// Raises the <see cref="ColumnChanged" /> event.
+		/// </summary>
+		/// <param name="column">The <see cref="@(Model.NamePascal)Column"/> which has raised the event.</param>
+		/// <param name="value">The changed value.</param>
+		public virtual void OnColumnChanged(@(Model.NamePascal)Column column, object value)
+		{
+			if (!SuppressEntityEvents)
+			{
+				@(Model.NamePascal)EventHandler handler = ColumnChanged;
+				if(handler != null)
+				{
+					handler(this, new @(Model.NamePascal)EventArgs(column, value));
+				}
+			
+				// warn the parent list that i have changed
+				OnEntityChanged();
+			}
+		} 
+		#endregion
+
 			
 	} // End Class
 
-	#region @(Model.NameCamel)EventArgs class
+	#region @(Model.NamePascal)EventArgs class
 	/// <summary>
 	/// Provides data for the ColumnChanging and ColumnChanged events.
 	/// </summary>
 	/// <remarks>
 	/// The ColumnChanging and ColumnChanged events occur when a change is made to the value 
-	/// of a property of a <see cref="@(Model.NameCamel)"/> object.
+	/// of a property of a <see cref="@(Model.NamePascal)"/> object.
 	/// </remarks>
-	public class @(Model.NameCamel)EventArgs : System.EventArgs
+	public class @(Model.NamePascal)EventArgs : System.EventArgs
 	{
-		private @(Model.NameCamel)Column column;
+		private @(Model.NamePascal)Column column;
 		private object value;
 		
 		///<summary>
-		/// Initalizes a new Instance of the @(Model.NameCamel)EventArgs class.
+		/// Initalizes a new Instance of the @(Model.NamePascal)EventArgs class.
 		///</summary>
-		public @(Model.NameCamel)EventArgs(@(Model.NameCamel)Column column)
+		public @(Model.NamePascal)EventArgs(@(Model.NamePascal)Column column)
 		{
 			this.column = column;
 		}
 		
 		///<summary>
-		/// Initalizes a new Instance of the @(Model.NameCamel)EventArgs class.
+		/// Initalizes a new Instance of the @(Model.NamePascal)EventArgs class.
 		///</summary>
-		public @(Model.NameCamel)EventArgs(@(Model.NameCamel)Column column, object value)
+		public @(Model.NamePascal)EventArgs(@(Model.NamePascal)Column column, object value)
 		{
 			this.column = column;
 			this.value = value;
 		}
 		
 		///<summary>
-		/// The @(Model.NameCamel)Column that was modified, which has raised the event.
+		/// The @(Model.NamePascal)Column that was modified, which has raised the event.
 		///</summary>
-		///<value cref="@(Model.NameCamel)Column" />
-		public @(Model.NameCamel)Column Column { get { return this.column; } }
+		///<value cref="@(Model.NamePascal)Column" />
+		public @(Model.NamePascal)Column Column { get { return this.column; } }
 		
 		/// <summary>
         /// Gets the current value of the column.
@@ -240,42 +1275,42 @@ namespace Behsaz.Entities
 	#endregion
 	
 	///<summary>
-	/// Define a delegate for all @(Model.NameCamel) related events.
+	/// Define a delegate for all @(Model.NamePascal) related events.
 	///</summary>
-	public delegate void @(Model.NameCamel)EventHandler(object sender, @(Model.NameCamel)EventArgs e);
+	public delegate void @(Model.NamePascal)EventHandler(object sender, @(Model.NamePascal)EventArgs e);
 	
-	#region @(Model.NameCamel)Comparer
+	#region @(Model.NamePascal)Comparer
 		
 	/// <summary>
 	///	Strongly Typed IComparer
 	/// </summary>
-	public class @(Model.NameCamel)Comparer : System.Collections.Generic.IComparer<@(Model.NameCamel)>
+	public class @(Model.NamePascal)Comparer : System.Collections.Generic.IComparer<@(Model.NamePascal)>
 	{
-		@(Model.NameCamel)Column whichComparison;
+		@(Model.NamePascal)Column whichComparison;
 		
 		/// <summary>
-        /// Initializes a new instance of the <see cref="T:@(Model.NameCamel)Comparer"/> class.
+        /// Initializes a new instance of the <see cref="T:@(Model.NamePascal)Comparer"/> class.
         /// </summary>
-		public @(Model.NameCamel)Comparer()
+		public @(Model.NamePascal)Comparer()
         {            
         }               
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:@(Model.NameCamel)Comparer"/> class.
+        /// Initializes a new instance of the <see cref="T:@(Model.NamePascal)Comparer"/> class.
         /// </summary>
         /// <param name="column">The column to sort on.</param>
-        public @(Model.NameCamel)Comparer(@(Model.NameCamel)Column column)
+        public @(Model.NamePascal)Comparer(@(Model.NamePascal)Column column)
         {
             this.whichComparison = column;
         }
 
 		/// <summary>
-        /// Determines whether the specified <see cref="@(Model.NameCamel)"/> instances are considered equal.
+        /// Determines whether the specified <see cref="@(Model.NamePascal)"/> instances are considered equal.
         /// </summary>
-        /// <param name="a">The first <see cref="@(Model.NameCamel)"/> to compare.</param>
-        /// <param name="b">The second <c>@(Model.NameCamel)</c> to compare.</param>
+        /// <param name="a">The first <see cref="@(Model.NamePascal)"/> to compare.</param>
+        /// <param name="b">The second <c>@(Model.NamePascal)</c> to compare.</param>
         /// <returns>true if objA is the same instance as objB or if both are null references or if objA.Equals(objB) returns true; otherwise, false.</returns>
-        public bool Equals(@(Model.NameCamel) a, @(Model.NameCamel) b)
+        public bool Equals(@(Model.NamePascal) a, @(Model.NamePascal) b)
         {
             return this.Compare(a, b) == 0;
         }
@@ -285,7 +1320,7 @@ namespace Behsaz.Entities
         /// </summary>
         /// <param name="entity">The entity.</param>
         /// <returns></returns>
-        public int GetHashCode(@(Model.NameCamel) entity)
+        public int GetHashCode(@(Model.NamePascal) entity)
         {
             return entity.GetHashCode();
         }
@@ -296,7 +1331,7 @@ namespace Behsaz.Entities
         /// <param name="a">The first object to compare.</param>
         /// <param name="b">The second object to compare.</param>
         /// <returns></returns>
-        public int Compare(@(Model.NameCamel) a, @(Model.NameCamel) b)
+        public int Compare(@(Model.NamePascal) a, @(Model.NamePascal) b)
         {
         	EntityPropertyComparer entityPropertyComparer = new EntityPropertyComparer(this.whichComparison.ToString());
         	return entityPropertyComparer.Compare(a, b);
@@ -306,7 +1341,7 @@ namespace Behsaz.Entities
         /// Gets or sets the column that will be used for comparison.
         /// </summary>
         /// <value>The comparison column.</value>
-        public @(Model.NameCamel)Column WhichComparison
+        public @(Model.NamePascal)Column WhichComparison
         {
             get { return this.whichComparison; }
             set { this.whichComparison = value; }
@@ -315,14 +1350,14 @@ namespace Behsaz.Entities
 	
 	#endregion
 	
-	#region @(Model.NameCamel)Key Class
+	#region @(Model.NamePascal)Key Class
 
 	/// <summary>
-	/// Wraps the unique identifier values for the <see cref="@(Model.NameCamel)"/> object.
+	/// Wraps the unique identifier values for the <see cref="@(Model.NamePascal)"/> object.
 	/// </summary>
 	[Serializable]
 	[CLSCompliant(true)]
-	public class @(Model.NameCamel)Key : EntityKeyBase
+	public class @(Model.NamePascal)Key : EntityKeyBase
 	{
 		@{
 			var primaryKey = columns.FirstOrDefault(q => q.IsPrimaryKey);
@@ -334,16 +1369,16 @@ namespace Behsaz.Entities
 		#region Constructors
 		
 		/// <summary>
-		/// Initializes a new instance of the @(Model.NameCamel)Key class.
+		/// Initializes a new instance of the @(Model.NamePascal)Key class.
 		/// </summary>
-		public @(Model.NameCamel)Key()
+		public @(Model.NamePascal)Key()
 		{
 		}
 		
 		/// <summary>
-		/// Initializes a new instance of the @(Model.NameCamel)Key class.
+		/// Initializes a new instance of the @(Model.NamePascal)Key class.
 		/// </summary>
-		public @(Model.NameCamel)Key(@(Model.NameCamel)Base entity)
+		public @(Model.NamePascal)Key(@(Model.NamePascal)Base entity)
 		{
 			this.Entity = entity;
 
@@ -358,9 +1393,9 @@ namespace Behsaz.Entities
 		}
 		
 		/// <summary>
-		/// Initializes a new instance of the @(Model.NameCamel)Key class.
+		/// Initializes a new instance of the @(Model.NamePascal)Key class.
 		/// </summary>
-		public @(Model.NameCamel)Key(System.Int32 _@primaryKey.NameCamel)
+		public @(Model.NamePascal)Key(System.Int32 _@primaryKey.NameCamel)
 		{
 			#region Init Properties
 
@@ -374,24 +1409,24 @@ namespace Behsaz.Entities
 		#region Properties
 		
 		// member variable for the Entity property
-		private @(Model.NameCamel)Base _entity;
+		private @(Model.NamePascal)Base _entity;
 		
 		/// <summary>
 		/// Gets or sets the Entity property.
 		/// </summary>
-		public @(Model.NameCamel)Base Entity
+		public @(Model.NamePascal)Base Entity
 		{
 			get { return _entity; }
 			set { _entity = value; }
 		}
 		
 		// member variable for the @primaryKey.NamePascal property
-		private @primaryKey.CSharpType _@primaryKey.NameCamel;
+		private @primaryKey.DataType.SystemType _@primaryKey.NameCamel;
 		
 		/// <summary>
 		/// Gets or sets the @primaryKey.NamePascal property.
 		/// </summary>
-		public @primaryKey.CSharpType @primaryKey.NamePascal
+		public @primaryKey.DataType.SystemType @primaryKey.NamePascal
 		{
 			get { return _@primaryKey.NameCamel; }
 			set
@@ -419,7 +1454,7 @@ namespace Behsaz.Entities
 
 			if ( values != null )
 			{
-				Id = ( values["@primaryKey.NamePascal"] != null ) ? (@primaryKey.CSharpType) EntityUtil.ChangeType(values["@primaryKey.NamePascal"], typeof(@primaryKey.CSharpType)) : (int)0;
+				@primaryKey.NamePascal = ( values["@primaryKey.NamePascal"] != null ) ? (@primaryKey.DataType.SystemType) EntityUtil.ChangeType(values["@primaryKey.NamePascal"], typeof(@primaryKey.DataType.SystemType)) : @(primaryKey.DataType.CastCode)@(primaryKey.DataType.DefaultValue);
 			}
 
 			#endregion
@@ -458,13 +1493,13 @@ namespace Behsaz.Entities
 	
 	#endregion	
 
-	#region @(Model.NameCamel)Column Enum
+	#region @(Model.NamePascal)Column Enum
 	
 	/// <summary>
-	/// Enumerate the @(Model.NameCamel) columns.
+	/// Enumerate the @(Model.NamePascal) columns.
 	/// </summary>
 	[Serializable]
-	public enum @(Model.NameCamel)Column : int
+	public enum @(Model.NamePascal)Column : int
 	{
 			
 		@for (int i = 0; i <columns.Count(); i++)
@@ -473,14 +1508,13 @@ namespace Behsaz.Entities
 				@:		/// <summary>
 				@: 		/// @item.NamePascal : @item.Description
 				@: 		/// </summary>
-				@:		[EnumTextValue("@item.NamePascal")]
-				@:		[ColumnEnum("@item.Name", typeof(@item.CSharpType), System.Data.@item.DbType, @item.IsPrimaryKey.ToString().ToLower(), @item.IsIdentity.ToString().ToLower(), @item.IsNullable.ToString().ToLower())]
-				@:		[EnumTextValue("@item.NamePascal")]
-				@:		@item.NamePascal = 1
+				@:		[EnumTextValue("@(Regex.Replace(@item.NamePascal, "([a-z])([A-Z])", "$1 $2"))")]
+				@:		[ColumnEnum("@item.Name", typeof(@item.DataType.SystemType), System.Data.@item.DataType.DbTypeCode, @item.IsPrimaryKey.ToString().ToLower(), @item.IsIdentity.ToString().ToLower(), @item.IsNullable.ToString().ToLower()@(item.HasLength?$",{item.MaxLength}":""))]
+				@:		@item.NamePascal = @(i+1)@(i== columns.Count()-1?"":",")
 			}
 	}//End enum
 
-	#endregion @(Model.NameCamel)Column Enum
+	#endregion @(Model.NamePascal)Column Enum
 
 } // end namespace
 	

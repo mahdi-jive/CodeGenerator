@@ -1,28 +1,36 @@
-﻿using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo;
-using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table;
+﻿using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.Column;
 
 namespace CodeGenerator.Assembly.Template.NetTiers.Extensions
 {
     public static class DataModelExtensions
     {
-        public static async Task<string> ToColumnsFieldList(this ITable table, bool includeNullable = true)
+        public static string ToStringParamsCSharpType(this IEnumerable<IColumnTable> columns)
         {
-            var columns = await table.Columns;
-            if (columns == null)
-                throw new ArgumentNullException(nameof(columns));
-
             return string.Join(", ",
                 columns.Select(col =>
                 {
-                    var baseType = SqlToCSharpType.Map.TryGetValue(col.DataType, out var type)
-                        ? type
-                        : "System.Object";
+                    var baseType = col.DataType.CSharpType;
+                    if (baseType != "string" &&
+                        baseType != "object" &&
+                        !baseType.EndsWith("[]") &&
+                        col.IsNullable)
+                    {
+                        baseType += "?";
+                    }
 
-                    // تعیین Nullable برای انواع Value Type
-                    if (includeNullable &&
-                        baseType != "System.String" &&
+                    return $"{baseType} _{col.NameCamel}";
+                }));
+        }
+        public static string ToStringParamsSystemType(this IEnumerable<IColumnTable> columns)
+        {
+            return string.Join(", ",
+                columns.Select(col =>
+                {
+                    var baseType = col.DataType.SystemType;
+                    if (baseType != "System.String" &&
                         baseType != "System.Object" &&
-                        !baseType.EndsWith("[]"))
+                        !baseType.EndsWith("[]") &&
+                         col.IsNullable)
                     {
                         baseType += "?";
                     }

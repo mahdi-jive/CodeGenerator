@@ -7,16 +7,14 @@
         {
             ViewName = viewName;
             ViewObjectId = viewObjectId;
-            DataType = dataType;
+            DataType = new DataTypeSql(dataType);
             Collation = collation;
             IsNullable = isNullable;
         }
 
         public string ViewName { get; private set; } = null!;
         public int ViewObjectId { get; private set; }
-        public string DataType { get; private set; } = null!;
-        public string CSharpType { get => SqlToCSharpType.GetCSharpType(DataType, IsNullable); }
-        public string DbType { get => SqlToDbType.GetDbType(DataType); }
+        public DataTypeSql DataType { get; private set; }
         public string? Collation { get; private set; }
         public bool IsNullable { get; private set; }
 

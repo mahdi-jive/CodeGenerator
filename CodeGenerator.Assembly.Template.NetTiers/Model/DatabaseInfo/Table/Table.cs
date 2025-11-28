@@ -13,12 +13,17 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table
         public Task<IEnumerable<IRelationTable>> Relations { get => _Relations.Value; }
         private Lazy<Task<IEnumerable<IRelationTable>>> _Relations { get; set; }
 
-        public Table(string name, int objectId, string? description, Lazy<Task<IEnumerable<IColumnTable>>> columns, Lazy<Task<IEnumerable<IStoredProcedure>>> storedProcedures, Lazy<Task<IEnumerable<IRelationTable>>> relations)
+        public Task<IEnumerable<IRelationTable>> ReferencedBy { get => _ReferencedBy.Value; }
+        private Lazy<Task<IEnumerable<IRelationTable>>> _ReferencedBy { get; set; }
+
+        public Table(string name, int objectId, string? description, Lazy<Task<IEnumerable<IColumnTable>>> columns, Lazy<Task<IEnumerable<IStoredProcedure>>> storedProcedures, Lazy<Task<IEnumerable<IRelationTable>>> relations, Lazy<Task<IEnumerable<IRelationTable>>> referencedBy)
             : base(name, objectId, description)
         {
             _Columns = columns;
             _StoredProcedures = storedProcedures;
             _Relations = relations;
+            _ReferencedBy = referencedBy;
         }
+
     }
 }

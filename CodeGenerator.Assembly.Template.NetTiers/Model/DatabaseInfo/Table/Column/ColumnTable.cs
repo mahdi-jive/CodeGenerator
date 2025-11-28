@@ -10,7 +10,7 @@
             Description = description;
             TableName = tableName;
             TableObjectId = tableObjectId;
-            DataType = dataType;
+            DataType = new DataTypeSql(dataType);
             MaxLength = maxLength;
             Precision = precision;
             Scale = scale;
@@ -26,10 +26,21 @@
         }
         public string TableName { get; private set; } = null!;
         public int TableObjectId { get; private set; }
-        public string DataType { get; private set; } = null!;
-        public string CSharpType { get => SqlToCSharpType.GetCSharpType(DataType, IsNullable); }
-        public string DbType { get => SqlToDbType.GetDbType(DataType); }
+        public DataTypeSql DataType { get; private set; } = null!;
         public int MaxLength { get; private set; }
+        public bool HasLength
+        {
+            get
+            {
+                return DataType.DataTypeSqlEnum is
+                    DataTypeSqlEnum.charSql or
+                    DataTypeSqlEnum.varchar or
+                    DataTypeSqlEnum.nchar or
+                    DataTypeSqlEnum.nvarchar or
+                    DataTypeSqlEnum.binary or
+                    DataTypeSqlEnum.varbinary;
+            }
+        }
         public int Precision { get; private set; }
         public int Scale { get; private set; }
         public string? Collation { get; private set; }
