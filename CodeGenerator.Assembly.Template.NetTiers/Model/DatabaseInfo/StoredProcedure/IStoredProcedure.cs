@@ -6,7 +6,8 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.StoredProc
     public interface IStoredProcedure : ISchemaObject
     {
         public Task<IEnumerable<IParameterProcedure>> ParametersInfo { get; }
-        public Task<IEnumerable<IOutputProcedure>> OutputColumn { get; }
+        public Task<IEnumerable<IOutputColumnProcedure>> OutputColumn { get; }
+        public string ProcedureText { get; }
     }
 
 

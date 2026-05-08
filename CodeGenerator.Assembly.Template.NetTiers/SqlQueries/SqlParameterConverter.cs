@@ -15,13 +15,13 @@ public static class SqlParameterConverter
         if (paramInfo.IsTableType)
         {
             sqlParam.SqlDbType = SqlDbType.Structured;
-            sqlParam.TypeName = $"dbo.{paramInfo.ParameterType}";
+            sqlParam.TypeName = $"dbo.{paramInfo.DataType.RawSqlType}";
             // اصلاح: استفاده از TypeName واقعی به جای ParameterType
 
         }
         else
         {
-            sqlParam.SqlDbType = MapStringToSqlDbType(paramInfo.ParameterType);
+            sqlParam.SqlDbType = MapStringToSqlDbType(paramInfo.DataType.Sql);
             if (paramInfo.MaxLength > 0)
             {
                 sqlParam.Size = paramInfo.MaxLength;

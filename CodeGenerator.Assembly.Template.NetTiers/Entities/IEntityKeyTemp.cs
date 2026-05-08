@@ -1,5 +1,4 @@
-﻿using CodeGenerator.Abstractions;
-using CodeGenerator.Assembly.Abstractions;
+﻿using CodeGenerator.Assembly.Abstractions;
 using CodeGenerator.Assembly.Template.NetTiers.Entities.StaticFile;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseModel;
 using CodeGenerator.Infrastructure;
@@ -8,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeGenerator.Assembly.Template.NetTiers.Entities
 {
-    public class IEntityKeyTemp : ICodeTemplate<EntitiesFactory, DatabaseInfoModel>
+    public class IEntityKeyTemp :  CodeGeneratorBase<EntitiesFactory, DatabaseInfoModel>
     {
         private async Task<CompilationUnitSyntax> GetCompilationUnit(DatabaseInfoModel model, string className)
         {
@@ -16,7 +15,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
             var compilationUnitSyntax = (CompilationUnitSyntax)await tree.GetRootAsync();
             return compilationUnitSyntax;
         }
-        public async Task<IEnumerable<ICodeFile>> Generate(ITemplateRenderer renderer, IContextModel contextModel)
+        public override async Task<IEnumerable<ICodeFile>> Generate(ITemplateRenderer renderer, DatabaseInfoModel contextModel)
         {
             string className = "IEntityKey";
             var model = contextModel as DatabaseInfoModel;

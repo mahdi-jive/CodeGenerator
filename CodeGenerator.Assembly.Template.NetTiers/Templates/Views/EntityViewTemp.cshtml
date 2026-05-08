@@ -1,0 +1,37 @@
+﻿@using CodeGenerator.Assembly.Template.NetTiers.Extensions
+@using System.Text.RegularExpressions
+@model CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.View.IView
+@{
+
+    var summaryText = string.IsNullOrEmpty(Model.Description)
+        ? $"An object representation of the '{Model.Name}' view. [No description found in the database]"
+        : Model.Description;
+}
+#region Using directives
+
+using System;
+
+#endregion
+
+namespace Behsaz.Entities
+{
+	///<summary>
+	/// @summaryText
+	///</summary>
+	/// <remarks>
+	/// This file is generated once and will never be overwritten.
+	///</remarks>
+	[Serializable]
+	[CLSCompliant(true)]
+	public partial class @Model.NamePascal : @($"{Model.NamePascal}Base")
+	{
+		#region Constructors
+
+	///<summary>
+	/// Creates a new <see cref="@Model.NamePascal" /> instance.
+	///</summary>
+		public @(Model.NamePascal)():base(){}
+
+		#endregion
+	}
+}

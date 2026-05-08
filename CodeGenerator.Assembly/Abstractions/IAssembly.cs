@@ -10,4 +10,5 @@ namespace CodeGenerator.Assembly.Abstractions
         public XDocument CsprojContent { get; }
         public IFile CsprojFile { get; }
     }
+
 }

@@ -5,6 +5,7 @@ using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.StoredProcedur
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.StoredProcedure.Parameter;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.Column;
+using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.Index;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.TableEnum;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.TableEnum.Item;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.View;
@@ -43,14 +44,16 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo
                 SELECT
                     p.name AS Name,
                     p.object_id AS ObjectId,
-                    ep.value AS Description
+                    ep.value AS Description,
+                    sm.definition AS ProcedureText
                 FROM sys.procedures p
+                JOIN sys.sql_modules sm on sm.object_id = p.object_id
                 LEFT JOIN sys.extended_properties ep
                     ON ep.major_id = p.object_id
                     AND ep.minor_id = 0
                     AND ep.name = 'MS_Description'
                 WHERE p.is_ms_shipped = 0
-                     AND (LOWER(p.name)  LIKE '{contain}_%' OR LOWER(p.name) LIKE '{userConfiguration.CustomProcedureStartsWith}_{contain}_%')
+                     AND (LOWER(p.name)  LIKE LOWER('{contain}_%') OR LOWER(p.name) LIKE LOWER('{userConfiguration.CustomProcedureStartsWith}{contain}_%'))
                 ORDER BY p.name;";
 
                 using (var command = new SqlCommand(query, connection))
@@ -60,18 +63,17 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo
                     {
                         string name = reader["Name"].ToString()!;
                         int objectId = Convert.ToInt32(reader["ObjectId"]);
-                        string description = reader["Description"] != DBNull.Value
-                                ? reader["Description"].ToString()
-                                : null;
-
-                        var parametersInfo = new Lazy<Task<IEnumerable<IParameterProcedure>>>(() => GetParameterProcedures(name));
+                        string? description = reader["Description"] != DBNull.Value ? reader["Description"].ToString() : null;
+                        string procedureText = reader["ProcedureText"].ToString()!;
+                        var parametersInfo = new Lazy<Task<IEnumerable<IParameterProcedure>>>(() => GetParameterProcedures(name, procedureText));
                         // اگر ستون‌های خروجی رو بعدا استخراج می‌کنی، فعلاً لیست خالی بفرست
                         var spInfo = new StoredProcedureInfo(
                             name: name,
                             objectId: objectId,
                             description: description,
+                            procedureText: procedureText,
                             parametersInfo: parametersInfo,
-                            outputColumn: new Lazy<Task<IEnumerable<IOutputProcedure>>>(() => GetOutputProcedure(userConfiguration.ConnectionString, name, parametersInfo))
+                            outputColumn: new Lazy<Task<IEnumerable<IOutputColumnProcedure>>>(() => GetOutputProcedure(userConfiguration.ConnectionString, name, parametersInfo))
                         );
 
                         Console.WriteLine(spInfo.Name);
@@ -82,7 +84,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo
             return storedProcedures;
 
         }
-        private async Task<IEnumerable<IParameterProcedure>> GetParameterProcedures(string storedProcedureName)
+        private async Task<IEnumerable<IParameterProcedure>> GetParameterProcedures(string storedProcedureName, string procedureText)
         {
             List<IParameterProcedure> parameterProcedures = new List<IParameterProcedure>();
             using (var connection = new SqlConnection(userConfiguration.ConnectionString))
@@ -93,15 +95,21 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo
     p.name AS StoredProcedureName,
     p.object_id AS StoredProcedureObjectID,
     pr.name AS ParameterName,
-    ty.name AS ParameterType,
-    pr.max_length AS MaxLength,
+    CASE WHEN isnull(ty.is_table_type,ty2.is_table_type) = 1 THEN 'table' ELSE  isnull(ty.name,ty2.name) END AS ParameterType,
+    pr.is_nullable AS IsNullable,
+    isnull(isc.CHARACTER_MAXIMUM_LENGTH, pr.max_length) AS MaxLength,
     pr.is_output AS IsOutput,
     pr.parameter_id AS ParameterOrder,
     ep.value AS Description,
     CASE WHEN ty.is_table_type = 1 THEN 1 ELSE 0 END AS IsTableType
 FROM sys.procedures p
 JOIN sys.parameters pr ON pr.object_id = p.object_id
-LEFT JOIN sys.types ty ON ty.user_type_id = pr.user_type_id
+LEFT JOIN sys.types ty ON ty.user_type_id = pr.system_type_id
+LEFT JOIN sys.types ty2 ON pr.user_type_id = ty2.user_type_id
+JOIN INFORMATION_SCHEMA.PARAMETERS isc
+    ON isc.SPECIFIC_NAME = p.name
+   AND isc.PARAMETER_NAME = pr.name
+   AND isc.SPECIFIC_SCHEMA = SCHEMA_NAME(p.schema_id)
 LEFT JOIN sys.extended_properties ep
     ON ep.major_id = p.object_id
     AND ep.minor_id = pr.parameter_id
@@ -119,7 +127,8 @@ ORDER BY pr.parameter_id;";
                         name: reader["ParameterName"].ToString()!,
                         objectId: Convert.ToInt32(reader["StoredProcedureObjectID"]),
                         description: reader["Description"] != DBNull.Value ? reader["Description"].ToString() : null,
-                        parameterType: reader["ParameterType"].ToString()!,
+                        procedureText: procedureText,
+                        dataType: new DataTypeSql(reader["ParameterType"].ToString()),
                         isTableType: Convert.ToBoolean(reader["IsTableType"]),
                         maxLength: Convert.ToInt16(reader["MaxLength"]),
                         isOutput: Convert.ToBoolean(reader["IsOutput"]),
@@ -132,7 +141,7 @@ ORDER BY pr.parameter_id;";
             }
 
         }
-        private async Task<IEnumerable<IOutputProcedure>> GetOutputProcedure(string connectionString, string storedProcedureName, Lazy<Task<IEnumerable<IParameterProcedure>>> parameterProceduresLazy)
+        private async Task<IEnumerable<IOutputColumnProcedure>> GetOutputProcedure(string connectionString, string storedProcedureName, Lazy<Task<IEnumerable<IParameterProcedure>>> parameterProceduresLazy)
         {
             var parameterProcedures = parameterProceduresLazy.Value;
             var analyzer = new StoredProcedureAnalyzer(connectionString);
@@ -179,9 +188,15 @@ ORDER BY pr.parameter_id;";
                                                    new Lazy<Task<IEnumerable<IColumnTable>>>(() => GetColumnTable(name)),
                                                    new Lazy<Task<IEnumerable<IStoredProcedure>>>(() => GetStoredProcedures(name)),
                                                    new Lazy<Task<IEnumerable<IRelationTable>>>(() => GetRelations(name)),
-                                                   new Lazy<Task<IEnumerable<IRelationTable>>>(() => GetReferencedBy(name)));
+                                                   new Lazy<Task<IEnumerable<IRelationTable>>>(() => GetReferencedBy(name)),
+                                                   new Lazy<Task<IEnumerable<IIndexTable>>>(() => GetIndexTable(name))
+                                                   );
                         Console.WriteLine(tableInfo.Name);
-                        tables.Add(tableInfo);
+                        if (tableInfo.Name == "TCalculateMain")
+                        {
+
+                            tables.Add(tableInfo);
+                        }
                     }
                 }
             }
@@ -377,6 +392,57 @@ LEFT JOIN sys.extended_properties ep
             return relations;
         }
 
+        private async Task<IEnumerable<IIndexTable>> GetIndexTable(string tableName)
+        {
+            List<IIndexTable> indexTables = new List<IIndexTable>();
+            var query = @"select indexes.index_id ObjectId,
+                          indexes.name Name,
+                          ep.value Description,
+                          is_primary_key IsPrimaryKey,
+                          index_columns.column_id ColumnId
+                          from sys.indexes indexes
+                          join sys.tables tables on tables.object_id=indexes.object_id
+                          join sys.index_columns index_columns 
+                              on tables.object_id=index_columns.object_id
+                                and index_columns.index_id=indexes.index_id
+                          LEFT JOIN sys.extended_properties ep
+                              ON ep.major_id = indexes.object_id
+                                AND ep.minor_id =  indexes.index_id 
+                                AND ep.name = 'MS_Description'
+                                AND ep.class=7
+                          where  --indexes.is_primary_key=0
+                           tables.name = @TableName;";
+
+            using (var connection = new SqlConnection(userConfiguration.ConnectionString))
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@TableName", tableName);
+
+                connection.Open();
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var index = indexTables.FirstOrDefault(q => q.ObjectId == (int)reader["ObjectId"]);
+                        if (index != null)
+                        {
+                            index.ColumnsId.Add((int)reader["ColumnId"]);
+                        }
+                        else
+                        {
+                            indexTables.Add(new IndexTable(
+                            name: reader["Name"] as string,
+                            objectId: (int)reader["ObjectId"],
+                            description: reader["Description"] as string,
+                            isPrimaryKey: Convert.ToBoolean(reader["IsPrimaryKey"]),
+                            columnsId: new List<int>() { (int)reader["ColumnId"] }
+                                ));
+                        }
+                    }
+                }
+            }
+            return indexTables;
+        }
         private async Task<IEnumerable<IColumnView>> GetColumnView(string viewName)
         {
             var columns = new List<IColumnView>();
@@ -388,12 +454,18 @@ LEFT JOIN sys.extended_properties ep
             ep.value AS Description,
             v.name AS ViewName,
             v.object_id AS ViewObjectId,
-            t.name AS DataType,
+            isnull(isc.CHARACTER_MAXIMUM_LENGTH, c.max_length) AS MaxLength,
+            isnull(ty.name,ty2.name) AS DataType,
             c.collation_name AS Collation,
             c.is_nullable AS IsNullable
         FROM sys.columns c
         JOIN sys.views v ON c.object_id = v.object_id
-        JOIN sys.types t ON c.user_type_id = t.user_type_id
+        JOIN INFORMATION_SCHEMA.COLUMNS isc
+               ON isc.TABLE_NAME = v.name
+              AND isc.COLUMN_NAME = c.name
+              AND isc.TABLE_SCHEMA = SCHEMA_NAME(v.schema_id)
+        LEFT JOIN sys.types ty ON c.system_type_id = ty.user_type_id
+        LEFT JOIN sys.types ty2 ON c.user_type_id = ty2.user_type_id
         LEFT JOIN sys.extended_properties ep 
                ON ep.major_id = c.object_id 
               AND ep.minor_id = c.column_id 
@@ -416,6 +488,7 @@ LEFT JOIN sys.extended_properties ep
                             description: reader["Description"]?.ToString(),
                             viewName: reader["ViewName"].ToString(),
                             viewObjectId: (int)reader["ViewObjectId"],
+                            maxLength: (int)reader["MaxLength"],
                             dataType: reader["DataType"].ToString(),
                             collation: reader["Collation"] as string,
                             isNullable: (bool)reader["IsNullable"]
@@ -493,12 +566,13 @@ LEFT JOIN sys.extended_properties ep
         SELECT 
             t.name AS TableName,
             t.object_id AS TableId,
-            ep.value AS Description
+            --ep.value AS Description
+            '' AS Description
         FROM sys.tables t
-        LEFT JOIN sys.extended_properties ep 
-               ON ep.major_id = t.object_id 
-              AND ep.minor_id = 0 
-              AND ep.name = 'MS_Description'
+        --LEFT JOIN sys.extended_properties ep 
+        --       ON ep.major_id = t.object_id 
+        --      AND ep.minor_id = 0 
+        --      AND ep.name = 'MS_Description'
         WHERE t.is_ms_shipped = 0
           AND (
                 SELECT COUNT(*) 
@@ -552,7 +626,7 @@ LEFT JOIN sys.extended_properties ep
                 string query = $"SELECT [ID], [Name], [Title] FROM {tableName}";
                 using (var cmd = new SqlCommand(query, connection))
                 {
-
+                    await connection.OpenAsync();
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (reader.Read())
@@ -561,7 +635,6 @@ LEFT JOIN sys.extended_properties ep
                             string name = Convert.ToString(reader["Title"]) ?? "";
                             string title = Convert.ToString(reader["Title"]) ?? "";
 
-                            Console.WriteLine($"  ➡️ Id: {id}, Name: {name}, Title: {title}");
                             items.Add(new EnumItem(id, name, title));
                         }
                     }

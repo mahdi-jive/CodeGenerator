@@ -62,6 +62,118 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities.StaticFile {
         
         /// <summary>
         ///   Looks up a localized string similar to using System;
+        ///using System.Collections.Generic;
+        ///using System.Text;
+        ///
+        ///namespace Behsaz.Entities.Validation
+        ///{
+        ///   /// &lt;summary&gt;
+        ///   /// Object representing a broken validation rule
+        ///   /// &lt;/summary&gt;
+        ///   [Serializable()]
+        ///   public class BrokenRule
+        ///   {
+        ///      private string _ruleName;
+        ///      private string _description;
+        ///      private string _property;
+        ///	  
+        ///	  /// &lt;summary&gt;
+        ///	  /// Default parameterless constructor used by Reflection for Soap Serialization
+        ///	  /// &lt;/summary&gt;
+        ///	  private BrokenRule()
+        ///	 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string BrokenRule {
+            get {
+                return ResourceManager.GetString("BrokenRule", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to using System;
+        ///using System.Collections.Generic;
+        ///using System.Text;
+        ///using System.ComponentModel;
+        ///
+        ///namespace Behsaz.Entities.Validation
+        ///{
+        ///   /// &lt;summary&gt;
+        ///   /// A List of broken rules.
+        ///   /// &lt;/summary&gt;
+        ///   [Serializable()]
+        ///   public class BrokenRulesList : BindingList&lt;BrokenRule&gt;
+        ///   {
+        ///
+        ///      /// &lt;summary&gt;
+        ///      /// Returns the firstRule &lt;see cref=&quot;BrokenRule&quot; /&gt; object
+        ///      /// corresponding to the specified property.
+        ///      /// &lt;/summary&gt;
+        ///      /// &lt;param name=&quot;property&quot;&gt;The name of the pr [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string BrokenRulesList {
+            get {
+                return ResourceManager.GetString("BrokenRulesList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to using System;
+        ///using System.Collections.Generic;
+        ///using System.Text;
+        ///using System.Text.RegularExpressions;
+        ///using System.Reflection;
+        ///using System.Collections;
+        ///
+        ///namespace Behsaz.Entities.Validation
+        ///{
+        ///	/// &lt;summary&gt;
+        ///	/// Static class that contains common validation rules.  Each rule conforms to the &lt;see cref=&quot;ValidationRuleArgs&quot;/&gt; delegate.
+        ///    /// &lt;/summary&gt;
+        ///    public static class CommonRules
+        ///    {
+        ///        #region NotNull
+        ///
+        ///        /// &lt;summary&gt;
+        ///        /// Rule that does not allow a property v [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string CommonRules {
+            get {
+                return ResourceManager.GetString("CommonRules", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 
+        ///using Behsaz.Entities;
+        ///using System;
+        ///using System.Collections.Generic;
+        ///using System.IO;
+        ///using System.IO.MemoryMappedFiles;
+        ///using System.Linq;
+        ///using System.Threading;
+        ///using System.Threading.Tasks;
+        ///
+        ///namespace Behsaz.Data
+        ///{
+        ///    /// &lt;summary&gt;
+        ///    /// Handle the custom Cache senarios.
+        ///    /// &lt;/summary&gt;
+        ///    public sealed class CustomCacheManager : IDisposable
+        ///    {
+        ///        #region Fields &amp; Properties
+        ///
+        ///        private static object syncRoot = new object();
+        ///
+        ///        private static SortedDicti [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string CustomCacheManager {
+            get {
+                return ResourceManager.GetString("CustomCacheManager", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to using System;
         ///using System.ComponentModel;
         ///using System.Collections;
         ///using System.Xml.Serialization;
@@ -374,6 +486,56 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities.StaticFile {
         /// <summary>
         ///   Looks up a localized string similar to #region Using Directives
         ///using System;
+        ///using Behsaz.Entities;
+        ///#endregion
+        ///
+        ///namespace Behsaz.Data.Bases
+        ///{
+        ///	/// &lt;summary&gt;
+        ///	/// Serves as the base class for objects that provide data access functionality.
+        ///	/// Provides a default implementation of the IEntityProvider&amp;lt;Entity, EntityKey&amp;gt; interface.
+        ///	/// &lt;/summary&gt;
+        ///	/// &lt;typeparam name=&quot;Entity&quot;&gt;The class of the business object being accessed.&lt;/typeparam&gt;
+        ///	/// &lt;typeparam name=&quot;EntityKey&quot;&gt;The class of the EntityId
+        ///	/// property of the specified bus [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string EntityProviderBase {
+            get {
+                return ResourceManager.GetString("EntityProviderBase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using directives
+        ///using System;
+        ///using System.Collections;
+        ///using System.Collections.Generic;
+        ///using System.Collections.Specialized;
+        ///using System.Configuration.Provider;
+        ///using System.Diagnostics;
+        ///using System.Text;
+        ///
+        ///using Behsaz.Entities;
+        ///#endregion
+        ///
+        ///namespace Behsaz.Data.Bases
+        ///{
+        ///	
+        ///	
+        ///	/// &lt;summary&gt;
+        ///	/// Serves as the base class for objects that provide data access functionality.
+        ///	/// Provides a default implementation of the IEntityProvider&amp;lt;Entity, EntityKey&amp;gt; interface.
+        ///	/// &lt;/su [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string EntityProviderBaseCore_generated {
+            get {
+                return ResourceManager.GetString("EntityProviderBaseCore.generated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using Directives
+        ///using System;
         ///using System.Collections;
         ///using System.Reflection;
         ///using System.Text;
@@ -396,6 +558,87 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities.StaticFile {
         internal static string EntityUtil {
             get {
                 return ResourceManager.GetString("EntityUtil", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using Directives
+        ///using System;
+        ///#endregion
+        ///
+        ///namespace Behsaz.Data.Bases
+        ///{
+        ///	/// &lt;summary&gt;
+        ///	/// Serves as the base class for objects that provide data access functionality.
+        ///	/// Provides a default implementation of the IEntityViewProvider&amp;lt;Entity&amp;gt; interface.
+        ///	/// &lt;/summary&gt;
+        ///	/// &lt;typeparam name=&quot;Entity&quot;&gt;The class of the business object being accessed.&lt;/typeparam&gt;
+        ///	/// &lt;remarks&gt;
+        ///	/// This file is generated once and will never be overwritten.
+        ///	/// &lt;/remarks&gt;
+        ///	[Serializable]
+        ///	[CLSCompl [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string EntityViewProviderBase {
+            get {
+                return ResourceManager.GetString("EntityViewProviderBase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using Directives
+        ///using System;
+        ///using Behsaz.Entities;
+        ///#endregion
+        ///
+        ///namespace Behsaz.Data.Bases
+        ///{
+        ///	/// &lt;summary&gt;
+        ///	/// Serves as the base class for objects that provide data access functionality.
+        ///	/// Provides a default implementation of the IEntityViewProvider&amp;lt;Entity&amp;gt; interface.
+        ///	/// &lt;/summary&gt;
+        ///	/// &lt;typeparam name=&quot;Entity&quot;&gt;The class of the business object being accessed.&lt;/typeparam&gt;
+        ///	[Serializable]
+        ///	[CLSCompliant(true)]
+        ///	public abstract partial class EntityViewProviderBaseCore&lt;Ent [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string EntityViewProviderBaseCore_generated {
+            get {
+                return ResourceManager.GetString("EntityViewProviderBaseCore.generated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to //NETTIERS - This is a copy of the source code for EntLib 5.  This fixes a bug for webapps.
+        /////http://entlib.codeplex.com/workitem/26760?projectname=entlib
+        ///
+        /////===============================================================================
+        ///// Microsoft patterns &amp; practices Enterprise Library
+        ///// Core
+        /////===============================================================================
+        ///// Copyright © Microsoft Corporation.  All rights reserved.
+        ///// THIS CODE AND INFORMATION IS PROVIDED &quot;AS IS&quot; WITHOUT WARRAN [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string FileConfigurationSouce {
+            get {
+                return ResourceManager.GetString("FileConfigurationSouce", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to //NETTIERS - This is a copy of the source code for EntLib 5.  This fixes a bug for webapps.
+        /////http://entlib.codeplex.com/workitem/26760?projectname=entlib
+        ///
+        /////===============================================================================
+        ///// Microsoft patterns &amp; practices Enterprise Library
+        ///// Core
+        /////===============================================================================
+        ///// Copyright © Microsoft Corporation.  All rights reserved.
+        ///// THIS CODE AND INFORMATION IS PROVIDED &quot;AS IS&quot; WITHOUT WARRAN [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string FileConfigurationSouceElement {
+            get {
+                return ResourceManager.GetString("FileConfigurationSouceElement", resourceCulture);
             }
         }
         
@@ -553,6 +796,541 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities.StaticFile {
         internal static string IEntityKey {
             get {
                 return ResourceManager.GetString("IEntityKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using directives
+        ///using System;
+        ///using System.Collections.Generic;
+        ///using System.Data;
+        ///using System.Text;
+        ///using Behsaz.Entities;
+        ///#endregion
+        ///
+        ///namespace Behsaz.Data
+        ///{
+        ///	/// &lt;summary&gt;
+        ///	/// Defines the common data access methods that can be used by the
+        ///	/// ProviderDataSource control to interact with the underlying data store.
+        ///	/// &lt;/summary&gt;
+        ///	/// &lt;typeparam name=&quot;Entity&quot;&gt;The class of the business object being accessed.&lt;/typeparam&gt;
+        ///	/// &lt;typeparam name=&quot;EntityKey&quot;&gt;The class of the EntityId
+        ///	 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string IEntityProvider {
+            get {
+                return ResourceManager.GetString("IEntityProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using Directives
+        ///using System;
+        ///using Behsaz.Entities;
+        ///#endregion
+        ///namespace Behsaz.Data
+        ///{
+        ///	/// &lt;summary&gt;
+        ///	/// Defines the common data access methods that can be used by the
+        ///	/// ReadOnlyDataSource control to interact with the underlying data store.
+        ///	/// &lt;/summary&gt;
+        ///	/// &lt;typeparam name=&quot;Entity&quot;&gt;The class of the business object being accessed.&lt;/typeparam&gt;
+        ///	public interface IEntityViewProvider&lt;Entity&gt; where Entity : new()
+        ///	{
+        ///		/// &lt;summary&gt;
+        ///		/// Gets a page of rows from the DataSource.
+        ///	 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string IEntityViewProvider {
+            get {
+                return ResourceManager.GetString("IEntityViewProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using directives
+        ///
+        ///using System;
+        ///using System.Collections.Specialized;
+        ///using System.Configuration;
+        ///using System.Data;
+        ///using System.Data.Common;
+        ///using System.Configuration.Provider;
+        ///
+        ///using Behsaz.Entities;
+        ///
+        ///#endregion
+        ///
+        ///namespace Behsaz.Data.Bases
+        ///{	
+        ///	/// &lt;summary&gt;
+        ///	/// Interface for NetTiersProvider
+        ///	/// &lt;/summary&gt;
+        ///	public interface INetTiersProvider
+        ///    {
+        ///        /// &lt;summary&gt;
+        ///        /// Creates the transaction.
+        ///        /// &lt;/summary&gt;
+        ///        /// &lt;returns&gt;&lt;/returns&gt;
+        ///        T [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string INetTiersProvider {
+            get {
+                return ResourceManager.GetString("INetTiersProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using directives
+        ///using System;
+        ///using System.Data;
+        ///using System.Data.Common;
+        ///
+        ///using System.Diagnostics;
+        ///using Microsoft.Practices.EnterpriseLibrary.Data;
+        ///using Microsoft.Practices.EnterpriseLibrary.Data.Sql;
+        ///#endregion Using directives
+        ///
+        ///namespace Behsaz.Data
+        ///{
+        ///	/// &lt;summary&gt;
+        ///	/// TransactionManager interface
+        ///	/// &lt;/summary&gt;
+        ///    public interface ITransactionManager
+        ///    {
+        ///        /// &lt;summary&gt;
+        ///        /// Begins the transaction.
+        ///        /// &lt;/summary&gt;
+        ///        void BeginTransaction() [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ITransactionManager {
+            get {
+                return ResourceManager.GetString("ITransactionManager", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to using System;
+        ///using System.Text;
+        ///
+        ///using System.ComponentModel;
+        ///using System.Collections;
+        ///using System.Collections.Generic;
+        ///
+        ///using System.Runtime.Serialization;
+        ///using System.Xml.Serialization;
+        ///
+        ///namespace Behsaz.Entities
+        ///{
+        ///   /// &lt;summary&gt;
+        ///   /// A abstract generic base class for the nettiers entities that are generated from tables and views. 
+        ///   /// Supports filtering, databinding, searching and sorting.
+        ///   /// &lt;/summary&gt;
+        ///   [Serializable]
+        ///   public abstract class ListBase&lt;T&gt; : BindingList&lt;T [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ListBase {
+            get {
+                return ResourceManager.GetString("ListBase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using directives
+        ///
+        ///using System;
+        ///using System.Collections.Specialized;
+        ///using System.Configuration;
+        ///using System.Data;
+        ///using System.Data.Common;
+        ///using System.Configuration.Provider;
+        ///
+        ///using Behsaz.Entities;
+        ///
+        ///#endregion
+        ///
+        ///namespace Behsaz.Data.Bases
+        ///{	
+        ///	///&lt;summary&gt;
+        ///	/// The base class to implements to create a .NetTiers provider.
+        ///	///&lt;/summary&gt;
+        ///	public abstract class NetTiersProvider : NetTiersProviderBase
+        ///	{
+        ///		
+        ///		///&lt;summary&gt;
+        ///		/// Current TbasModuleProviderBase instance.
+        ///		///&lt;/ [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string NetTiersProvider {
+            get {
+                return ResourceManager.GetString("NetTiersProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using directives
+        ///
+        ///using System;
+        ///using System.Collections.Specialized;
+        ///using System.Configuration;
+        ///using System.Data;
+        ///using System.Data.Common;
+        ///using System.Configuration.Provider;
+        ///using System.Collections.Generic;
+        ///using System.Linq;
+        ///
+        ///using Behsaz.Entities;
+        ///
+        ///#endregion
+        ///
+        ///namespace Behsaz.Data.Bases
+        ///{	
+        ///	///&lt;summary&gt;
+        ///	/// The base class to implements to create a .NetTiers provider.
+        ///	///&lt;/summary&gt;
+        ///	public abstract class NetTiersProviderBase : System.Configuration.Provider.ProviderBase [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string NetTiersProviderBase {
+            get {
+                return ResourceManager.GetString("NetTiersProviderBase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to using System;
+        ///using System.Collections.Generic;
+        ///using System.Text;
+        ///using System.Configuration.Provider;
+        ///
+        ///namespace Behsaz.Data.Bases
+        ///{
+        ///	/// &lt;summary&gt;
+        ///	/// Reprensents the strongly typed collection of NetTiersProvider.
+        ///	/// &lt;/summary&gt;
+        ///	public class NetTiersProviderCollection : ProviderCollection
+        ///	{
+        ///		/// &lt;summary&gt;
+        ///	    /// Gets the &lt;see cref=&quot;T:NetTiersProvider&quot;/&gt; with the specified name.
+        ///	    /// &lt;/summary&gt;
+        ///	    /// &lt;value&gt;&lt;/value&gt;
+        ///	    public new NetTiersProvider this[string name]
+        ///	    {
+        /// [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string NetTiersProviderCollection {
+            get {
+                return ResourceManager.GetString("NetTiersProviderCollection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to using System;
+        ///using System.Configuration;
+        ///
+        ///namespace Behsaz.Data.Bases
+        ///{
+        ///    /// &lt;summary&gt;
+        ///    /// The class that hold the configuration section for the NetTiers Service.
+        ///    /// &lt;/summary&gt;
+        ///    public class NetTiersServiceSection : ConfigurationSection
+        ///    {
+        ///        /// &lt;summary&gt;
+        ///        /// Gets the providers.
+        ///        /// &lt;/summary&gt;
+        ///        /// &lt;value&gt;The providers.&lt;/value&gt;
+        ///        [ConfigurationProperty(&quot;providers&quot;)]
+        ///        public ProviderSettingsCollection Providers
+        ///        {
+        ///           [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string NetTiersServiceSection {
+            get {
+                return ResourceManager.GetString("NetTiersServiceSection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 
+        ///namespace Behsaz.Data.Bases
+        ///{
+        ///    public sealed class ResetCacheSpecification
+        ///    {
+        ///        public string SemaphoreName { get; set; }
+        ///
+        ///        public string MemoryMappedFileName { get; set; }
+        ///
+        ///        internal bool HasValue()
+        ///        {
+        ///            return !string.IsNullOrEmpty(SemaphoreName) &amp;&amp; !string.IsNullOrEmpty(MemoryMappedFileName);
+        ///        }
+        ///    }
+        ///}
+        ///.
+        /// </summary>
+        internal static string ResetCacheSpecification {
+            get {
+                return ResourceManager.GetString("ResetCacheSpecification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 
+        ///namespace Behsaz.Data.Bases
+        ///{
+        ///    public sealed class TableCacheValidityDurationItem
+        ///    {
+        ///        public string TableName { get; set; }
+        ///
+        ///        public int ValidityDuration { get; set; }
+        ///    }
+        ///}
+        ///.
+        /// </summary>
+        internal static string TableCacheValidityDuration {
+            get {
+                return ResourceManager.GetString("TableCacheValidityDuration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to using System;
+        ///using System.Text;
+        ///
+        ///using System.ComponentModel;
+        ///using System.Collections;
+        ///using System.Collections.Generic;
+        ///
+        ///using System.Runtime.Serialization;
+        ///using System.Xml.Serialization;
+        ///
+        ///
+        ///namespace Behsaz.Entities
+        ///{
+        ///	/// &lt;summary&gt;
+        ///	/// Represents a strongly typed list of .netTiers table entity that can be accessed by index. 
+        ///	/// Provides methods to search, sort, and manipulate lists.
+        ///	/// &lt;/summary&gt;
+        ///	[Serializable]
+        ///	public class TList&lt;T&gt; : ListBase&lt;T&gt; where T : IEntity, new()
+        ///   	{ [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string TList {
+            get {
+                return ResourceManager.GetString("TList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using directives
+        ///using System;
+        ///using System.Data;
+        ///using System.Data.Common;
+        ///
+        ///using System.Diagnostics;
+        ///using Microsoft.Practices.EnterpriseLibrary.Data;
+        ///using Microsoft.Practices.EnterpriseLibrary.Data.Sql;
+        ///
+        ///#endregion Using directives
+        ///
+        ///namespace Behsaz.Data
+        ///{
+        ///	/// &lt;summary&gt;
+        ///	/// TransactionManager is utility class that decorates a &lt;see cref=&quot;IDbTransaction&quot;/&gt; instance.
+        ///	/// &lt;/summary&gt;
+        ///	public class TransactionManager : ITransactionManager, IDisposable
+        ///	{
+        ///		#region Fields
+        ///		privat [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string TransactionManager {
+            get {
+                return ResourceManager.GetString("TransactionManager", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to using System;
+        ///using System.Text;
+        ///using System.Data;
+        ///using System.Data.Common;
+        ///using Microsoft.Practices.EnterpriseLibrary.Data;
+        /////PSB 2006-05-26: should we use EntLib ExceptionPolicy.HandleException?
+        /////using Microsoft.Practices.EnterpriseLibrary.ExceptionHandling;
+        ///using Behsaz.Entities;
+        ///
+        ///namespace Behsaz.Data
+        ///{
+        ///	#region Repository Enumerations
+        ///	
+        ///	#region Load/Save Enums
+        ///
+        ///	/// &lt;summary&gt;
+        ///	/// DeepLoad options for deep loading entities
+        ///	/// &lt;/summary&gt;
+        ///	public enum DeepLoadType : int
+        ///	{
+        ///		// [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string Utility {
+            get {
+                return ResourceManager.GetString("Utility", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to using System;
+        ///using System.Collections.Generic;
+        ///using System.Text;
+        ///using System.Xml.Serialization;
+        ///
+        ///namespace Behsaz.Entities.Validation
+        ///{
+        ///   /// &lt;summary&gt;
+        ///   /// Object that provides additional information about an validation rule.
+        ///   /// &lt;/summary&gt;
+        ///   public class ValidationRuleArgs
+        ///   {
+        ///    	private string _propertyName;
+        ///      	private string _description;
+        ///		private object _tag;
+        ///		private string _friendlyName;
+        ///
+        ///		/// &lt;summary&gt;
+        ///		/// Gets or sets the tag.
+        ///		/// &lt;/summary&gt;
+        ///		/// &lt;value&gt; [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ValidationRuleArgs {
+            get {
+                return ResourceManager.GetString("ValidationRuleArgs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to using System;
+        ///using System.Collections.Generic;
+        ///using System.Text;
+        ///
+        ///namespace Behsaz.Entities.Validation
+        ///{
+        ///   /// &lt;summary&gt;
+        ///   /// Delegate providing the signature of all methods that will process validation rules.
+        ///   /// &lt;/summary&gt;
+        ///   /// &lt;remarks&gt;
+        ///   /// &lt;para&gt;
+        ///   /// The method handler should set the Description attribute of the 
+        ///   /// &lt;see cref=&quot;ValidationRuleArgs&quot;/&gt; parameter so that a meaningful
+        ///   /// error is returned.
+        ///   /// &lt;/para&gt;&lt;para&gt;
+        ///   /// If the data is valid, the method must [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ValidationRuleHandler {
+            get {
+                return ResourceManager.GetString("ValidationRuleHandler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to using System;
+        ///using System.Collections.Generic;
+        ///using System.Text;
+        ///
+        ///namespace Behsaz.Entities.Validation
+        ///{
+        ///   /// &lt;summary&gt;
+        ///   /// Object representing a validation rule for an object
+        ///   /// &lt;/summary&gt;
+        ///   internal class ValidationRuleInfo
+        ///   {
+        ///      private object _target;
+        ///      private ValidationRuleHandler _handler;
+        ///      private string _ruleName = String.Empty;
+        ///      private ValidationRuleArgs _args;
+        ///
+        ///      /// &lt;summary&gt;
+        ///      /// Returns a text representation of the rule which is the &lt;se [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ValidationRuleInfo {
+            get {
+                return ResourceManager.GetString("ValidationRuleInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to using System;
+        ///using System.Collections.Generic;
+        ///using System.Text;
+        ///
+        ///namespace Behsaz.Entities.Validation
+        ///{
+        ///
+        ///   /// &lt;summary&gt;
+        ///   /// Maintains the list of validation rules associated with an object
+        ///   /// &lt;/summary&gt;
+        ///   [Serializable()]
+        ///   public class ValidationRules
+        ///   {
+        ///      /// &lt;summary&gt;
+        ///      /// List of rules that have not passed validation
+        ///      /// &lt;/summary&gt;
+        ///      private BrokenRulesList _brokenRules;
+        ///
+        ///      /// &lt;summary&gt;
+        ///      /// Object associated with this list of rules.
+        ///      [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ValidationRules {
+            get {
+                return ResourceManager.GetString("ValidationRules", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to using System;
+        ///using System.Text;
+        ///
+        ///using System.ComponentModel;
+        ///using System.Collections;
+        ///using System.Collections.Generic;
+        ///
+        ///using System.Runtime.Serialization;
+        ///using System.Xml.Serialization;
+        ///
+        ///
+        ///namespace Behsaz.Entities
+        ///{
+        ///   /// &lt;summary&gt;
+        ///   /// A generic collection for the nettiers entities that are generated from views. 
+        ///   /// Supports filtering, databinding, searching and sorting.
+        ///   /// &lt;/summary&gt;
+        ///   [Serializable]
+        ///   public class VList&lt;T&gt; : ListBase&lt;T&gt;
+        ///   {
+        ///
+        ///		/// &lt;summary&gt;
+        ///		/// [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string VList {
+            get {
+                return ResourceManager.GetString("VList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to //Nettiers : Copied this from the Unity 1.2 source code for backwards compatability.
+        /////This class no longer exists in Unity 2.0 and Nettiers uses this class.
+        /////Only had to change a couple lines that were referencing things outside of this 
+        /////file from the EntLib distribution.
+        /////===============================================================================
+        ///// Microsoft patterns &amp; practices
+        ///// Unity Application Block
+        /////===============================================================================
+        ///// [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string WeakRefDictionary {
+            get {
+                return ResourceManager.GetString("WeakRefDictionary", resourceCulture);
             }
         }
     }

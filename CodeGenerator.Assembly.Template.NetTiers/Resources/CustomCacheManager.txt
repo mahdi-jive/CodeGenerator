@@ -1,0 +1,393 @@
+﻿
+using Behsaz.Entities;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.MemoryMappedFiles;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Behsaz.Data
+{
+    /// <summary>
+    /// Handle the custom Cache senarios.
+    /// </summary>
+    public sealed class CustomCacheManager : IDisposable
+    {
+        #region Fields & Properties
+
+        private static object syncRoot = new object();
+
+        private static SortedDictionary<Tuple<string, string>, CacheItem> cacheItemList = new SortedDictionary<Tuple<string, string>, CacheItem>();
+
+		private static CancellationTokenSource cancellationTokenSource;
+
+        private const int BUFFER_LENGTH = 1024;
+
+        #endregion
+
+		#region Constructor
+
+        static CustomCacheManager()
+        {
+			cancellationTokenSource = new CancellationTokenSource();
+			
+            var resetCacheSpecification = DataRepository.ResetCacheSpecification;
+            if (resetCacheSpecification.HasValue())
+                Task.Factory.StartNew(() => EstablishSharedMemoryFile(resetCacheSpecification.SemaphoreName, resetCacheSpecification.MemoryMappedFileName));
+        }
+
+        #endregion
+
+        #region Methods
+
+		/// <summary>
+        /// This method forces item to update (or insert if needed)
+        /// </summary>
+        /// <typeparam name="T">Type of input item</typeparam>
+        /// <param name="eCustomCacheType">The type of cache. Using this Enum, you can categorize each identical cacheable item.</param>
+        /// <param name="cacheItemId">Use this parameter in conjunction with dynamic cache Mechanism, where you wish to contrast between same eCustomCacheType with different Find Method Parameters.</param>
+        /// <param name="validityDuration">specify the validity duration of the cached data (in minute). "0" means NO CHANGE.</param>
+        /// <param name="newItem">item</param>
+        public static void ForceToInsertOrUpdateChachedItem<T>(Enum eCustomCacheType, string cacheItemId, int validityDuration, T newItem)
+        {
+            var cacheItem = GetCacheItem(eCustomCacheType, cacheItemId);
+
+            if (!cacheItem.ValidityDateTime.HasValue)
+            {
+                cacheItem.CachedDynamicData = newItem;
+            }
+            else if ((object)cacheItem.CachedDynamicData != (object)newItem)
+            {
+                var disposableObject = cacheItem.CachedDynamicData as IDisposable;
+                if (disposableObject != null)
+                    disposableObject.Dispose();
+
+                cacheItem.CachedDynamicData = newItem;
+            }
+
+            DataRepository.OnCachedDataReloaded(null, new CacheStatusEventArgs(newItem.ToString(), cacheItem.ValidityDateTime.HasValue, eCacheMechanism.CustomObject));
+
+            if (validityDuration != 0)
+            	cacheItem.ValidityDateTime = DateTime.Now.AddMinutes(validityDuration);
+        }
+
+        private static CacheItem GetCacheItem(Enum customCacheType, string cacheItemId)
+        {
+            lock (syncRoot)
+            {
+                CacheItem cacheItem = null;
+                var searchItemPair = new Tuple<string, string>(customCacheType.ToString(), cacheItemId);
+                cacheItemList.TryGetValue(searchItemPair, out cacheItem);
+                if (cacheItem != null)
+                    return cacheItem;
+
+                cacheItem = new CacheItem()
+                {
+                    CachedDynamicData = null,
+                    ValidityDateTime = null,
+                    SyncRoot = new object()
+                };
+
+                cacheItemList.Add(searchItemPair, cacheItem);
+                return cacheItem;
+            }
+        }
+
+        /// <summary>
+        /// Handle the custom Cache senario which with you can do the Entity cache stuff.
+        /// <param name="eCustomCacheType">
+        /// The type of cache. Using this Enum, you can categorize each identical cacheable item.
+        /// <example>
+        /// StaticCachableItems (Like stuffs that won`t be reload month to month),
+        /// StaticGeneralItems (like System Configurations or some static data which comes from static Find methods with static input parameters),
+        /// DynamicGeneralItems (like some data which comes from Find methods with dynamic input parameters),
+        /// </example>
+        /// </param>
+        /// <param name="cacheItemId">
+        /// Use this parameter in conjunction with dynamic cache Mechanism, where you wish to contrast between same eCustomCacheType with different Find Method Parameters.
+        /// </param>
+        /// <param param name="validityDuration">
+        /// specify the validity duration of the cached data (in minute).
+        /// </param>
+        /// <param name="alternativeCacheableData">
+        /// specify the alternate for cache data when old cached data is expired or data is featched for the first time.
+        /// </param>
+        /// </summary>
+        public static TList<Entity> CustomizedCache<Entity>(Enum eCustomCacheType, string cacheItemId, int validityDuration, Func<TList<Entity>> alternativeCacheableData) where Entity : IEntity, new()
+        {
+            CacheItem cacheItem = null;
+
+            try
+            {
+                cacheItem = GetCacheItem(eCustomCacheType, cacheItemId);
+
+                lock (cacheItem.SyncRoot)
+                {
+                    if (!cacheItem.ValidityDateTime.HasValue || cacheItem.ValidityDateTime.Value < DateTime.Now)
+                    {
+                        TList<Entity> data = alternativeCacheableData();
+                        string tableName = data != null && data.Any() ? data[0].TableName : typeof(Entity).Name;
+
+                        DataRepository.OnCachedDataReloaded(null, new CacheStatusEventArgs(tableName, cacheItem.ValidityDateTime.HasValue, eCacheMechanism.CustomEntity));
+                        cacheItem.ValidityDateTime = DateTime.Now.AddMinutes(validityDuration);
+                        cacheItem.CachedDynamicData = data;
+                    }
+                }
+            }
+            catch
+            {
+                //TODO: some code goes here.
+            }
+
+            return cacheItem == null ? null : cacheItem.CachedDynamicData as TList<Entity>;
+        }
+
+        /// <summary>
+        /// Handle the custom Cache senario which with you can do every cache stuffs for all types of objects.
+        /// <param name="eCustomCacheType">
+        /// The type of cache. Using this Enum, you can categorize each identical cacheable item.
+        /// <example>
+        /// StaticCachableItems (Like stuffs that won`t be reload month to month),
+        /// StaticGeneralItems (like System Configurations or some static data which comes from static Find methods with static input parameters which return DataTable),
+        /// DynamicGeneralItems (like some data which comes from Find methods with dynamic input parameters which return DataTable),
+        /// </example>
+        /// </param>
+        /// <param name="cacheItemId">
+        /// Use this parameter in conjunction with dynamic cache Mechanism, where you wish to contrast between same eCustomCacheType with different Find Method Parameters which return DataTable.
+        /// </param>
+        /// <param param name="validityDuration">
+        /// specify the validity duration of the cached data (in minute).
+        /// </param>
+        /// <param name="alternativeCacheableData">
+        /// specify the alternate for cache data when old cached data is expired or data is featched for the first time.
+        /// </param>
+        /// </summary>
+        public static dynamic CustomizedCache(Enum eCustomCacheType, string cacheItemId, int validityDuration, Func<dynamic> alternativeCacheableData)
+        {
+            CacheItem cacheItem = null;
+
+            try
+            {
+                cacheItem = GetCacheItem(eCustomCacheType, cacheItemId);
+
+                lock (cacheItem.SyncRoot)
+                {
+                    if (!cacheItem.ValidityDateTime.HasValue || cacheItem.ValidityDateTime.Value < DateTime.Now)
+                    {
+                        cacheItem.CachedDynamicData = alternativeCacheableData();
+                        DataRepository.OnCachedDataReloaded(null, new CacheStatusEventArgs(string.Empty, cacheItem.ValidityDateTime.HasValue, eCacheMechanism.CustomObject));
+                        cacheItem.ValidityDateTime = DateTime.Now.AddMinutes(validityDuration);
+                    }
+                }
+            }
+            catch
+            {
+                //TODO: some code goes here.
+            }
+
+            return cacheItem == null ? null : cacheItem.CachedDynamicData;
+        }
+
+		/// <summary>
+        /// Handle the custom Cache senario which with you can do every cache stuffs for all types of objects.
+        /// <param name="eCustomCacheType">
+        /// The type of cache. Using this Enum, you can categorize each identical cacheable item.
+        /// <example>
+        /// StaticCachableItems (Like stuffs that won`t be reload month to month),
+        /// StaticGeneralItems (like System Configurations or some static data which comes from static Find methods with static input parameters which return DataTable),
+        /// DynamicGeneralItems (like some data which comes from Find methods with dynamic input parameters which return DataTable),
+        /// </example>
+        /// </param>
+        /// <param name="cacheItemId">
+        /// Use this parameter in conjunction with dynamic cache Mechanism, where you wish to contrast between same eCustomCacheType with different Find Method Parameters which return DataTable.
+        /// </param>
+        /// <param param name="validityDurationFunction">
+        /// A function which yields an int value to specify the validity duration of the cached data (in minute).
+        /// </param>
+        /// <param name="alternativeCacheableData">
+        /// specify the alternate for cache data when old cached data is expired or data is featched for the first time.
+        /// </param>
+        /// </summary>
+        public static dynamic CustomizedCache(Enum eCustomCacheType, string cacheItemId, Func<dynamic, int> validityDurationFunction, Func<dynamic> alternativeCacheableData)
+        {
+            CacheItem cacheItem = null;
+
+            try
+            {
+                cacheItem = GetCacheItem(eCustomCacheType, cacheItemId);
+
+                lock (cacheItem.SyncRoot)
+                {
+                    if (!cacheItem.ValidityDateTime.HasValue || cacheItem.ValidityDateTime.Value < DateTime.Now)
+                    {
+                        cacheItem.CachedDynamicData = alternativeCacheableData();
+                        object item = cacheItem.CachedDynamicData;
+                        DataRepository.OnCachedDataReloaded(null, new CacheStatusEventArgs(string.Empty, cacheItem.ValidityDateTime.HasValue, eCacheMechanism.CustomObject));
+                        cacheItem.ValidityDateTime = DateTime.Now.AddMinutes(validityDurationFunction(item));
+                    }
+                }
+            }
+            catch
+            {
+                //TODO: some code goes here.
+            }
+
+            return cacheItem == null ? null : cacheItem.CachedDynamicData;
+    }
+
+    /// <summary>
+        /// Refetch/Refresh data from database on the next call
+    /// </summary>
+        /// <param name="eCustomCacheType">The type of cache. Using this Enum, you can categorize each identical cacheable item.</param>
+        /// <param name="cacheItemId">Use this parameter in conjunction with dynamic cache Mechanism, where you wish to contrast between same eCustomCacheType with different Find Method Parameters which return DataTable.</param>
+		public static void RefetchCacheOnNextCall(Enum eCustomCacheType, string cacheItemId)
+        {
+            RefetchCacheOnNextCall(eCustomCacheType.ToString(), cacheItemId);
+        }
+		
+		private static void RefetchCacheOnNextCall(string eCustomCacheType, string cacheItemId)
+        {
+            CacheItem cacheItem = null;
+            var searchItemPair = new Tuple<string, string>(eCustomCacheType, cacheItemId);
+
+            lock (syncRoot)
+            {
+                try
+                {
+                    cacheItemList.TryGetValue(searchItemPair, out cacheItem);
+                    if (cacheItem != null)
+                    {
+                        cacheItemList.Remove(searchItemPair);
+
+                        var disposableObject = cacheItem.CachedDynamicData as IDisposable;
+                        if (disposableObject != null)
+                            disposableObject.Dispose();
+                    }
+                }
+                catch
+    {
+                    //TODO: some code goes here.
+                }
+            }
+        }
+		
+        /// <summary>
+        /// This method will establish a shared memory.
+        /// This mechanism is used to refresh cache item from another proccess/app (e.g. maintenance app).
+        /// </summary>
+        private static void EstablishSharedMemoryFile(string semaphoreName, string fileName)
+        {
+            var newLineSplitter = new string[] { Environment.NewLine, "|", "/", "\\" };
+            var commaSplitter = new char[] { ',', ' ', ':' };
+
+            using (MemoryMappedFile file = MemoryMappedFile.CreateNew(fileName, BUFFER_LENGTH))
+            {
+                Semaphore sem = new Semaphore(0, 1, semaphoreName);
+
+                using (var stream = file.CreateViewStream())
+                {
+                    BinaryReader reader = new BinaryReader(stream);
+
+                    do
+                    {
+                        sem.WaitOne();
+                        reader.BaseStream.Seek(0, 0);
+
+                        var str = reader.ReadString();
+                        var cacheTextList = str.Split(newLineSplitter, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (string cacheText in cacheTextList)
+                        {
+                            var paramList = cacheText.Split(commaSplitter, StringSplitOptions.RemoveEmptyEntries);
+                            RefetchCacheOnNextCall(paramList[0], paramList[1]);
+                        }
+                    } while (!cancellationTokenSource.Token.IsCancellationRequested);
+                }
+            }
+        }		
+		
+        #endregion
+		
+		#region Interfcae implementation
+
+        public void Dispose()
+        {
+            cancellationTokenSource.Cancel(false);
+        }
+
+        #endregion
+    }
+
+        /// <summary>
+    /// This class is used to preserve and manage the last state of each unique cache item.
+        /// </summary>
+    internal sealed class CacheItem
+    {
+        /// <summary>
+        /// provides the lock Mechanism for each unique cached item.
+        /// </summary>
+        public object SyncRoot { get; set; }
+
+        /// <summary>
+        /// Exact expiration Date and Time of the cached item.
+        /// </summary>
+        public DateTime? ValidityDateTime { get; set; }
+
+        /// <summary>
+        /// cached item.
+        /// </summary>
+        public dynamic CachedDynamicData { get; set; }
+    }
+
+    #region CacheStatusEventArgs
+
+    public enum eCacheMechanism { Tabular, CustomEntity, CustomObject }
+
+    /// <summary>
+    ///     This represents the delegate method prototype that
+    ///     event receivers must implement 
+    /// </summary>
+    public delegate void CachedDataReloadedEventHandler(object sender, CacheStatusEventArgs cacheStatusEventArgs);
+
+    /// <summary>
+    /// Event Args that contains the information about cached data.
+    /// </summary>
+    public class CacheStatusEventArgs : EventArgs
+    {
+        #region Fields & Properties
+
+        /// <summary>
+        /// The name of thable whitch is operating on.
+        /// </summary>
+        public string TableName { get; set; }
+
+        /// <summary>
+        /// Determine if cache loaded for the first time or time period is ellipsed.
+        /// </summary>
+        public bool IsTimePeriodExpired { get; set; }
+
+        /// <summary>
+        /// Determine Mechanism of cache system that currently activated.
+        /// </summary>
+        public eCacheMechanism CacheMechanism { get; set; }
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:CacheStatusEventArgs"/> class.
+        /// </summary>
+        public CacheStatusEventArgs(string tableName, bool isTimePeriodExpired, eCacheMechanism cacheMechanism)
+        {
+            this.TableName = tableName;
+            this.IsTimePeriodExpired = isTimePeriodExpired;
+            this.CacheMechanism = cacheMechanism;
+        }
+
+        #endregion
+    }
+
+    #endregion
+}

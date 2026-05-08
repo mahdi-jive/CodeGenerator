@@ -1,0 +1,15 @@
+﻿
+namespace Behsaz.Data.Bases
+{
+    public sealed class ResetCacheSpecification
+    {
+        public string SemaphoreName { get; set; }
+
+        public string MemoryMappedFileName { get; set; }
+
+        internal bool HasValue()
+        {
+            return !string.IsNullOrEmpty(SemaphoreName) && !string.IsNullOrEmpty(MemoryMappedFileName);
+        }
+    }
+}

@@ -1,0 +1,10 @@
+﻿
+namespace Behsaz.Data.Bases
+{
+    public sealed class TableCacheValidityDurationItem
+    {
+        public string TableName { get; set; }
+
+        public int ValidityDuration { get; set; }
+    }
+}

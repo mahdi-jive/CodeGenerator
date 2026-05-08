@@ -18,5 +18,8 @@
         string? GeneratedAlwaysType { get; }
         bool IsPrimaryKey { get; }
         string? DefaultValue { get; }
+        public string ToStringParamsWithoutType();
+        public string ToStringParamsCSharpType();
+        public string ToStringParamsSystemType();
     }
 }

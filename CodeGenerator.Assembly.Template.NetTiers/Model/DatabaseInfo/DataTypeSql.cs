@@ -36,6 +36,7 @@
         hierarchyid,
         geography,
         geometry,
+        table
     }
 
     public class DataTypeSql
@@ -370,6 +371,15 @@
                     CastCode = "(string)",
                     DbTypeCode = "DbType.String"
                 },
+                [DataTypeSqlEnum.table] = new()
+                {
+                    Sql = "table",
+                    CSharpType = "DataTable",
+                    SystemType = "DataTable",
+                    DefaultValue = "null",
+                    CastCode = "(DataTable)",
+                    DbTypeCode = "SqlDbType.Structured"
+                }
             };
 
 
@@ -386,6 +396,7 @@
                 throw new ArgumentException($"Unsupported SQL type: {sqlType}");
 
             DataTypeSqlEnum = item.Key;
+            RawSqlType = sqlType;
         }
 
         public DataTypeSql(DataTypeSqlEnum type)
@@ -395,6 +406,7 @@
 
         private DataTypeInfo Info => Map[DataTypeSqlEnum];
 
+        public string RawSqlType { get; set; }
         public string Sql => Info.Sql;
         public string CSharpType => Info.CSharpType;
         public string SystemType => Info.SystemType;

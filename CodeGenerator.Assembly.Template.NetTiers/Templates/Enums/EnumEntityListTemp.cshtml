@@ -1,0 +1,32 @@
+﻿@using CodeGenerator.Assembly.Template.NetTiers.Extensions
+@using System.Text.RegularExpressions
+@model  CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.TableEnum.ITableEnum
+@{
+
+	var summaryText = string.IsNullOrEmpty(Model.Description)
+		? $"An enum representation of the '{Model.Name}' table. [No description found in the database]"
+		: Model.Description;
+	var Items = (await Model.Items);
+}
+
+using System;
+
+namespace Behsaz.Entities
+{
+	/// <summary>
+	/// @summaryText
+	/// </summary>
+	/// <remark>this enumeration contains the items contained in the table TBASBank</remark>
+	[Serializable]
+	public enum @(Model.Name)List
+	{
+@foreach (var item in Items)
+{
+@:		/// <summary>
+@:		/// @item.Title
+@:		/// </summary>
+@:		[EnumTextValue(@@"@item.Title")]
+@:		@item.Name = @item.Id,
+}
+	}
+}

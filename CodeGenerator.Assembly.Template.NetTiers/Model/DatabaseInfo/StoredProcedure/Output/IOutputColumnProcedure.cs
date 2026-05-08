@@ -1,6 +1,6 @@
 ﻿namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.StoredProcedure.Output
 {
-    public interface IOutputProcedure
+    public interface IOutputColumnProcedure
     {
         public int? MaxLength { get; }
         public string Name { get; }

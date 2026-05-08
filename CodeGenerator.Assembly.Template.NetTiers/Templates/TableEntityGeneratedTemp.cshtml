@@ -5,12 +5,17 @@
 
 	var summaryText = string.IsNullOrEmpty(Model.Description)
 		? $"An object representation of the '{Model.Name}' table. [No description found in the database]"
-		: Model.Description;
+		: Model.Description?.Replace("\r", "").Replace("\n","\n			///");
 
-	var columns = await Model.Columns;
+	var columns = (await Model.Columns).DistinctBy(c=>c.Name);
+	var columnsWithoutPK = columns.Where(c => !c.IsPrimaryKey);
 	var relations = (await Model.Relations).OrderBy(q=>q.TableName);
-	var referencedBy = (await Model.ReferencedBy).OrderByDescending(q=>q.TableName);
-
+	var referencedBy = (await Model.ReferencedBy).OrderBy(q=>q.ObjectId);
+	var primaryKey = columns.FirstOrDefault(q => q.IsPrimaryKey);
+	if (primaryKey==null)
+	{
+		throw new NullReferenceException(Model.Name);
+	}
 }
 
 /*
@@ -97,7 +102,7 @@ namespace Behsaz.Entities
 		///</summary>
 @foreach (var item in columns.Where(c=> !c.IsIdentity))
 {
-	@:		///		<param name="_@(item.NameCamel)">@item.Description</param>
+	@:		///		<param name="_@(item.NameCamel)">@item.Description?.Replace("\r", "").Replace("\n","\n			///")</param>
 }
 
 		public @(Model.NamePascal)Base(@(columns.Where(c=> !c.IsIdentity).ToStringParamsSystemType()))
@@ -116,7 +121,7 @@ namespace Behsaz.Entities
 		///</summary>
 @foreach (var item in columns.Where(c=> !c.IsIdentity))
 {
-	@:		///		<param name="_@(item.NameCamel)">@item.Description</param>
+	@:		///		<param name="_@(item.NameCamel)">@item.Description?.Replace("\r", "").Replace("\n","\n			///")</param>
 }
 		public static @(Model.NamePascal) Create@(Model.NamePascal)(@( columns.Where(c=> !c.IsIdentity).ToStringParamsSystemType()))
 		{
@@ -134,11 +139,71 @@ namespace Behsaz.Entities
 		#region Properties
 
 		#region Data Properties
-@foreach (var item in columns)
+		/// <summary>
+		/// 	Gets or sets the @(primaryKey.NamePascal) property.
+		/// 	@(primaryKey.Description?.Replace("\r", "").Replace("\n","\n			///"))
+		///</summary>
+		/// <value>This type is @(primaryKey.DataType.Sql).</value>
+		/// <remarks>
+
+		/// This property can not be set to null.
+		/// </remarks>
+		[Required(ErrorMessage = "@primaryKey.NamePascal is required")]
+
+
+
+
+
+
+		@if (primaryKey.IsIdentity)
+		{
+@:		[ReadOnlyAttribute(false)/*, XmlIgnoreAttribute()*/, DescriptionAttribute(@@"@primaryKey.Description?.Replace("\r", " ").Replace("\n"," ")"), System.ComponentModel.Bindable( System.ComponentModel.BindableSupport.Yes)]
+		}
+		[DescriptionAttribute(@@"@(primaryKey.Description?.Replace("\r", " ").Replace("\n"," "))"), System.ComponentModel.Bindable( System.ComponentModel.BindableSupport.Yes)]
+        [DataObjectField(true, @primaryKey.IsIdentity.ToString().ToLower(), false@(primaryKey.HasLength?$", {@primaryKey.MaxLength.ToString()}":""))]
+		public virtual @primaryKey.DataType.SystemType@(primaryKey.IsNullable && primaryKey.DataType.CSharpType!="string"?"?":"") @(primaryKey.NamePascal)
+		{
+			get
+			{
+				return this.entityData.@(primaryKey.NamePascal); 
+			}
+			
+			set
+			{
+				if (this.entityData.@(primaryKey.NamePascal) == value)
+					return;
+				
+	            OnPropertyChanging("@(primaryKey.NamePascal)");                    
+				OnColumnChanging(@(Model.NamePascal)Column.@(primaryKey.NamePascal), this.entityData.@(primaryKey.NamePascal));
+				this.entityData.@(primaryKey.NamePascal) = value;
+				this.EntityId.@(primaryKey.NamePascal) = value;
+
+				if (this.EntityState == EntityState.Unchanged)
+					this.EntityState = EntityState.Changed;
+				OnColumnChanged(@(Model.NamePascal)Column.@(primaryKey.NamePascal), this.entityData.@(primaryKey.NamePascal));
+				OnPropertyChanged("@(primaryKey.NamePascal)");
+			}
+		}
+@if (!primaryKey.IsIdentity)
+		{
+@:		/// <summary>
+@:		/// 	Get the original value of the ID property.
+@:		///		
+@:		/// </summary>
+@:		/// <remarks>This is the original value of the ID property.</remarks>
+@:		/// <value>This type is int</value>
+@:		[BrowsableAttribute(false)/*, XmlIgnoreAttribute()*/]
+@:		public  virtual System.Int32 OriginalId
+@:		{
+@:			get { return this.entityData.OriginalId; }
+@:			set { this.entityData.OriginalId = value; }
+@:		}
+		}
+@foreach (var item in columnsWithoutPK)
 {
 @:		/// <summary>
 @:		/// 	Gets or sets the @(item.NamePascal) property.
-@:		/// 	@(item.Description)
+@:		/// 	@(item.Description?.Replace("\r", "").Replace("\n","\n			///"))
 @:		///</summary>
 @:		/// <value>This type is @(item.DataType.Sql).</value>
 @:		/// <remarks>
@@ -151,7 +216,7 @@ namespace Behsaz.Entities
 @:
 @:
 @:
-@:[XmlElement(IsNullable=true)]
+@:		[XmlElement(IsNullable=true)]
 	}
 	else
 	{
@@ -164,15 +229,8 @@ namespace Behsaz.Entities
 @:
 	}
 
-	if (item.IsPrimaryKey)
-	{
-@:		[ReadOnlyAttribute(false)/*, XmlIgnoreAttribute()*/, DescriptionAttribute(@@"@item.Description"), System.ComponentModel.Bindable( System.ComponentModel.BindableSupport.Yes)]
-	}
-	else
-	{
-@:		[DescriptionAttribute(@@"@(item.Description)"), System.ComponentModel.Bindable( System.ComponentModel.BindableSupport.Yes)]
-	}
-@:      [DataObjectField(@item.IsPrimaryKey.ToString().ToLower(), @item.IsIdentity.ToString().ToLower(), @item.IsNullable.ToString().ToLower() @(item.HasLength?$",{@item.MaxLength.ToString()}":""))]
+@:		[DescriptionAttribute(@@"@(item.Description?.Replace("\r", " ").Replace("\n"," "))"), System.ComponentModel.Bindable( System.ComponentModel.BindableSupport.Yes)]
+@:      [DataObjectField(false, @item.IsIdentity.ToString().ToLower(), @item.IsNullable.ToString().ToLower()@(item.HasLength?$", {@item.MaxLength.ToString()}":""))]
 	@:	public virtual @item.DataType.SystemType@(item.IsNullable&&item.DataType.CSharpType!="string"?"?":"") @(item.NamePascal)
 	@:	{
 	@:		get
@@ -188,9 +246,6 @@ namespace Behsaz.Entities
     @:            OnPropertyChanging("@(item.NamePascal)");                    
 	@:			OnColumnChanging(@(Model.NamePascal)Column.@(item.NamePascal), this.entityData.@(item.NamePascal));
 	@:			this.entityData.@(item.NamePascal) = value;
-				if(item.IsPrimaryKey){
-	@:			this.EntityId.@(item.NamePascal) = value;
-				}
 	@:			if (this.EntityState == EntityState.Unchanged)
 	@:				this.EntityState = EntityState.Changed;
 	@:			OnColumnChanged(@(Model.NamePascal)Column.@(item.NamePascal), this.entityData.@(item.NamePascal));
@@ -435,7 +490,12 @@ namespace Behsaz.Entities
 			@Model.NamePascal copy = new @(Model.NamePascal)();
 			existingCopies.Add(this, copy);
 			copy.SuppressEntityEvents = true;
-			@foreach (var item in columns)
+			copy.@primaryKey.NamePascal = this.@primaryKey.NamePascal;
+			@if (!primaryKey.IsIdentity)
+			{
+@:					copy.OriginalId = this.OriginalId;
+			}
+			@foreach (var item in columnsWithoutPK)
 			{
 		@:		copy.@item.NamePascal = this.@item.NamePascal;
 			}
@@ -634,15 +694,15 @@ namespace Behsaz.Entities
 		///</summary>
 		public @(Model.NamePascal) GetOriginalEntity()
 		{
+					@{
+						var getOriginalEntityListColumn = (!primaryKey.IsIdentity ? columns : columnsWithoutPK);
+					}
 			if (_originalData != null)
 				return Create@(Model.NamePascal)(
-					@{
-						var columnsWithoutPK = columns.Where(c => !c.IsPrimaryKey);
-					}
-				@for (int i = 0; i < columnsWithoutPK.Count(); i++)
+				@for (int i = 0; i < getOriginalEntityListColumn.Count(); i++)
 				{
-						var item = columnsWithoutPK.ElementAt(i);
-						@:		_originalData.@(item.NamePascal)@(i== columnsWithoutPK.Count()-1?"":",")
+						var item =getOriginalEntityListColumn.ElementAt(i);
+						@:		_originalData.@(item.NamePascal)@(i== getOriginalEntityListColumn.Count()-1?"":",")
 				}
 				);
 				
@@ -970,24 +1030,28 @@ namespace Behsaz.Entities
 		private EntityState currentEntityState = EntityState.Added;
 		
 		#region Primary key(s)
-		@foreach (var item in columns.Where(c=>c.IsPrimaryKey))
+
+		
+			/// <summary>			
+			/// @primaryKey.Name : @primaryKey.Description?.Replace("\r", "").Replace("\n","\n			///")
+			/// </summary>
+			/// <remarks>Member of the primary key of the underlying table "@(Model.Name)"</remarks>
+			public @(primaryKey.DataType.SystemType) @(primaryKey.NamePascal);
+		@if (!primaryKey.IsIdentity)
 		{
-		@:		
-		@:			/// <summary>			
-		@:			/// @item.Name : @item.Description
-		@:			/// </summary>
-		@:			/// <remarks>Member of the primary key of the underlying table "@(Model.Name)"</remarks>
-		@:			public @(item.DataType.SystemType) @(item.NamePascal);
-		@:				
-		@:			
+@:			/// <summary>
+@:			/// keep a copy of the original so it can be used for editable primary keys.
+@:			/// </summary>
+@:			public System.Int32 OriginalId;
 		}
+
 		#endregion
 		#region Non Primary key(s)
-		@foreach (var item in columns.Where(c=>!c.IsPrimaryKey))
+		@foreach (var item in columnsWithoutPK)
 		{
 		@:			
 		@:			/// <summary>
-		@:			/// @item.Name : @item.Description
+		@:			/// @item.Name : @item.Description?.Replace("\r", "").Replace("\n","\n			///")
 		@:			/// </summary>
 		@:			public @(item.DataType.SystemType)@(item.IsNullable && item.DataType.CSharpType!="string"?"?":"") @(item.NamePascal) =@(item.IsNullable?"null" :$"{(item.DataType.CSharpType!="string"  && item.DataType.CSharpType!="DateTime"? item.DataType.CastCode:"")}{item.DataType.DefaultValue}");	
 		}
@@ -1059,6 +1123,10 @@ namespace Behsaz.Entities
 				{
 			@:
 			@:		_tmp.@(item.NamePascal) = this.@(item.NamePascal);
+				if (!item.IsIdentity)
+					{
+				@:		_tmp.OriginalId = this.OriginalId;
+					}
 			@:
 				}
 				else
@@ -1109,6 +1177,10 @@ namespace Behsaz.Entities
 				{
 			@:
 			@:		_tmp.@(item.NamePascal) = this.@(item.NamePascal);
+					if (!item.IsIdentity)
+					{
+				@:		_tmp.OriginalId = this.OriginalId;
+					}
 			@:
 				}
 				else
@@ -1359,13 +1431,6 @@ namespace Behsaz.Entities
 	[CLSCompliant(true)]
 	public class @(Model.NamePascal)Key : EntityKeyBase
 	{
-		@{
-			var primaryKey = columns.FirstOrDefault(q => q.IsPrimaryKey);
-				if (primaryKey==null)
-				{
-					throw new NullReferenceException(Model.Name);
-				}
-		}
 		#region Constructors
 		
 		/// <summary>
@@ -1506,7 +1571,7 @@ namespace Behsaz.Entities
 			{
 				var item = columns.ElementAt(i);
 				@:		/// <summary>
-				@: 		/// @item.NamePascal : @item.Description
+				@: 		/// @item.NamePascal : @item.Description?.Replace("\r", "").Replace("\n","\n			///")
 				@: 		/// </summary>
 				@:		[EnumTextValue("@(Regex.Replace(@item.NamePascal, "([a-z])([A-Z])", "$1 $2"))")]
 				@:		[ColumnEnum("@item.Name", typeof(@item.DataType.SystemType), System.Data.@item.DataType.DbTypeCode, @item.IsPrimaryKey.ToString().ToLower(), @item.IsIdentity.ToString().ToLower(), @item.IsNullable.ToString().ToLower()@(item.HasLength?$",{item.MaxLength}":""))]

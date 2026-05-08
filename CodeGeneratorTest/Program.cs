@@ -1,8 +1,6 @@
-﻿using CodeGenerator;
-using CodeGenerator.Abstractions;
-using CodeGenerator.Assembly.Abstractions;
+﻿using CodeGenerator.Assembly.Abstractions;
 using CodeGenerator.Assembly.NetFx48;
-using CodeGenerator.Assembly.Template.NetTiers.Entities;
+using CodeGenerator.Assembly.Template.NetTiers;
 using CodeGenerator.FileSystem.Abstractions;
 using CodeGenerator.FileSystem.Physical;
 using MediatR;
@@ -33,7 +31,6 @@ internal class Program
     {
 
         RegistryService(args);
-
         await testGenerateProjectAsync();
         //GetDatabaseModel();
         await host.StopAsync();
@@ -46,12 +43,21 @@ internal class Program
         var directory = await PhysicalDirectory.CreateRootAsync(Mediator, rootPath, "TestAssembly");
         //IAssembly behsaz_Entities = await AssemblyNetFx48.CreateAsync(Mediator, directory, "Behsaz.Entities");
 
-        //ICodeFile codeFile = new CodeFile("EntityBase.cs", a);
-        //await behsaz_Entities.Directory.AddSourceFileAsync(behsaz_Entities, codeFile);
+        ////ICodeFile codeFile = new CodeFile("EntityBase.cs", a);
+        ////await behsaz_Entities.Directory.AddSourceFileAsync(behsaz_Entities, codeFile);
         var entitiesDirectory = await directory.AddDirectoryAsync("Behsaz");
-        List<IGenerator> generators = new List<IGenerator>() { await EntitiesFactory.GenerateAssembly(Mediator, entitiesDirectory) };
-        var generationManager = new CodeGenerationManager(generators);
-        await generationManager.GenerateAllAsync();
+        // List<IGenerator> generators = new List<IGenerator>() { await EntitiesFactory.GenerateAssembly(Mediator, entitiesDirectory) };
+        //var generationManager = new CodeGenerationManager(generators);
+        //await generationManager.GenerateAllAsync();
+        //ITemplateRenderer Renderer = new TemplateRenderer(Path.Combine(Directory.GetCurrentDirectory(), "Templates"));
+        //var allGenerators = TypeFinder.FindWithTypes(typeof(IAssemblyGenerator));
 
+        await GenerateNetTiersFactory.Generated(Mediator, entitiesDirectory, null);
+        //var a = allGenerators.Select(type => (IAssemblyGenerator)Activator.CreateInstance(type))
+        // .ToList();
+        //foreach (var item in a)
+        //{
+        //    await item.GenerateAssemblyAsync(Mediator, Renderer, directory, null);
+        //}
     }
 }

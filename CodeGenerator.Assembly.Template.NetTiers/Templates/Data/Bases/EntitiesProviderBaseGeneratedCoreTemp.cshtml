@@ -1,0 +1,1074 @@
+﻿@using CodeGenerator.Assembly.Template.NetTiers.Extensions
+@model CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.ITable
+@{
+	var columns = (await Model.Columns).DistinctBy(c => c.Name);
+	var columnsWithoutPK = columns.Where(c => !c.IsPrimaryKey);
+	var relations = (await Model.Relations).OrderBy(q => q.Name);
+	var referencedBy = (await Model.ReferencedBy).OrderBy(q => q.Name);
+	var Indexs = (await Model.Indexs).Where(q=>!q.IsPrimaryKey).OrderByDescending(q => q.Name);
+	var IndexsPrimary = (await Model.Indexs).FirstOrDefault(q=>q.IsPrimaryKey);
+	var storedProcedures  =(await Model.StoredProcedures).OrderByDescending(q => q.ObjectId);
+	var storedProceduresCustom = storedProcedures.Where(q => q.Name.StartsWith("sp_"));
+	var primaryKey = columns.FirstOrDefault(q => q.IsPrimaryKey);
+	if (primaryKey == null)
+	{
+		throw new NullReferenceException(Model.Name);
+	}
+}
+#region Using directives
+
+using System;
+using System.Data;
+using System.Data.Common;
+using System.Collections;
+using System.Collections.Generic;
+
+using Behsaz.Entities;
+using Behsaz.Data;
+
+#endregion
+
+namespace Behsaz.Data.Bases
+{	
+	///<summary>
+	/// This class is the base class for any <see cref="@(Model.NamePascal)ProviderBase"/> implementation.
+	/// It exposes CRUD methods as well as selecting on index, foreign keys and custom stored procedures.
+	///</summary>
+	public abstract partial class @(Model.NamePascal)ProviderBaseCore : EntityProviderBase<Behsaz.Entities.@(Model.NamePascal), Behsaz.Entities.@(Model.NamePascal)Key>
+	{
+        #region Fields & Properties
+
+	public override string TableName { get { return "@(Model.Name)"; } }
+
+        #endregion
+
+		#region Get from Many To Many Relationship Functions
+		#endregion	
+		
+		#region Delete Methods
+
+		/// <summary>
+		/// 	Deletes a row from the DataSource.
+		/// </summary>
+		/// <param name="transactionManager">A <see cref="TransactionManager"/> object.</param>
+		/// <param name="key">The unique identifier of the row to delete.</param>
+		/// <returns>Returns true if operation suceeded.</returns>
+		public override bool Delete(TransactionManager transactionManager, Behsaz.Entities.@(Model.NamePascal)Key key)
+		{
+
+			return Delete(transactionManager, key.@(primaryKey.NamePascal));
+		}
+		
+		/// <summary>
+		/// 	Deletes a row from the DataSource.
+		/// </summary>
+		/// <param name="@(primaryKey.ToStringParamsWithoutType())">. Primary Key.</param>
+		/// <remarks>Deletes based on primary key(s).</remarks>
+		/// <returns>Returns true if operation suceeded.</returns>
+		public bool Delete(@(primaryKey.ToStringParamsSystemType()))
+		{
+			return Delete(null, @(primaryKey.ToStringParamsWithoutType()));
+		}
+		
+		/// <summary>
+		/// 	Deletes a row from the DataSource.
+		/// </summary>
+		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+		/// <param name="@(primaryKey.ToStringParamsWithoutType())">. Primary Key.</param>
+		/// <remarks>Deletes based on primary key(s).</remarks>
+		/// <returns>Returns true if operation suceeded.</returns>
+	public abstract bool Delete(TransactionManager transactionManager, @(primaryKey.ToStringParamsSystemType()));
+
+	#endregion Delete Methods
+		
+		#region Get By Foreign Key Functions
+@foreach (var relation in relations)
+{
+	var column=columns.First(c=>c.ObjectId==relation.ColumnId);
+@:		/// <summary>
+@:		/// 	Gets rows from the datasource based on the @(relation.Name) key.
+@:		///		@(relation.Name) Description: @(relation.Description)
+@:		/// </summary>
+@:		/// <param name="@(column.ToStringParamsWithoutType())">@(column.Description)</param>
+@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.NamePascal) objects.</returns>
+@:		public TList<@(Model.NamePascal)> GetBy@(column.NamePascal)(@(column.ToStringParamsSystemType()))
+@:		{
+@:			int count = -1;
+@:			return GetBy@(column.NamePascal)(@(column.ToStringParamsWithoutType()), 0,int.MaxValue, out count);
+@:		}
+@:		
+@:		/// <summary>
+@:		/// 	Gets rows from the datasource based on the @(relation.Name) key.
+@:		///		@(relation.Name) Description: @(relation.Description)
+@:		/// </summary>
+@:		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+@:		/// <param name="@(column.ToStringParamsWithoutType())">@(column.Description)</param>
+@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.NamePascal) objects.</returns>
+@:		/// <remarks></remarks>
+@:		public TList<@(Model.NamePascal)> GetBy@(column.NamePascal)(TransactionManager transactionManager, @(column.ToStringParamsSystemType()))
+@:		{
+@:			int count = -1;
+@:			return GetBy@(column.NamePascal)(transactionManager, @(column.ToStringParamsWithoutType()), 0, int.MaxValue, out count);
+@:		}
+@:		
+@:		/// <summary>
+@:		/// 	Gets rows from the datasource based on the @(relation.Name) key.
+@:		///		@(relation.Name) Description: 
+@:		/// </summary>
+@:		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+@:		/// <param name="@(column.ToStringParamsWithoutType())">@(column.Description)</param>
+@:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+@:		///  <param name="pageLength">Number of rows to return.</param>
+@:		/// <remarks></remarks>
+@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.NamePascal) objects.</returns>
+@:		public TList<@(Model.NamePascal)> GetBy@(column.NamePascal)(TransactionManager transactionManager, @(column.ToStringParamsSystemType()), int start, int pageLength)
+@:		{
+@:			int count = -1;
+@:			return GetBy@(column.NamePascal)(transactionManager,@(column.ToStringParamsWithoutType()), start, pageLength, out count);
+@:		}
+@:		
+@:		/// <summary>
+@:		/// 	Gets rows from the datasource based on the @(relation.Name) key.
+@:		///		@(relation.Name) Description: @(relation.Description)
+@:		/// </summary>
+@:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+@:		/// <param name="pageLength">Number of rows to return.</param>
+@:		/// <param name="@(column.ToStringParamsWithoutType())">@(column.Description)</param>
+@:		/// <remarks></remarks>
+@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.NamePascal) objects.</returns>
+@:		public TList<@(Model.NamePascal)> GetBy@(column.NamePascal)(@(column.ToStringParamsSystemType()), int start, int pageLength)
+@:		{
+@:			int count =  -1;
+@:			return GetBy@(column.NamePascal)(null, @(column.ToStringParamsWithoutType()), start, pageLength,out count);	
+@:		}
+@:		
+@:		/// <summary>
+@:		/// 	Gets rows from the datasource based on the @(relation.Name) key.
+@:		///		@(relation.Name) Description: @(relation.Description)
+@:		/// </summary>
+@:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+@:		/// <param name="pageLength">Number of rows to return.</param>
+@:		/// <param name="@(column.ToStringParamsWithoutType())">@(column.Description)</param>
+@:		/// <param name="count">out parameter to get total records for query</param>
+@:		/// <remarks></remarks>
+@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.NamePascal) objects.</returns>
+@:		public TList<@(Model.NamePascal)> GetBy@(column.NamePascal)(@(column.ToStringParamsSystemType()), int start, int pageLength,out int count)
+@:		{
+@:			return GetBy@(column.NamePascal)(null, @(column.ToStringParamsWithoutType()), start, pageLength, out count);	
+@:		}
+@:						
+@:		/// <summary>
+@:		/// 	Gets rows from the datasource based on the @(relation.Name) key.
+@:		///		@(relation.Name) Description: @(relation.Description)
+@:		/// </summary>
+@:		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+@:		/// <param name="_@(column.NameCamel)">@(column.Description)</param>
+@:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+@:		/// <param name="pageLength">Number of rows to return.</param>
+@:		/// <param name="count">The total number of records.</param>
+@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.NamePascal) objects.</returns>
+@:		public abstract TList<@(Model.NamePascal)> GetBy@(column.NamePascal)(TransactionManager transactionManager, @(column.ToStringParamsSystemType()), int start, int pageLength, out int count);
+
+}
+
+		#endregion
+
+		#region Get By Index Functions
+		
+		/// <summary>
+		/// 	Gets a row from the DataSource based on its primary key.
+		/// </summary>
+		/// <param name="transactionManager">A <see cref="TransactionManager"/> object.</param>
+		/// <param name="key">The unique identifier of the row to retrieve.</param>
+		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+		/// <param name="pageLength">Number of rows to return.</param>
+		/// <returns>Returns an instance of the Entity class.</returns>
+		public override Behsaz.Entities.@(Model.NamePascal) Get(TransactionManager transactionManager, Behsaz.Entities.@(Model.NamePascal)Key key, int start, int pageLength)
+		{
+			return GetById(transactionManager, key.Id, start, pageLength);
+		}
+		
+		@foreach (var index in Indexs)
+	{
+		var columnsIndex= (await Model.GetColumnsIndexAsync(index));
+		var nameWitColumns  = string.Join("",columnsIndex.Select(q=>q.NamePascal));
+
+@:		/// <summary>
+@:		/// 	Gets rows from the datasource based on the primary key @(index.Name) index.
+@:		/// </summary>
+foreach (var item in columnsIndex)
+{
+@:		/// <param name="_@(item.NameCamel)"></param>
+}
+@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
+@:		public Behsaz.Entities.@(Model.NamePascal) GetBy@(nameWitColumns)(@(columnsIndex.ToStringParamsSystemType()))
+@:		{
+@:			int count = -1;
+@:			return GetBy@(nameWitColumns)(null,@(columnsIndex.ToStringParamsWithoutType()), 0, int.MaxValue, out count);
+@:		}
+@:		
+@:		/// <summary>
+@:		/// 	Gets rows from the datasource based on the @(index.Name) index.
+@:		/// </summary>
+foreach (var item in columnsIndex)
+{
+@:		/// <param name="_@(item.NameCamel)"></param>
+}
+@:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+@:		/// <param name="pageLength">Number of rows to return.</param>
+@:		/// <remarks></remarks>
+@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
+@:		public Behsaz.Entities.@(Model.NamePascal) GetBy@(nameWitColumns)(@(columnsIndex.ToStringParamsSystemType()), int start, int pageLength)
+@:		{
+@:			int count = -1;
+@:			return GetBy@(nameWitColumns)(null,@(columnsIndex.ToStringParamsWithoutType()), start, pageLength, out count);
+@:		}
+@:		
+@:		/// <summary>
+@:		/// 	Gets rows from the datasource based on the @(index.Name) index.
+@:		/// </summary>
+@:		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+foreach (var item in columnsIndex)
+{
+@:		/// <param name="_@(item.NameCamel)"></param>
+}
+@:		/// <remarks></remarks>
+@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
+@:		public Behsaz.Entities.@(Model.NamePascal) GetBy@(nameWitColumns)(TransactionManager transactionManager, @(columnsIndex.ToStringParamsSystemType()))
+@:		{
+@:			int count = -1;
+@:			return GetBy@(nameWitColumns)(transactionManager,@(columnsIndex.ToStringParamsWithoutType()), 0, int.MaxValue, out count);
+@:		}
+@:		
+@:		/// <summary>
+@:		/// 	Gets rows from the datasource based on the @(index.Name) index.
+@:		/// </summary>
+@:		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+foreach (var item in columnsIndex)
+{
+@:		/// <param name="_@(item.NameCamel)"></param>
+}
+@:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+@:		/// <param name="pageLength">Number of rows to return.</param>
+@:		/// <remarks></remarks>
+@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
+@:		public Behsaz.Entities.@(Model.NamePascal) GetBy@(nameWitColumns)(TransactionManager transactionManager,@(columnsIndex.ToStringParamsSystemType()), int start, int pageLength)
+@:		{
+@:			int count = -1;
+@:			return GetBy@(nameWitColumns)(transactionManager,@(columnsIndex.ToStringParamsWithoutType()), start, pageLength, out count);
+@:		}
+@:		
+@:		/// <summary>
+@:		/// 	Gets rows from the datasource based on the @(index.Name) index.
+@:		/// </summary>
+foreach (var item in columnsIndex)
+{
+@:		/// <param name="_@(item.NameCamel)"></param>
+}
+@:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+@:		/// <param name="pageLength">Number of rows to return.</param>
+@:		/// <param name="count">out parameter to get total records for query</param>
+@:		/// <remarks></remarks>
+@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
+@:		public Behsaz.Entities.@(Model.NamePascal) GetBy@(nameWitColumns)(@(columnsIndex.ToStringParamsSystemType()), int start, int pageLength, out int count)
+@:		{
+@:			return GetBy@(nameWitColumns)(null,@(columnsIndex.ToStringParamsWithoutType()), start, pageLength, out count);
+@:		}
+@:		
+@:				
+@:		/// <summary>
+@:		/// 	Gets rows from the datasource based on the @(index.Name) index.
+@:		/// </summary>
+@:		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+foreach (var item in columnsIndex)
+{
+@:		/// <param name="_@(item.NameCamel)"></param>
+}
+@:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+@:		/// <param name="pageLength">Number of rows to return.</param>
+@:		/// <param name="count">The total number of records.</param>
+@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
+@:		public abstract Behsaz.Entities.@(Model.NamePascal) GetBy@(nameWitColumns)(TransactionManager transactionManager,@(columnsIndex.ToStringParamsSystemType()), int start, int pageLength, out int count);
+
+	}
+
+						
+		/// <summary>
+		/// 	Gets rows from the datasource based on the primary key @(IndexsPrimary.Name) index.
+		/// </summary>
+		/// <param name="@(primaryKey.ToStringParamsWithoutType())"></param>
+		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
+		public Behsaz.Entities.@(Model.NamePascal) GetById(@(primaryKey.ToStringParamsSystemType()))
+		{
+			int count = -1;
+			return GetById(null,@(primaryKey.ToStringParamsWithoutType()), 0, int.MaxValue, out count);
+		}
+		
+		/// <summary>
+		/// 	Gets rows from the datasource based on the @(IndexsPrimary.Name) index.
+		/// </summary>
+		/// <param name="@(primaryKey.ToStringParamsWithoutType())"></param>
+		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+		/// <param name="pageLength">Number of rows to return.</param>
+		/// <remarks></remarks>
+		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
+		public Behsaz.Entities.@(Model.NamePascal) GetById(@(primaryKey.ToStringParamsSystemType()), int start, int pageLength)
+		{
+			int count = -1;
+			return GetById(null, @(primaryKey.ToStringParamsWithoutType()), start, pageLength, out count);
+		}
+		
+		/// <summary>
+		/// 	Gets rows from the datasource based on the @(IndexsPrimary.Name) index.
+		/// </summary>
+		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+		/// <param name="@(primaryKey.ToStringParamsWithoutType())"></param>
+		/// <remarks></remarks>
+		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
+		public Behsaz.Entities.@(Model.NamePascal) GetById(TransactionManager transactionManager, @(primaryKey.ToStringParamsSystemType()))
+		{
+			int count = -1;
+			return GetById(transactionManager, @(primaryKey.ToStringParamsWithoutType()), 0, int.MaxValue, out count);
+		}
+		
+		/// <summary>
+		/// 	Gets rows from the datasource based on the @(IndexsPrimary.Name) index.
+		/// </summary>
+		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+		/// <param name="@(primaryKey.ToStringParamsWithoutType())"></param>
+		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+		/// <param name="pageLength">Number of rows to return.</param>
+		/// <remarks></remarks>
+		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
+		public Behsaz.Entities.@(Model.NamePascal) GetById(TransactionManager transactionManager, @(primaryKey.ToStringParamsSystemType()), int start, int pageLength)
+		{
+			int count = -1;
+			return GetById(transactionManager, @(primaryKey.ToStringParamsWithoutType()), start, pageLength, out count);
+		}
+		
+		/// <summary>
+		/// 	Gets rows from the datasource based on the @(IndexsPrimary.Name) index.
+		/// </summary>
+		/// <param name="@(primaryKey.ToStringParamsWithoutType())"></param>
+		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+		/// <param name="pageLength">Number of rows to return.</param>
+		/// <param name="count">out parameter to get total records for query</param>
+		/// <remarks></remarks>
+		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
+		public Behsaz.Entities.@(Model.NamePascal) GetById(@(primaryKey.ToStringParamsSystemType()), int start, int pageLength, out int count)
+		{
+			return GetById(null, @(primaryKey.ToStringParamsWithoutType()), start, pageLength, out count);
+		}
+		
+				
+		/// <summary>
+		/// 	Gets rows from the datasource based on the @(IndexsPrimary.Name) index.
+		/// </summary>
+		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+		/// <param name="@(primaryKey.ToStringParamsWithoutType())"></param>
+		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+		/// <param name="pageLength">Number of rows to return.</param>
+		/// <param name="count">The total number of records.</param>
+		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
+		public abstract Behsaz.Entities.@(Model.NamePascal) GetById(TransactionManager transactionManager, @(primaryKey.ToStringParamsSystemType()), int start, int pageLength, out int count);
+						
+		#endregion "Get By Index Functions"
+	
+		#region Custom Methods
+		
+@foreach (var item in storedProceduresCustom)
+	{
+		var  parameters=await  item.ParametersInfo;
+		var outputStoredProcedure = (await Model.GetOutputStoredProceduresAsync(item)).OutputString;
+		var methodNameStoredProcedure = Model.GetMethodNameStoredProcedures(item);
+		@:		#region @(item.Name) 
+@:		
+@:		/// <summary>
+@:		///	This method wrap the '@(item.Name)' stored procedure. 
+@:		/// </summary>
+foreach (var parameter in parameters)
+		{
+@:		/// <param name="@(parameter.NameCamel)"> A <c>@(parameter.DataType.SystemType)</c> instance.</param>
+		}
+@:		/// <remark>This method is generate from a stored procedure.</remark>
+@:		/// <returns>A <see cref="@(outputStoredProcedure)"/> instance.</returns>
+@:		public @(outputStoredProcedure) @(methodNameStoredProcedure)(@(parameters.ToStringParamsSystemType()))
+@:		{
+@:			return @(methodNameStoredProcedure)(null, 0, int.MaxValue ,@(parameters.ToStringParamsWithoutType()));
+@:		}
+@:		
+@:		/// <summary>
+@:		///	This method wrap the '@(item.Name)' stored procedure. 
+@:		/// </summary>
+foreach (var parameter in parameters)
+		{
+@:		/// <param name="@(parameter.NameCamel)"> A <c>@(parameter.DataType.SystemType)</c> instance.</param>
+		}
+@:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+@:		/// <param name="pageLength">Number of rows to return.</param>
+@:		/// <remark>This method is generate from a stored procedure.</remark>
+@:		/// <returns>A <see cref="@(outputStoredProcedure)"/> instance.</returns>
+@:		public @(outputStoredProcedure) @(methodNameStoredProcedure)(int start, int pageLength, @(parameters.ToStringParamsSystemType()))
+@:		{
+@:			return @(methodNameStoredProcedure)(null, start, pageLength ,@(parameters.ToStringParamsWithoutType()));
+@:		}
+@:				
+@:		/// <summary>
+@:		///	This method wrap the '@(item.Name)' stored procedure. 
+@:		/// </summary>
+foreach (var parameter in parameters)
+		{
+@:		/// <param name="@(parameter.NameCamel)"> A <c>@(parameter.DataType.SystemType)</c> instance.</param>
+		}
+@:		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+@:		/// <remark>This method is generate from a stored procedure.</remark>
+@:		/// <returns>A <see cref="@(outputStoredProcedure)"/> instance.</returns>
+@:		public  @(outputStoredProcedure) @(methodNameStoredProcedure)(TransactionManager transactionManager, @(parameters.ToStringParamsSystemType()))
+@:		{
+@:			return @(methodNameStoredProcedure)(transactionManager, 0, int.MaxValue , @(parameters.ToStringParamsWithoutType()));
+@:		}
+@:		
+@:		/// <summary>
+@:		///	This method wrap the '@(item.Name)' stored procedure. 
+@:		/// </summary>
+foreach (var parameter in parameters)
+		{
+@:		/// <param name="@(parameter.NameCamel)"> A <c>@(parameter.DataType.SystemType)</c> instance.</param>
+		}
+@:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+@:		/// <param name="pageLength">Number of rows to return.</param>
+@:		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+@:		/// <remark>This method is generate from a stored procedure.</remark>
+@:		/// <returns>A <see cref="@(outputStoredProcedure)"/> instance.</returns>
+@:		public abstract @(outputStoredProcedure) @(methodNameStoredProcedure)(TransactionManager transactionManager, int start, int pageLength , @(parameters.ToStringParamsSystemType()));
+@:		
+@:		#endregion
+		
+	}
+		
+		#endregion
+
+		#region Helper Functions	
+		
+		/// <summary>
+		/// Fill a TList&lt;@(Model.NamePascal)&gt; From a DataReader.
+		/// </summary>
+		/// <param name="reader">Datareader</param>
+		/// <param name="rows">The collection to fill</param>
+		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+		/// <param name="pageLength">number of rows.</param>
+		/// <returns>a <see cref="TList&lt;@(Model.NamePascal)&gt;"/></returns>
+		public static TList<@(Model.NamePascal)> Fill(IDataReader reader, TList<@(Model.NamePascal)> rows, int start, int pageLength)
+		{
+			NetTiersProvider currentProvider = DataRepository.Provider;
+            bool useEntityFactory = currentProvider.UseEntityFactory;
+            bool enableEntityTracking = currentProvider.EnableEntityTracking;
+            LoadPolicy currentLoadPolicy = currentProvider.CurrentLoadPolicy;
+			Type entityCreationFactoryType = currentProvider.EntityCreationalFactoryType;
+			
+			// advance to the starting row
+			for (int i = 0; i < start; i++)
+			{
+				if (!reader.Read())
+				return rows; // not enough rows, just return
+			}
+			for (int i = 0; i < pageLength; i++)
+			{
+				if (!reader.Read())
+					break; // we are done
+					
+				string key = null;
+				
+				Behsaz.Entities.@(Model.NamePascal) c = null;
+				if (useEntityFactory)
+				{
+					key = new System.Text.StringBuilder("@(Model.NamePascal)")
+					.Append("|").Append((@(primaryKey.DataType.SystemType))reader[(@(primaryKey.DataType.CastCode)@(Model.NamePascal)Column.@(primaryKey.NamePascal) - 1)]).ToString();
+					c = EntityManager.LocateOrCreate<@(Model.NamePascal)>(
+					key.ToString(), // EntityTrackingKey
+					"@(Model.NamePascal)",  //Creational Type
+					entityCreationFactoryType,  //Factory used to create entity
+					enableEntityTracking); // Track this entity?
+				}
+				else
+				{
+					c = new Behsaz.Entities.@(Model.NamePascal)();
+				}
+				
+				if (!enableEntityTracking ||
+					c.EntityState == EntityState.Added ||
+					(enableEntityTracking &&
+					
+						(
+							(currentLoadPolicy == LoadPolicy.PreserveChanges && c.EntityState == EntityState.Unchanged) ||
+							(currentLoadPolicy == LoadPolicy.DiscardChanges && c.EntityState != EntityState.Unchanged)
+						)
+					))
+				{
+					c.SuppressEntityEvents = true;
+					@foreach (var column in columns)
+				{
+					if (column.IsNullable)
+					{
+	@:					c.@(column.NamePascal) = (reader.IsDBNull(((int@(Model.NamePascal)Column.@(column.NamePascal) - 1)))?null:(@(column.DataType.SystemType)?)reader[((int)@(Model.NamePascal)Column.@(column.NamePascal) - 1)];
+					}
+					else
+					{
+	@:					c.@(column.NamePascal) = (@(column.DataType.SystemType))reader[(@(column.DataType.CastCode)@(Model.NamePascal)Column.@(column.NamePascal) - 1)];
+					}
+					
+				}
+					c.EntityTrackingKey = key;
+					c.AcceptChanges();
+					c.SuppressEntityEvents = false;
+				}
+				rows.Add(c);
+			}
+		return rows;
+		}		
+		/// <summary>
+		/// Refreshes the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> object from the <see cref="IDataReader"/>.
+		/// </summary>
+		/// <param name="reader">The <see cref="IDataReader"/> to read from.</param>
+		/// <param name="entity">The <see cref="Behsaz.Entities.@(Model.NamePascal)"/> object to refresh.</param>
+		public static void RefreshEntity(IDataReader reader, Behsaz.Entities.@(Model.NamePascal) entity)
+		{
+			if (!reader.Read()) return;
+				@foreach (var column in columns)
+				{
+					if (column.IsNullable)
+					{
+			@:			entity.@(column.NamePascal) = (reader.IsDBNull(((int@(Model.NamePascal)Column.@(column.NamePascal) - 1)))?null:(@(column.DataType.SystemType)?)reader[((int)@(Model.NamePascal)Column.@(column.NamePascal) - 1)];
+					}
+					else
+					{
+			@:			entity.@(column.NamePascal) = (@(column.DataType.SystemType))reader[(@(column.DataType.CastCode)@(Model.NamePascal)Column.@(column.NamePascal) - 1)];
+					}
+					
+				}
+			entity.AcceptChanges();
+		}
+		
+		/// <summary>
+		/// Refreshes the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> object from the <see cref="DataSet"/>.
+		/// </summary>
+		/// <param name="dataSet">The <see cref="DataSet"/> to read from.</param>
+		/// <param name="entity">The <see cref="Behsaz.Entities.@(Model.NamePascal)"/> object.</param>
+		public static void RefreshEntity(DataSet dataSet, Behsaz.Entities.@(Model.NamePascal) entity)
+		{
+			DataRow dataRow = dataSet.Tables[0].Rows[0];
+			
+				@foreach (var column in columns)
+				{
+					if (column.IsNullable)
+					{
+			@:			entity.@(column.NamePascal) =Convert.IsDBNull(dataRow["@(column.Name)"]) ? null : (@(column.DataType.SystemType))dataRow["@(column.Name)"];
+					}
+					else
+					{
+			@:			entity.@(column.NamePascal) = (@(column.DataType.SystemType))dataRow["@(column.Name)"];
+					}
+					
+				}
+			entity.AcceptChanges();
+		}
+		#endregion 
+		
+		#region DeepLoad Methods
+		/// <summary>
+		/// Deep Loads the <see cref="IEntity"/> object with criteria based of the child 
+		/// property collections only N Levels Deep based on the <see cref="DeepLoadType"/>.
+		/// </summary>
+		/// <remarks>
+		/// Use this method with caution as it is possible to DeepLoad with Recursion and traverse an entire object graph.
+		/// </remarks>
+		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+		/// <param name="entity">The <see cref="Behsaz.Entities.@(Model.NamePascal)"/> object to load.</param>
+		/// <param name="deep">Boolean. A flag that indicates whether to recursively save all Property Collection that are descendants of this instance. If True, saves the complete object graph below this object. If False, saves this object only. </param>
+		/// <param name="deepLoadType">DeepLoadType Enumeration to Include/Exclude object property collections from Load.</param>
+		/// <param name="childTypes">Behsaz.Entities.@(Model.NamePascal) Property Collection Type Array To Include or Exclude from Load</param>
+		/// <param name="innerList">A collection of child types for easy access.</param>
+	    /// <exception cref="ArgumentNullException">entity or childTypes is null.</exception>
+	    /// <exception cref="ArgumentException">deepLoadType has invalid value.</exception>
+		public override void DeepLoad(TransactionManager transactionManager, Behsaz.Entities.@(Model.NamePascal) entity, bool deep, DeepLoadType deepLoadType, System.Type[] childTypes, DeepSession innerList)
+		{
+			if(entity == null)
+				return;
+				
+		@foreach (var relation in relations)
+		{
+@:			#region @(relation.ColumnNamePascal)Source
+@:			if (CanDeepLoad(entity, "@(relation.TableNamePascal)|@(relation.ColumnNamePascal)Source", deepLoadType, innerList) 
+@:				&& entity.@(relation.ColumnNamePascal)Source == null)
+@:			{
+@:				object[] pkItems = new object[1];
+@:				pkItems[0] = entity.@(relation.ColumnNamePascal);
+@:				@(relation.TableNamePascal) tmpEntity = EntityManager.LocateEntity<@(relation.TableNamePascal)>(EntityLocator.ConstructKeyFromPkItems(typeof(@(relation.TableNamePascal)), pkItems), DataRepository.Provider.EnableEntityTracking);
+@:				if (tmpEntity != null)
+@:					entity.@(relation.ColumnNamePascal)Source = tmpEntity;
+@:				else
+@:					entity.@(relation.ColumnNamePascal)Source = DataRepository.@(relation.TableNamePascal)Provider.GetById(transactionManager, entity.@(relation.ColumnNamePascal));		
+@:				
+@:				#if NETTIERS_DEBUG
+@:				System.Diagnostics.Debug.WriteLine("- property '@(relation.ColumnNamePascal)Source' loaded. key " + entity.EntityTrackingKey);
+@:				#endif 
+@:				
+@:				if (deep && entity.@(relation.ColumnNamePascal)Source != null)
+@:				{
+@:					innerList.SkipChildren = true;
+@:					DataRepository.@(relation.TableNamePascal)Provider.DeepLoad(transactionManager, entity.@(relation.ColumnNamePascal)Source, deep, deepLoadType, childTypes, innerList);
+@:					innerList.SkipChildren = false;
+@:				}
+@:					
+@:			}
+@:			#endregion @(relation.ColumnNamePascal)Source
+		}
+			#region TinfCashDocTcalculateMainCollection
+			//Relationship Type One : Many
+			if (CanDeepLoad(entity, "List<TinfCashDocTcalculateMain>|TinfCashDocTcalculateMainCollection", deepLoadType, innerList)) 
+			{
+				#if NETTIERS_DEBUG
+				System.Diagnostics.Debug.WriteLine("- property 'TinfCashDocTcalculateMainCollection' loaded. key " + entity.EntityTrackingKey);
+				#endif 
+
+				entity.TinfCashDocTcalculateMainCollection = DataRepository.TinfCashDocTcalculateMainProvider.GetByTcalculateMainId(transactionManager, entity.Id);
+
+				if (deep && entity.TinfCashDocTcalculateMainCollection.Count > 0)
+				{
+					deepHandles.Add("TinfCashDocTcalculateMainCollection",
+						new KeyValuePair<Delegate, object>((DeepLoadHandle<TinfCashDocTcalculateMain>) DataRepository.TinfCashDocTcalculateMainProvider.DeepLoad,
+						new object[] { transactionManager, entity.TinfCashDocTcalculateMainCollection, deep, deepLoadType, childTypes, innerList }
+					));
+				}
+			}		
+			#endregion 
+			
+			
+			#region TcalculateMainDetails
+			// RelationshipType.OneToOne
+			if (CanDeepLoad(entity, "TcalculateMainDetails|TcalculateMainDetails", deepLoadType, innerList))
+			{
+				entity.TcalculateMainDetails = DataRepository.TcalculateMainDetailsProvider.GetById(transactionManager, entity.Id);
+				#if NETTIERS_DEBUG
+				System.Diagnostics.Debug.WriteLine("- property 'TcalculateMainDetails' loaded. key " + entity.EntityTrackingKey);
+				#endif 
+
+				if (deep && entity.TcalculateMainDetails != null)
+				{
+					deepHandles.Add("TcalculateMainDetails",
+						new KeyValuePair<Delegate, object>((DeepLoadSingleHandle< TcalculateMainDetails >) DataRepository.TcalculateMainDetailsProvider.DeepLoad,
+						new object[] { transactionManager, entity.TcalculateMainDetails, deep, deepLoadType, childTypes, innerList }
+					));
+				}
+			}
+			#endregion 
+			
+			
+			
+			#region TcalculateParamCollection
+			//Relationship Type One : Many
+			if (CanDeepLoad(entity, "List<TcalculateParam>|TcalculateParamCollection", deepLoadType, innerList)) 
+			{
+				#if NETTIERS_DEBUG
+				System.Diagnostics.Debug.WriteLine("- property 'TcalculateParamCollection' loaded. key " + entity.EntityTrackingKey);
+				#endif 
+
+				entity.TcalculateParamCollection = DataRepository.TcalculateParamProvider.GetByTcalculateMainId(transactionManager, entity.Id);
+
+				if (deep && entity.TcalculateParamCollection.Count > 0)
+				{
+					deepHandles.Add("TcalculateParamCollection",
+						new KeyValuePair<Delegate, object>((DeepLoadHandle<TcalculateParam>) DataRepository.TcalculateParamProvider.DeepLoad,
+						new object[] { transactionManager, entity.TcalculateParamCollection, deep, deepLoadType, childTypes, innerList }
+					));
+				}
+			}		
+			#endregion 
+			
+			
+			#region TinfChequeTcalculateMainCollection
+			//Relationship Type One : Many
+			if (CanDeepLoad(entity, "List<TinfChequeTcalculateMain>|TinfChequeTcalculateMainCollection", deepLoadType, innerList)) 
+			{
+				#if NETTIERS_DEBUG
+				System.Diagnostics.Debug.WriteLine("- property 'TinfChequeTcalculateMainCollection' loaded. key " + entity.EntityTrackingKey);
+				#endif 
+
+				entity.TinfChequeTcalculateMainCollection = DataRepository.TinfChequeTcalculateMainProvider.GetByTcalculateMainId(transactionManager, entity.Id);
+
+				if (deep && entity.TinfChequeTcalculateMainCollection.Count > 0)
+				{
+					deepHandles.Add("TinfChequeTcalculateMainCollection",
+						new KeyValuePair<Delegate, object>((DeepLoadHandle<TinfChequeTcalculateMain>) DataRepository.TinfChequeTcalculateMainProvider.DeepLoad,
+						new object[] { transactionManager, entity.TinfChequeTcalculateMainCollection, deep, deepLoadType, childTypes, innerList }
+					));
+				}
+			}		
+			#endregion 
+			
+			
+			//Fire all DeepLoad Items
+			foreach(KeyValuePair<Delegate, object> pair in deepHandles.Values)
+		    {
+                pair.Key.DynamicInvoke((object[])pair.Value);
+		    }
+			deepHandles = null;
+		}
+		
+		#endregion 
+		
+		#region DeepSave Methods
+
+		/// <summary>
+		/// Deep Save the entire object graph of the Behsaz.Entities.TcalculateMain object with criteria based of the child 
+		/// Type property array and DeepSaveType.
+		/// </summary>
+		/// <param name="transactionManager">The transaction manager.</param>
+		/// <param name="entity">Behsaz.Entities.TcalculateMain instance</param>
+		/// <param name="deepSaveType">DeepSaveType Enumeration to Include/Exclude object property collections from Save.</param>
+		/// <param name="childTypes">Behsaz.Entities.TcalculateMain Property Collection Type Array To Include or Exclude from Save</param>
+		/// <param name="innerList">A Hashtable of child types for easy access.</param>
+		public override bool DeepSave(TransactionManager transactionManager, Behsaz.Entities.TcalculateMain entity, DeepSaveType deepSaveType, System.Type[] childTypes, DeepSession innerList)
+		{	
+			if (entity == null)
+				return false;
+							
+			#region Composite Parent Properties
+			//Save Source Composite Properties, however, don't call deep save on them.  
+			//So they only get saved a single level deep.
+			
+			#region TbasFormulaGroupTaxIdSource
+			if (CanDeepSave(entity, "TbasFormulaGroupTax|TbasFormulaGroupTaxIdSource", deepSaveType, innerList) 
+				&& entity.TbasFormulaGroupTaxIdSource != null)
+			{
+				DataRepository.TbasFormulaGroupTaxProvider.Save(transactionManager, entity.TbasFormulaGroupTaxIdSource);
+				entity.TbasFormulaGroupTaxId = entity.TbasFormulaGroupTaxIdSource.Id;
+			}
+			#endregion 
+			
+			#region TbasFormulaToRequestIdSource
+			if (CanDeepSave(entity, "TbasFormulaToRequest|TbasFormulaToRequestIdSource", deepSaveType, innerList) 
+				&& entity.TbasFormulaToRequestIdSource != null)
+			{
+				DataRepository.TbasFormulaToRequestProvider.Save(transactionManager, entity.TbasFormulaToRequestIdSource);
+				entity.TbasFormulaToRequestId = entity.TbasFormulaToRequestIdSource.Id;
+			}
+			#endregion 
+			
+			#region TcalculateKeyIdSource
+			if (CanDeepSave(entity, "TcalculateKey|TcalculateKeyIdSource", deepSaveType, innerList) 
+				&& entity.TcalculateKeyIdSource != null)
+			{
+				DataRepository.TcalculateKeyProvider.Save(transactionManager, entity.TcalculateKeyIdSource);
+				entity.TcalculateKeyId = entity.TcalculateKeyIdSource.Id;
+			}
+			#endregion 
+			#endregion Composite Parent Properties
+
+			// Save Root Entity through Provider
+			if (!entity.IsDeleted)
+				this.Save(transactionManager, entity);
+			
+			//used to hold DeepSave method delegates and fire after all the local children have been saved.
+			Dictionary<string, KeyValuePair<Delegate, object>> deepHandles = new Dictionary<string, KeyValuePair<Delegate, object>>();
+
+			#region TcalculateMainDetails
+			if (CanDeepSave(entity.TcalculateMainDetails, "TcalculateMainDetails|TcalculateMainDetails", deepSaveType, innerList))
+			{
+
+				if (entity.TcalculateMainDetails != null)
+				{
+					// update each child parent id with the real parent id (mostly used on insert)
+
+					entity.TcalculateMainDetails.Id = entity.Id;
+					//DataRepository.TcalculateMainDetailsProvider.Save(transactionManager, entity.TcalculateMainDetails);
+					deepHandles.Add("TcalculateMainDetails",
+						new KeyValuePair<Delegate, object>((DeepSaveSingleHandle< TcalculateMainDetails >) DataRepository.TcalculateMainDetailsProvider.DeepSave,
+						new object[] { transactionManager, entity.TcalculateMainDetails, deepSaveType, childTypes, innerList }
+					));
+				}
+			} 
+			#endregion 
+	
+			#region List<TinfDiscount>
+				if (CanDeepSave(entity.TinfDiscountCollection, "List<TinfDiscount>|TinfDiscountCollection", deepSaveType, innerList)) 
+				{	
+					// update each child parent id with the real parent id (mostly used on insert)
+					foreach(TinfDiscount child in entity.TinfDiscountCollection)
+					{
+						if(child.TcalculateMainIdSource != null)
+						{
+							child.TcalculateMainId = child.TcalculateMainIdSource.Id;
+						}
+						else
+						{
+							child.TcalculateMainId = entity.Id;
+						}
+
+					}
+
+					if (entity.TinfDiscountCollection.Count > 0 || entity.TinfDiscountCollection.DeletedItems.Count > 0)
+					{
+						//DataRepository.TinfDiscountProvider.Save(transactionManager, entity.TinfDiscountCollection);
+						
+						deepHandles.Add("TinfDiscountCollection",
+						new KeyValuePair<Delegate, object>((DeepSaveHandle< TinfDiscount >) DataRepository.TinfDiscountProvider.DeepSave,
+							new object[] { transactionManager, entity.TinfDiscountCollection, deepSaveType, childTypes, innerList }
+						));
+					}
+				} 
+			#endregion 
+				
+	
+			#region List<TinfCashDocTcalculateMain>
+				if (CanDeepSave(entity.TinfCashDocTcalculateMainCollection, "List<TinfCashDocTcalculateMain>|TinfCashDocTcalculateMainCollection", deepSaveType, innerList)) 
+				{	
+					// update each child parent id with the real parent id (mostly used on insert)
+					foreach(TinfCashDocTcalculateMain child in entity.TinfCashDocTcalculateMainCollection)
+					{
+						if(child.TcalculateMainIdSource != null)
+						{
+							child.TcalculateMainId = child.TcalculateMainIdSource.Id;
+						}
+						else
+						{
+							child.TcalculateMainId = entity.Id;
+						}
+
+					}
+
+					if (entity.TinfCashDocTcalculateMainCollection.Count > 0 || entity.TinfCashDocTcalculateMainCollection.DeletedItems.Count > 0)
+					{
+						//DataRepository.TinfCashDocTcalculateMainProvider.Save(transactionManager, entity.TinfCashDocTcalculateMainCollection);
+						
+						deepHandles.Add("TinfCashDocTcalculateMainCollection",
+						new KeyValuePair<Delegate, object>((DeepSaveHandle< TinfCashDocTcalculateMain >) DataRepository.TinfCashDocTcalculateMainProvider.DeepSave,
+							new object[] { transactionManager, entity.TinfCashDocTcalculateMainCollection, deepSaveType, childTypes, innerList }
+						));
+					}
+				} 
+			#endregion 
+				
+	
+			#region List<TcalculateParam>
+				if (CanDeepSave(entity.TcalculateParamCollection, "List<TcalculateParam>|TcalculateParamCollection", deepSaveType, innerList)) 
+				{	
+					// update each child parent id with the real parent id (mostly used on insert)
+					foreach(TcalculateParam child in entity.TcalculateParamCollection)
+					{
+						if(child.TcalculateMainIdSource != null)
+						{
+							child.TcalculateMainId = child.TcalculateMainIdSource.Id;
+						}
+						else
+						{
+							child.TcalculateMainId = entity.Id;
+						}
+
+					}
+
+					if (entity.TcalculateParamCollection.Count > 0 || entity.TcalculateParamCollection.DeletedItems.Count > 0)
+					{
+						//DataRepository.TcalculateParamProvider.Save(transactionManager, entity.TcalculateParamCollection);
+						
+						deepHandles.Add("TcalculateParamCollection",
+						new KeyValuePair<Delegate, object>((DeepSaveHandle< TcalculateParam >) DataRepository.TcalculateParamProvider.DeepSave,
+							new object[] { transactionManager, entity.TcalculateParamCollection, deepSaveType, childTypes, innerList }
+						));
+					}
+				} 
+			#endregion 
+				
+	
+			#region List<TinfChequeTcalculateMain>
+				if (CanDeepSave(entity.TinfChequeTcalculateMainCollection, "List<TinfChequeTcalculateMain>|TinfChequeTcalculateMainCollection", deepSaveType, innerList)) 
+				{	
+					// update each child parent id with the real parent id (mostly used on insert)
+					foreach(TinfChequeTcalculateMain child in entity.TinfChequeTcalculateMainCollection)
+					{
+						if(child.TcalculateMainIdSource != null)
+						{
+							child.TcalculateMainId = child.TcalculateMainIdSource.Id;
+						}
+						else
+						{
+							child.TcalculateMainId = entity.Id;
+						}
+
+					}
+
+					if (entity.TinfChequeTcalculateMainCollection.Count > 0 || entity.TinfChequeTcalculateMainCollection.DeletedItems.Count > 0)
+					{
+						//DataRepository.TinfChequeTcalculateMainProvider.Save(transactionManager, entity.TinfChequeTcalculateMainCollection);
+						
+						deepHandles.Add("TinfChequeTcalculateMainCollection",
+						new KeyValuePair<Delegate, object>((DeepSaveHandle< TinfChequeTcalculateMain >) DataRepository.TinfChequeTcalculateMainProvider.DeepSave,
+							new object[] { transactionManager, entity.TinfChequeTcalculateMainCollection, deepSaveType, childTypes, innerList }
+						));
+					}
+				} 
+			#endregion 
+				
+			//Fire all DeepSave Items
+			foreach(KeyValuePair<Delegate, object> pair in deepHandles.Values)
+		    {
+                pair.Key.DynamicInvoke((object[])pair.Value);
+		    }
+			
+			// Save Root Entity through Provider, if not already saved in delete mode
+			if (entity.IsDeleted)
+				this.Save(transactionManager, entity);
+				
+
+			deepHandles = null;
+						
+			return true;
+		}
+		#endregion
+	} // end class
+	
+	#region TcalculateMainChildEntityTypes
+	
+	///<summary>
+	/// Enumeration used to expose the different child entity types 
+	/// for child properties in <c>Behsaz.Entities.TcalculateMain</c>
+	///</summary>
+	public enum TcalculateMainChildEntityTypes
+	{
+		
+		///<summary>
+		/// Composite Property for <c>TbasFormulaGroupTax</c> at TbasFormulaGroupTaxIdSource
+		///</summary>
+		[ChildEntityType(typeof(TbasFormulaGroupTax))]
+		TbasFormulaGroupTax,
+		
+		///<summary>
+		/// Composite Property for <c>TbasFormulaToRequest</c> at TbasFormulaToRequestIdSource
+		///</summary>
+		[ChildEntityType(typeof(TbasFormulaToRequest))]
+		TbasFormulaToRequest,
+		
+		///<summary>
+		/// Composite Property for <c>TcalculateKey</c> at TcalculateKeyIdSource
+		///</summary>
+		[ChildEntityType(typeof(TcalculateKey))]
+		TcalculateKey,
+		///<summary>
+		/// Collection of <c>TcalculateMain</c> as OneToMany for TinfDiscountCollection
+		///</summary>
+		[ChildEntityType(typeof(TList<TinfDiscount>))]
+		TinfDiscountCollection,
+		///<summary>
+		/// Collection of <c>TcalculateMain</c> as OneToMany for TinfCashDocTcalculateMainCollection
+		///</summary>
+		[ChildEntityType(typeof(TList<TinfCashDocTcalculateMain>))]
+		TinfCashDocTcalculateMainCollection,
+		///<summary>
+		/// Entity <c>TcalculateMainDetails</c> as OneToOne for TcalculateMainDetails
+		///</summary>
+		[ChildEntityType(typeof(TcalculateMainDetails))]
+		TcalculateMainDetails,
+		///<summary>
+		/// Collection of <c>TcalculateMain</c> as OneToMany for TcalculateParamCollection
+		///</summary>
+		[ChildEntityType(typeof(TList<TcalculateParam>))]
+		TcalculateParamCollection,
+		///<summary>
+		/// Collection of <c>TcalculateMain</c> as OneToMany for TinfChequeTcalculateMainCollection
+		///</summary>
+		[ChildEntityType(typeof(TList<TinfChequeTcalculateMain>))]
+		TinfChequeTcalculateMainCollection,
+	}
+	
+	#endregion TcalculateMainChildEntityTypes
+	
+	#region TcalculateMainFilterBuilder
+	
+	/// <summary>
+	/// A strongly-typed instance of the <see cref="SqlFilterBuilder&lt;TcalculateMainColumn&gt;"/> class
+	/// that is used exclusively with a <see cref="TcalculateMain"/> object.
+	/// </summary>
+	[CLSCompliant(true)]
+	public class TcalculateMainFilterBuilder : SqlFilterBuilder<TcalculateMainColumn>
+	{
+		#region Constructors
+
+		/// <summary>
+		/// Initializes a new instance of the TcalculateMainFilterBuilder class.
+		/// </summary>
+		public TcalculateMainFilterBuilder() : base() { }
+
+		/// <summary>
+		/// Initializes a new instance of the TcalculateMainFilterBuilder class.
+		/// </summary>
+		/// <param name="ignoreCase">Specifies whether to create case-insensitive statements.</param>
+		public TcalculateMainFilterBuilder(bool ignoreCase) : base(ignoreCase) { }
+
+		/// <summary>
+		/// Initializes a new instance of the TcalculateMainFilterBuilder class.
+		/// </summary>
+		/// <param name="ignoreCase">Specifies whether to create case-insensitive statements.</param>
+		/// <param name="useAnd">Specifies whether to combine statements using AND or OR.</param>
+		public TcalculateMainFilterBuilder(bool ignoreCase, bool useAnd) : base(ignoreCase, useAnd) { }
+
+		#endregion Constructors
+	}
+
+	#endregion TcalculateMainFilterBuilder
+	
+	#region TcalculateMainParameterBuilder
+	
+	/// <summary>
+	/// A strongly-typed instance of the <see cref="ParameterizedSqlFilterBuilder&lt;TcalculateMainColumn&gt;"/> class
+	/// that is used exclusively with a <see cref="TcalculateMain"/> object.
+	/// </summary>
+	[CLSCompliant(true)]
+	public class TcalculateMainParameterBuilder : ParameterizedSqlFilterBuilder<TcalculateMainColumn>
+	{
+		#region Constructors
+
+		/// <summary>
+		/// Initializes a new instance of the TcalculateMainParameterBuilder class.
+		/// </summary>
+		public TcalculateMainParameterBuilder() : base() { }
+
+		/// <summary>
+		/// Initializes a new instance of the TcalculateMainParameterBuilder class.
+		/// </summary>
+		/// <param name="ignoreCase">Specifies whether to create case-insensitive statements.</param>
+		public TcalculateMainParameterBuilder(bool ignoreCase) : base(ignoreCase) { }
+
+		/// <summary>
+		/// Initializes a new instance of the TcalculateMainParameterBuilder class.
+		/// </summary>
+		/// <param name="ignoreCase">Specifies whether to create case-insensitive statements.</param>
+		/// <param name="useAnd">Specifies whether to combine statements using AND or OR.</param>
+		public TcalculateMainParameterBuilder(bool ignoreCase, bool useAnd) : base(ignoreCase, useAnd) { }
+
+		#endregion Constructors
+	}
+
+	#endregion TcalculateMainParameterBuilder
+	
+	#region TcalculateMainSortBuilder
+    
+    /// <summary>
+    /// A strongly-typed instance of the <see cref="SqlSortBuilder&lt;TcalculateMainColumn&gt;"/> class
+	/// that is used exclusively with a <see cref="TcalculateMain"/> object.
+    /// </summary>
+    [CLSCompliant(true)]
+    public class TcalculateMainSortBuilder : SqlSortBuilder<TcalculateMainColumn>
+    {
+		#region Constructors
+
+		/// <summary>
+		/// Initializes a new instance of the TcalculateMainSqlSortBuilder class.
+		/// </summary>
+		public TcalculateMainSortBuilder() : base() { }
+
+		#endregion Constructors
+
+    }    
+    #endregion TcalculateMainSortBuilder
+	
+} // end namespace

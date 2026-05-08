@@ -2,45 +2,38 @@
 using CodeGenerator.Assembly.Abstractions;
 using CodeGenerator.Assembly.NetFx48;
 using CodeGenerator.Assembly.NetFx48.Extensions;
-using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseModel;
 using CodeGenerator.FileSystem.Abstractions;
-using CodeGenerator.Infrastructure;
 using MediatR;
 
 namespace CodeGenerator.Assembly.Template.NetTiers.Entities
 {
-    public class EntitiesFactory : DirectoryMarkerBase<EntitiesFactory, DatabaseInfoModel>, IGenerator
+    public class EntitiesFactory : AssemblyGeneratorBase
     {
         private static readonly string LayerNamePosfix = "Entities";
-        private EntitiesFactory(IAssembly assembly)
-        {
-            Assembly = assembly;
-        }
-        public EntitiesFactory() { }
-        public IAssembly Assembly { get; private set; }
-
-        public static async Task<EntitiesFactory> GenerateAssembly(IMediator mediator, IDirectory directory)
+        public override async Task<IAssembly> CreateAssemblyAsync(IMediator mediator, IDirectory directory)
         {
             IAssembly assembly = await AssemblyNetFx48.CreateAsync(mediator, directory, $"{directory.Name}.{LayerNamePosfix}");
-            var entitiesFactory = new EntitiesFactory(assembly);
-            return entitiesFactory;
+            return assembly;
         }
 
-        public async Task Generate(ITemplateRenderer renderer)
+        public override async Task<IContextModel> CreateContextModelAsync()
         {
-            await Generate(Assembly.Directory, Assembly, renderer, DataLayerGeneratorFactory.Generate(null));
+            return await Task.FromResult(DataLayerGeneratorFactory.Generate(null));
         }
 
-        //public async Task Generate()
-        //{
-
-        //    await Generate(Assembly.Directory);
-        //}
-
-
-        public override async Task SaveFileAsync(IDirectory directory, IAssembly assembly, ICodeFile codeFile)
+        public override async Task SaveFileAsync(IEnumerable<ICodeFile> codeFiles)
         {
-            await directory.AddSourceFileAsync(assembly, codeFile);
+
+            await SaveFileAsync(codeFiles, Directory);
+        }
+
+        public override async Task SaveFileAsync(IEnumerable<ICodeFile> codeFiles, IDirectory directory)
+        {
+            foreach (var item in codeFiles)
+            {
+                await directory.AddSourceFileAsync(Assembly, item);
+            }
+
         }
     }
 }

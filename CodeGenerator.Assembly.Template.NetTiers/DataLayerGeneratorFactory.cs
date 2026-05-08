@@ -6,7 +6,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers
 {
     public class DataLayerGeneratorFactory
     {
-        private static string connectionString = @"Data Source=DESKTOP-O7IL2PH;Initial Catalog=BehsazTestLastVersionMain;User ID=sa;Password=123;TrustServerCertificate=True;";
+        private static string connectionString = @"Data Source=DESKTOP-O7IL2PH;Initial Catalog=BehsazTestLastVersionMain;User ID=sa;Password=123;TrustServerCertificate=True;Connect Timeout=120;";
 
         public static DatabaseInfoModel Generate(IUserConfiguration userConfiguration)
         {

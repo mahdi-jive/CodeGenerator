@@ -118,6 +118,18 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="BrokenRule" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\BrokenRule.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="BrokenRulesList" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\BrokenRulesList.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="CommonRules" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\CommonRules.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="CustomCacheManager" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\CustomCacheManager.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
   <data name="EntityBase" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\Resources\EntityBase.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
@@ -154,8 +166,26 @@
   <data name="EntityPropertyComparer" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\Resources\EntityPropertyComparer.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="EntityProviderBase" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\EntityProviderBase.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="EntityProviderBaseCore.generated" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\EntityProviderBaseCore.generated.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
   <data name="EntityUtil" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\Resources\EntityUtil.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="EntityViewProviderBase" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\EntityViewProviderBase.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="EntityViewProviderBaseCore.generated" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\EntityViewProviderBaseCore.generated.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="FileConfigurationSouce" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\FileConfigurationSouce.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="FileConfigurationSouceElement" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\FileConfigurationSouceElement.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="GenericTypeConverter" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\Resources\GenericTypeConverter.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
@@ -174,5 +204,65 @@
   </data>
   <data name="IEntityKey" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\Resources\IEntityKey.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="IEntityProvider" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\IEntityProvider.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="IEntityViewProvider" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\IEntityViewProvider.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="INetTiersProvider" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\INetTiersProvider.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="ITransactionManager" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\ITransactionManager.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="ListBase" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\ListBase.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="NetTiersProvider" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\NetTiersProvider.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="NetTiersProviderBase" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\NetTiersProviderBase.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="NetTiersProviderCollection" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\NetTiersProviderCollection.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="NetTiersServiceSection" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\NetTiersServiceSection.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="ResetCacheSpecification" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\ResetCacheSpecification.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="TableCacheValidityDuration" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\TableCacheValidityDuration.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="TList" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\TList.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="TransactionManager" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\TransactionManager.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="Utility" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\Utility.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="ValidationRuleArgs" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\ValidationRuleArgs.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="ValidationRuleHandler" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\ValidationRuleHandler.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="ValidationRuleInfo" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\ValidationRuleInfo.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="ValidationRules" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\ValidationRules.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="VList" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\VList.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="WeakRefDictionary" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\WeakRefDictionary.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
 </root>

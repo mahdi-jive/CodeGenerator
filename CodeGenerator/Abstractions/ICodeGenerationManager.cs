@@ -3,6 +3,6 @@
     public interface ICodeGenerationManager
     {
         Task GenerateAllAsync();
-        IReadOnlyCollection<IGenerator> Generators { get; }
+        System.Reflection.Assembly Assembly { get; }
     }
 }

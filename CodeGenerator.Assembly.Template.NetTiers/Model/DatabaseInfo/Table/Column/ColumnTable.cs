@@ -32,13 +32,13 @@
         {
             get
             {
-                return DataType.DataTypeSqlEnum is
+                return (DataType.DataTypeSqlEnum is
                     DataTypeSqlEnum.charSql or
                     DataTypeSqlEnum.varchar or
                     DataTypeSqlEnum.nchar or
                     DataTypeSqlEnum.nvarchar or
                     DataTypeSqlEnum.binary or
-                    DataTypeSqlEnum.varbinary;
+                    DataTypeSqlEnum.varbinary) && MaxLength != -1;
             }
         }
         public int Precision { get; private set; }
@@ -53,5 +53,35 @@
         public bool IsPrimaryKey { get; private set; }
         public string? DefaultValue { get; private set; }
 
+        public string ToStringParamsWithoutType()
+        {
+            return $"_{NameCamel}";
+        }
+        public string ToStringParamsCSharpType()
+        {
+            var baseType = DataType.CSharpType;
+            if (baseType != "string" &&
+                baseType != "object" &&
+                !baseType.EndsWith("[]") &&
+                IsNullable)
+            {
+                baseType += "?";
+            }
+
+            return $"{baseType} _{NameCamel}";
+        }
+        public string ToStringParamsSystemType()
+        {
+            var baseType = DataType.SystemType;
+            if (baseType != "System.String" &&
+                baseType != "System.Object" &&
+                !baseType.EndsWith("[]") &&
+                 IsNullable)
+            {
+                baseType += "?";
+            }
+
+            return $"{baseType} _{NameCamel}";
+        }
     }
 }

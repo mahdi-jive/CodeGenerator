@@ -1,0 +1,1864 @@
+﻿#region Using directives
+
+using System;
+using System.Collections.Specialized;
+using System.Configuration;
+using System.Data;
+using System.Data.Common;
+using System.Configuration.Provider;
+
+using Behsaz.Entities;
+
+#endregion
+
+namespace Behsaz.Data.Bases
+{	
+	///<summary>
+	/// The base class to implements to create a .NetTiers provider.
+	///</summary>
+	public abstract class NetTiersProvider : NetTiersProviderBase
+	{
+		
+		///<summary>
+		/// Current TbasModuleProviderBase instance.
+		///</summary>
+		public virtual TbasModuleProviderBase TbasModuleProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfChequeRejectProviderBase instance.
+		///</summary>
+		public virtual TinfChequeRejectProviderBase TinfChequeRejectProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCitizenPeopleProviderBase instance.
+		///</summary>
+		public virtual TinfCitizenPeopleProviderBase TinfCitizenPeopleProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfPersonnelProviderBase instance.
+		///</summary>
+		public virtual TinfPersonnelProviderBase TinfPersonnelProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasOrganizationProviderBase instance.
+		///</summary>
+		public virtual TbasOrganizationProviderBase TbasOrganizationProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasRegionTypeProviderBase instance.
+		///</summary>
+		public virtual TbasRegionTypeProviderBase TbasRegionTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfPersonnelRegionProviderBase instance.
+		///</summary>
+		public virtual TinfPersonnelRegionProviderBase TinfPersonnelRegionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommerceProviderBase instance.
+		///</summary>
+		public virtual TinfCommerceProviderBase TinfCommerceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TaccBankProviderBase instance.
+		///</summary>
+		public virtual TaccBankProviderBase TaccBankProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCemetarySectionPriceProviderBase instance.
+		///</summary>
+		public virtual TinfCemetarySectionPriceProviderBase TinfCemetarySectionPriceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasRequestStatusProviderBase instance.
+		///</summary>
+		public virtual TbasRequestStatusProviderBase TbasRequestStatusProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasRequestTypeProviderBase instance.
+		///</summary>
+		public virtual TbasRequestTypeProviderBase TbasRequestTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCemetarySectionProviderBase instance.
+		///</summary>
+		public virtual TinfCemetarySectionProviderBase TinfCemetarySectionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfUserProviderBase instance.
+		///</summary>
+		public virtual TinfUserProviderBase TinfUserProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfUserRegionProviderBase instance.
+		///</summary>
+		public virtual TinfUserRegionProviderBase TinfUserRegionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100ProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100ProviderBase TinfCommission100Provider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfConstructionPoliceProviderBase instance.
+		///</summary>
+		public virtual TinfConstructionPoliceProviderBase TinfConstructionPoliceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfComputationalProviderBase instance.
+		///</summary>
+		public virtual TinfComputationalProviderBase TinfComputationalProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasInstaurationCycleProviderBase instance.
+		///</summary>
+		public virtual TbasInstaurationCycleProviderBase TbasInstaurationCycleProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission77VerdictProviderBase instance.
+		///</summary>
+		public virtual TinfCommission77VerdictProviderBase TinfCommission77VerdictProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfChequeProviderBase instance.
+		///</summary>
+		public virtual TinfChequeProviderBase TinfChequeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100WarningProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100WarningProviderBase TinfCommission100WarningProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfComputationalPriceProviderBase instance.
+		///</summary>
+		public virtual TinfComputationalPriceProviderBase TinfComputationalPriceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfChequeTcalculateMainProviderBase instance.
+		///</summary>
+		public virtual TinfChequeTcalculateMainProviderBase TinfChequeTcalculateMainProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfConfirmLisenceProviderBase instance.
+		///</summary>
+		public virtual TinfConfirmLisenceProviderBase TinfConfirmLisenceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCouncilResultProviderBase instance.
+		///</summary>
+		public virtual TinfCouncilResultProviderBase TinfCouncilResultProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfChequeRejectDetailProviderBase instance.
+		///</summary>
+		public virtual TinfChequeRejectDetailProviderBase TinfChequeRejectDetailProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCemetaryRequestProviderBase instance.
+		///</summary>
+		public virtual TinfCemetaryRequestProviderBase TinfCemetaryRequestProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfChequeHistoryProviderBase instance.
+		///</summary>
+		public virtual TinfChequeHistoryProviderBase TinfChequeHistoryProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfConstructionProviderBase instance.
+		///</summary>
+		public virtual TinfConstructionProviderBase TinfConstructionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfChequeDetailProviderBase instance.
+		///</summary>
+		public virtual TinfChequeDetailProviderBase TinfChequeDetailProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfChequeHistoryDetailProviderBase instance.
+		///</summary>
+		public virtual TinfChequeHistoryDetailProviderBase TinfChequeHistoryDetailProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCemetaryMonitoringProviderBase instance.
+		///</summary>
+		public virtual TinfCemetaryMonitoringProviderBase TinfCemetaryMonitoringProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100PlaintiffProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100PlaintiffProviderBase TinfCommission100PlaintiffProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100DefenseProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100DefenseProviderBase TinfCommission100DefenseProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100ReservationProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100ReservationProviderBase TinfCommission100ReservationProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100LimitProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100LimitProviderBase TinfCommission100LimitProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100ReviewLetterProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100ReviewLetterProviderBase TinfCommission100ReviewLetterProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100ToCertificateProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100ToCertificateProviderBase TinfCommission100ToCertificateProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100VerdictProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100VerdictProviderBase TinfCommission100VerdictProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100LetterInitProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100LetterInitProviderBase TinfCommission100LetterInitProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100VerdictDetailProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100VerdictDetailProviderBase TinfCommission100VerdictDetailProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100InspectorProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100InspectorProviderBase TinfCommission100InspectorProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100EdalatLetterProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100EdalatLetterProviderBase TinfCommission100EdalatLetterProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100HistoryProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100HistoryProviderBase TinfCommission100HistoryProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100EjraProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100EjraProviderBase TinfCommission100EjraProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100DimensionProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100DimensionProviderBase TinfCommission100DimensionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100EjraConfirmProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100EjraConfirmProviderBase TinfCommission100EjraConfirmProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission77RequestProviderBase instance.
+		///</summary>
+		public virtual TinfCommission77RequestProviderBase TinfCommission77RequestProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission77RequestReservationProviderBase instance.
+		///</summary>
+		public virtual TinfCommission77RequestReservationProviderBase TinfCommission77RequestReservationProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfDashboardUserWidgetProviderBase instance.
+		///</summary>
+		public virtual TinfDashboardUserWidgetProviderBase TinfDashboardUserWidgetProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCommission100FoulProviderBase instance.
+		///</summary>
+		public virtual TinfCommission100FoulProviderBase TinfCommission100FoulProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCemetaryProviderBase instance.
+		///</summary>
+		public virtual TinfCemetaryProviderBase TinfCemetaryProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCashedLinkProviderBase instance.
+		///</summary>
+		public virtual TinfCashedLinkProviderBase TinfCashedLinkProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBookletProviderBase instance.
+		///</summary>
+		public virtual TinfBookletProviderBase TinfBookletProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBookletComputationalProviderBase instance.
+		///</summary>
+		public virtual TinfBookletComputationalProviderBase TinfBookletComputationalProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBuildingUsageProviderBase instance.
+		///</summary>
+		public virtual TbasBuildingUsageProviderBase TbasBuildingUsageProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBookletCommentProviderBase instance.
+		///</summary>
+		public virtual TinfBookletCommentProviderBase TinfBookletCommentProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TaccYearProviderBase instance.
+		///</summary>
+		public virtual TaccYearProviderBase TaccYearProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TcalculateMainProviderBase instance.
+		///</summary>
+		public virtual TcalculateMainProviderBase TcalculateMainProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBookletHistoryProviderBase instance.
+		///</summary>
+		public virtual TinfBookletHistoryProviderBase TinfBookletHistoryProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBookletBusinessPriceProviderBase instance.
+		///</summary>
+		public virtual TinfBookletBusinessPriceProviderBase TinfBookletBusinessPriceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TcalculateKeyProviderBase instance.
+		///</summary>
+		public virtual TcalculateKeyProviderBase TcalculateKeyProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBookletComputationalCommentProviderBase instance.
+		///</summary>
+		public virtual TinfBookletComputationalCommentProviderBase TinfBookletComputationalCommentProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBookletComputationalReviewProviderBase instance.
+		///</summary>
+		public virtual TinfBookletComputationalReviewProviderBase TinfBookletComputationalReviewProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBookletBusinessCommentProviderBase instance.
+		///</summary>
+		public virtual TinfBookletBusinessCommentProviderBase TinfBookletBusinessCommentProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBlockBookletProviderBase instance.
+		///</summary>
+		public virtual TinfBlockBookletProviderBase TinfBlockBookletProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasApplicantTypeProviderBase instance.
+		///</summary>
+		public virtual TbasApplicantTypeProviderBase TbasApplicantTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBoardProviderBase instance.
+		///</summary>
+		public virtual TinfBoardProviderBase TinfBoardProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBoardPriceProviderBase instance.
+		///</summary>
+		public virtual TinfBoardPriceProviderBase TinfBoardPriceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBlockBookletPasswayProviderBase instance.
+		///</summary>
+		public virtual TinfBlockBookletPasswayProviderBase TinfBlockBookletPasswayProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBoardRequestProviderBase instance.
+		///</summary>
+		public virtual TinfBoardRequestProviderBase TinfBoardRequestProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBookletBusinessProviderBase instance.
+		///</summary>
+		public virtual TinfBookletBusinessProviderBase TinfBookletBusinessProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBoardTypeProviderBase instance.
+		///</summary>
+		public virtual TinfBoardTypeProviderBase TinfBoardTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBookletBusinessReviewProviderBase instance.
+		///</summary>
+		public virtual TinfBookletBusinessReviewProviderBase TinfBookletBusinessReviewProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBoardRequestDetailProviderBase instance.
+		///</summary>
+		public virtual TinfBoardRequestDetailProviderBase TinfBoardRequestDetailProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBookletReviewProviderBase instance.
+		///</summary>
+		public virtual TinfBookletReviewProviderBase TinfBookletReviewProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBuildingProviderBase instance.
+		///</summary>
+		public virtual TinfBuildingProviderBase TinfBuildingProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBookletTariffProviderBase instance.
+		///</summary>
+		public virtual TinfBookletTariffProviderBase TinfBookletTariffProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCashDocInstalmentProviderBase instance.
+		///</summary>
+		public virtual TinfCashDocInstalmentProviderBase TinfCashDocInstalmentProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCalenderProviderBase instance.
+		///</summary>
+		public virtual TinfCalenderProviderBase TinfCalenderProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCashedProviderBase instance.
+		///</summary>
+		public virtual TinfCashedProviderBase TinfCashedProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBusinessPanelProviderBase instance.
+		///</summary>
+		public virtual TinfBusinessPanelProviderBase TinfBusinessPanelProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfRequestProviderBase instance.
+		///</summary>
+		public virtual TinfRequestProviderBase TinfRequestProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBusinessOwnerProviderBase instance.
+		///</summary>
+		public virtual TinfBusinessOwnerProviderBase TinfBusinessOwnerProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCashDocProviderBase instance.
+		///</summary>
+		public virtual TinfCashDocProviderBase TinfCashDocProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCashDocTcalculateMainProviderBase instance.
+		///</summary>
+		public virtual TinfCashDocTcalculateMainProviderBase TinfCashDocTcalculateMainProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCalculateConvertBr2ProviderBase instance.
+		///</summary>
+		public virtual TinfCalculateConvertBr2ProviderBase TinfCalculateConvertBr2Provider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfCashDocLinkProviderBase instance.
+		///</summary>
+		public virtual TinfCashDocLinkProviderBase TinfCashDocLinkProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBusinessProviderBase instance.
+		///</summary>
+		public virtual TinfBusinessProviderBase TinfBusinessProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBoundariesProviderBase instance.
+		///</summary>
+		public virtual TinfBoundariesProviderBase TinfBoundariesProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBuildingZoneProviderBase instance.
+		///</summary>
+		public virtual TinfBuildingZoneProviderBase TinfBuildingZoneProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBookletTariffReviewProviderBase instance.
+		///</summary>
+		public virtual TinfBookletTariffReviewProviderBase TinfBookletTariffReviewProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBudgetProviderBase instance.
+		///</summary>
+		public virtual TinfBudgetProviderBase TinfBudgetProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBookletTariffCommentProviderBase instance.
+		///</summary>
+		public virtual TinfBookletTariffCommentProviderBase TinfBookletTariffCommentProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBuildingGisProviderBase instance.
+		///</summary>
+		public virtual TinfBuildingGisProviderBase TinfBuildingGisProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBuildingToTinfRequestProviderBase instance.
+		///</summary>
+		public virtual TinfBuildingToTinfRequestProviderBase TinfBuildingToTinfRequestProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBuildingInfoProviderBase instance.
+		///</summary>
+		public virtual TinfBuildingInfoProviderBase TinfBuildingInfoProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBuildingPropertyValueProviderBase instance.
+		///</summary>
+		public virtual TinfBuildingPropertyValueProviderBase TinfBuildingPropertyValueProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfDeadAcceptInfoProviderBase instance.
+		///</summary>
+		public virtual TinfDeadAcceptInfoProviderBase TinfDeadAcceptInfoProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBuildingOwnerProviderBase instance.
+		///</summary>
+		public virtual TinfBuildingOwnerProviderBase TinfBuildingOwnerProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfDeadPropertyInfoProviderBase instance.
+		///</summary>
+		public virtual TinfDeadPropertyInfoProviderBase TinfDeadPropertyInfoProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfReportSignProviderBase instance.
+		///</summary>
+		public virtual TinfReportSignProviderBase TinfReportSignProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfReportRequestProviderBase instance.
+		///</summary>
+		public virtual TinfReportRequestProviderBase TinfReportRequestProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCommission100StateProviderBase instance.
+		///</summary>
+		public virtual TbasCommission100StateProviderBase TbasCommission100StateProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfReferDetailProviderBase instance.
+		///</summary>
+		public virtual TinfReferDetailProviderBase TinfReferDetailProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfRequestHistoryProviderBase instance.
+		///</summary>
+		public virtual TinfRequestHistoryProviderBase TinfRequestHistoryProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBuildingDiffProviderBase instance.
+		///</summary>
+		public virtual TinfBuildingDiffProviderBase TinfBuildingDiffProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfRequestPermissionProviderBase instance.
+		///</summary>
+		public virtual TinfRequestPermissionProviderBase TinfRequestPermissionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasConstructionPoliceTypeProviderBase instance.
+		///</summary>
+		public virtual TbasConstructionPoliceTypeProviderBase TbasConstructionPoliceTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfRequestStateProviderBase instance.
+		///</summary>
+		public virtual TinfRequestStateProviderBase TinfRequestStateProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasConstructionPoliceReasonProviderBase instance.
+		///</summary>
+		public virtual TbasConstructionPoliceReasonProviderBase TbasConstructionPoliceReasonProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfPeoplePropertyProviderBase instance.
+		///</summary>
+		public virtual TinfPeoplePropertyProviderBase TinfPeoplePropertyProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCommission100DecisionProviderBase instance.
+		///</summary>
+		public virtual TbasCommission100DecisionProviderBase TbasCommission100DecisionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfReferProviderBase instance.
+		///</summary>
+		public virtual TinfReferProviderBase TinfReferProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfPeopleRoleProviderBase instance.
+		///</summary>
+		public virtual TinfPeopleRoleProviderBase TinfPeopleRoleProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfPositionProviderBase instance.
+		///</summary>
+		public virtual TinfPositionProviderBase TinfPositionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfPersonnelPositionProviderBase instance.
+		///</summary>
+		public virtual TinfPersonnelPositionProviderBase TinfPersonnelPositionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfMapProviderBase instance.
+		///</summary>
+		public virtual TinfMapProviderBase TinfMapProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfPlaqueProviderBase instance.
+		///</summary>
+		public virtual TinfPlaqueProviderBase TinfPlaqueProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfPledgeReturnProviderBase instance.
+		///</summary>
+		public virtual TinfPledgeReturnProviderBase TinfPledgeReturnProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfPledgeProviderBase instance.
+		///</summary>
+		public virtual TinfPledgeProviderBase TinfPledgeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfPledgeDetailProviderBase instance.
+		///</summary>
+		public virtual TinfPledgeDetailProviderBase TinfPledgeDetailProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfSectionProviderBase instance.
+		///</summary>
+		public virtual TinfSectionProviderBase TinfSectionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfSharingFormulaProviderBase instance.
+		///</summary>
+		public virtual TinfSharingFormulaProviderBase TinfSharingFormulaProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfUserMenuProviderBase instance.
+		///</summary>
+		public virtual TinfUserMenuProviderBase TinfUserMenuProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfSketchProviderBase instance.
+		///</summary>
+		public virtual TinfSketchProviderBase TinfSketchProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfUserLoginLogProviderBase instance.
+		///</summary>
+		public virtual TinfUserLoginLogProviderBase TinfUserLoginLogProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfUserMessageProviderBase instance.
+		///</summary>
+		public virtual TinfUserMessageProviderBase TinfUserMessageProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfUserDataAccessProviderBase instance.
+		///</summary>
+		public virtual TinfUserDataAccessProviderBase TinfUserDataAccessProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfUserSignAccessProviderBase instance.
+		///</summary>
+		public virtual TinfUserSignAccessProviderBase TinfUserSignAccessProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfUserWhiteIpProviderBase instance.
+		///</summary>
+		public virtual TinfUserWhiteIpProviderBase TinfUserWhiteIpProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfViolationProviderBase instance.
+		///</summary>
+		public virtual TinfViolationProviderBase TinfViolationProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfWhiteIpProviderBase instance.
+		///</summary>
+		public virtual TinfWhiteIpProviderBase TinfWhiteIpProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfUrbanActivityLogProviderBase instance.
+		///</summary>
+		public virtual TinfUrbanActivityLogProviderBase TinfUrbanActivityLogProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfViolationLimitProviderBase instance.
+		///</summary>
+		public virtual TinfViolationLimitProviderBase TinfViolationLimitProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfTicketProviderBase instance.
+		///</summary>
+		public virtual TinfTicketProviderBase TinfTicketProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfSmsGroupProviderBase instance.
+		///</summary>
+		public virtual TinfSmsGroupProviderBase TinfSmsGroupProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfTaxFactoreProviderBase instance.
+		///</summary>
+		public virtual TinfTaxFactoreProviderBase TinfTaxFactoreProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfSmsProviderBase instance.
+		///</summary>
+		public virtual TinfSmsProviderBase TinfSmsProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfSmsGroupDetailsProviderBase instance.
+		///</summary>
+		public virtual TinfSmsGroupDetailsProviderBase TinfSmsGroupDetailsProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBusinessCycleProviderBase instance.
+		///</summary>
+		public virtual TbasBusinessCycleProviderBase TbasBusinessCycleProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfSmsInboxProviderBase instance.
+		///</summary>
+		public virtual TinfSmsInboxProviderBase TinfSmsInboxProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfTariffProviderBase instance.
+		///</summary>
+		public virtual TinfTariffProviderBase TinfTariffProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfStreetProviderBase instance.
+		///</summary>
+		public virtual TinfStreetProviderBase TinfStreetProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfStructureProviderBase instance.
+		///</summary>
+		public virtual TinfStructureProviderBase TinfStructureProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfTariffFormulaProviderBase instance.
+		///</summary>
+		public virtual TinfTariffFormulaProviderBase TinfTariffFormulaProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfPasswayProviderBase instance.
+		///</summary>
+		public virtual TinfPasswayProviderBase TinfPasswayProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfNeighborProviderBase instance.
+		///</summary>
+		public virtual TinfNeighborProviderBase TinfNeighborProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasFormulaProviderBase instance.
+		///</summary>
+		public virtual TbasFormulaProviderBase TbasFormulaProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfMapRecordProviderBase instance.
+		///</summary>
+		public virtual TinfMapRecordProviderBase TinfMapRecordProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfEstateCommissionProviderBase instance.
+		///</summary>
+		public virtual TinfEstateCommissionProviderBase TinfEstateCommissionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasFormulaToRequestProviderBase instance.
+		///</summary>
+		public virtual TbasFormulaToRequestProviderBase TbasFormulaToRequestProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfEstateCityCouncilProviderBase instance.
+		///</summary>
+		public virtual TinfEstateCityCouncilProviderBase TinfEstateCityCouncilProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfEstateCommissionDetailsProviderBase instance.
+		///</summary>
+		public virtual TinfEstateCommissionDetailsProviderBase TinfEstateCommissionDetailsProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfEstateInvitationProviderBase instance.
+		///</summary>
+		public virtual TinfEstateInvitationProviderBase TinfEstateInvitationProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasFormulaGroupTaxProviderBase instance.
+		///</summary>
+		public virtual TbasFormulaGroupTaxProviderBase TbasFormulaGroupTaxProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfEngineerProviderBase instance.
+		///</summary>
+		public virtual TinfEngineerProviderBase TinfEngineerProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfEstateCommissionExecutionProviderBase instance.
+		///</summary>
+		public virtual TinfEstateCommissionExecutionProviderBase TinfEstateCommissionExecutionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfDownloadRequestImagesProviderBase instance.
+		///</summary>
+		public virtual TinfDownloadRequestImagesProviderBase TinfDownloadRequestImagesProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfDoctorsProviderBase instance.
+		///</summary>
+		public virtual TinfDoctorsProviderBase TinfDoctorsProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasGroupTaxCountryYearsProviderBase instance.
+		///</summary>
+		public virtual TbasGroupTaxCountryYearsProviderBase TbasGroupTaxCountryYearsProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfDetailPlanProviderBase instance.
+		///</summary>
+		public virtual TinfDetailPlanProviderBase TinfDetailPlanProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasInfoProviderBase instance.
+		///</summary>
+		public virtual TbasInfoProviderBase TbasInfoProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfDeadRelatedProviderBase instance.
+		///</summary>
+		public virtual TinfDeadRelatedProviderBase TinfDeadRelatedProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasGroupTaxCountryProviderBase instance.
+		///</summary>
+		public virtual TbasGroupTaxCountryProviderBase TbasGroupTaxCountryProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfDetailPlanUseProviderBase instance.
+		///</summary>
+		public virtual TinfDetailPlanUseProviderBase TinfDetailPlanUseProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfEngineerToTbasStateProviderBase instance.
+		///</summary>
+		public virtual TinfEngineerToTbasStateProviderBase TinfEngineerToTbasStateProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfEngineerViolationProviderBase instance.
+		///</summary>
+		public virtual TinfEngineerViolationProviderBase TinfEngineerViolationProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfDiscountProviderBase instance.
+		///</summary>
+		public virtual TinfDiscountProviderBase TinfDiscountProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfDimensionProviderBase instance.
+		///</summary>
+		public virtual TinfDimensionProviderBase TinfDimensionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfEstatePlanProviderBase instance.
+		///</summary>
+		public virtual TinfEstatePlanProviderBase TinfEstatePlanProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfInstalmentCommandProviderBase instance.
+		///</summary>
+		public virtual TinfInstalmentCommandProviderBase TinfInstalmentCommandProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfLisenceProviderBase instance.
+		///</summary>
+		public virtual TinfLisenceProviderBase TinfLisenceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasDiscountAreaTypeProviderBase instance.
+		///</summary>
+		public virtual TbasDiscountAreaTypeProviderBase TbasDiscountAreaTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfLimitProviderBase instance.
+		///</summary>
+		public virtual TinfLimitProviderBase TinfLimitProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfInstaurationCodeProviderBase instance.
+		///</summary>
+		public virtual TinfInstaurationCodeProviderBase TinfInstaurationCodeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfLisenceExtendProviderBase instance.
+		///</summary>
+		public virtual TinfLisenceExtendProviderBase TinfLisenceExtendProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfInstaurationBlockProviderBase instance.
+		///</summary>
+		public virtual TinfInstaurationBlockProviderBase TinfInstaurationBlockProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfLisenceHistoryProviderBase instance.
+		///</summary>
+		public virtual TinfLisenceHistoryProviderBase TinfLisenceHistoryProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfEstatePlanRequestProviderBase instance.
+		///</summary>
+		public virtual TinfEstatePlanRequestProviderBase TinfEstatePlanRequestProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfMapInfoProviderBase instance.
+		///</summary>
+		public virtual TinfMapInfoProviderBase TinfMapInfoProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfLogProviderBase instance.
+		///</summary>
+		public virtual TinfLogProviderBase TinfLogProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfMabarProviderBase instance.
+		///</summary>
+		public virtual TinfMabarProviderBase TinfMabarProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfGisUserLayerProviderBase instance.
+		///</summary>
+		public virtual TinfGisUserLayerProviderBase TinfGisUserLayerProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBlackListProviderBase instance.
+		///</summary>
+		public virtual TinfBlackListProviderBase TinfBlackListProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfGisLayerGroupProviderBase instance.
+		///</summary>
+		public virtual TinfGisLayerGroupProviderBase TinfGisLayerGroupProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfGraveProviderBase instance.
+		///</summary>
+		public virtual TinfGraveProviderBase TinfGraveProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfFloorHeightProviderBase instance.
+		///</summary>
+		public virtual TinfFloorHeightProviderBase TinfFloorHeightProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfGraveAllocationProviderBase instance.
+		///</summary>
+		public virtual TinfGraveAllocationProviderBase TinfGraveAllocationProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfInspectionHistoryProviderBase instance.
+		///</summary>
+		public virtual TinfInspectionHistoryProviderBase TinfInspectionHistoryProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfInformLogProviderBase instance.
+		///</summary>
+		public virtual TinfInformLogProviderBase TinfInformLogProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfInspectCitizenOfferProviderBase instance.
+		///</summary>
+		public virtual TinfInspectCitizenOfferProviderBase TinfInspectCitizenOfferProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfEstateRealtyProviderBase instance.
+		///</summary>
+		public virtual TinfEstateRealtyProviderBase TinfEstateRealtyProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfInfrastructureProviderBase instance.
+		///</summary>
+		public virtual TinfInfrastructureProviderBase TinfInfrastructureProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasdpConstructionPlanProviderBase instance.
+		///</summary>
+		public virtual TbasdpConstructionPlanProviderBase TbasdpConstructionPlanProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCoverageTypeProviderBase instance.
+		///</summary>
+		public virtual TbasCoverageTypeProviderBase TbasCoverageTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasDiscountProviderBase instance.
+		///</summary>
+		public virtual TbasDiscountProviderBase TbasDiscountProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasdpPriorityProviderBase instance.
+		///</summary>
+		public virtual TbasdpPriorityProviderBase TbasdpPriorityProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasdpConfineProviderBase instance.
+		///</summary>
+		public virtual TbasdpConfineProviderBase TbasdpConfineProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasdpSlopeProviderBase instance.
+		///</summary>
+		public virtual TbasdpSlopeProviderBase TbasdpSlopeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasdpStreetProviderBase instance.
+		///</summary>
+		public virtual TbasdpStreetProviderBase TbasdpStreetProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasdpSourceHeightProviderBase instance.
+		///</summary>
+		public virtual TbasdpSourceHeightProviderBase TbasdpSourceHeightProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasdpSourceUseProviderBase instance.
+		///</summary>
+		public virtual TbasdpSourceUseProviderBase TbasdpSourceUseProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasDiscountDetailProviderBase instance.
+		///</summary>
+		public virtual TbasDiscountDetailProviderBase TbasDiscountDetailProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasdpSourcePriorityProviderBase instance.
+		///</summary>
+		public virtual TbasdpSourcePriorityProviderBase TbasdpSourcePriorityProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasDashboardChartProviderBase instance.
+		///</summary>
+		public virtual TbasDashboardChartProviderBase TbasDashboardChartProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasDiscountDependencyProviderBase instance.
+		///</summary>
+		public virtual TbasDiscountDependencyProviderBase TbasDiscountDependencyProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasDashboardGroupProviderBase instance.
+		///</summary>
+		public virtual TbasDashboardGroupProviderBase TbasDashboardGroupProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasDashboardWidgetProviderBase instance.
+		///</summary>
+		public virtual TbasDashboardWidgetProviderBase TbasDashboardWidgetProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasDeadPeopleTypeProviderBase instance.
+		///</summary>
+		public virtual TbasDeadPeopleTypeProviderBase TbasDeadPeopleTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasDirectionProviderBase instance.
+		///</summary>
+		public virtual TbasDirectionProviderBase TbasDirectionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasDeadRelatedPeopleProviderBase instance.
+		///</summary>
+		public virtual TbasDeadRelatedPeopleProviderBase TbasDeadRelatedPeopleProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasEngineerTypeProviderBase instance.
+		///</summary>
+		public virtual TbasEngineerTypeProviderBase TbasEngineerTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasDeathReasonProviderBase instance.
+		///</summary>
+		public virtual TbasDeathReasonProviderBase TbasDeathReasonProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasePaymentStatusProviderBase instance.
+		///</summary>
+		public virtual TbasePaymentStatusProviderBase TbasePaymentStatusProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasEstateAgreementProviderBase instance.
+		///</summary>
+		public virtual TbasEstateAgreementProviderBase TbasEstateAgreementProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasGisReportTypeProviderBase instance.
+		///</summary>
+		public virtual TbasGisReportTypeProviderBase TbasGisReportTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasGisConceptProviderBase instance.
+		///</summary>
+		public virtual TbasGisConceptProviderBase TbasGisConceptProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasGisReportParameterGroupProviderBase instance.
+		///</summary>
+		public virtual TbasGisReportParameterGroupProviderBase TbasGisReportParameterGroupProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasGisReportParameterProviderBase instance.
+		///</summary>
+		public virtual TbasGisReportParameterProviderBase TbasGisReportParameterProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasGradeProviderBase instance.
+		///</summary>
+		public virtual TbasGradeProviderBase TbasGradeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCouncilResultProviderBase instance.
+		///</summary>
+		public virtual TbasCouncilResultProviderBase TbasCouncilResultProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasGraveStatusProviderBase instance.
+		///</summary>
+		public virtual TbasGraveStatusProviderBase TbasGraveStatusProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasInformStatusProviderBase instance.
+		///</summary>
+		public virtual TbasInformStatusProviderBase TbasInformStatusProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasGisReportProviderBase instance.
+		///</summary>
+		public virtual TbasGisReportProviderBase TbasGisReportProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasHospitalProviderBase instance.
+		///</summary>
+		public virtual TbasHospitalProviderBase TbasHospitalProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasExtendDurationProviderBase instance.
+		///</summary>
+		public virtual TbasExtendDurationProviderBase TbasExtendDurationProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasGisLayerProviderBase instance.
+		///</summary>
+		public virtual TbasGisLayerProviderBase TbasGisLayerProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasEstateOwnerTypeProviderBase instance.
+		///</summary>
+		public virtual TbasEstateOwnerTypeProviderBase TbasEstateOwnerTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasFacingProviderBase instance.
+		///</summary>
+		public virtual TbasFacingProviderBase TbasFacingProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasEstateBoughtTypeProviderBase instance.
+		///</summary>
+		public virtual TbasEstateBoughtTypeProviderBase TbasEstateBoughtTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasGarbagShootingTypeProviderBase instance.
+		///</summary>
+		public virtual TbasGarbagShootingTypeProviderBase TbasGarbagShootingTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasFormDescriptionProviderBase instance.
+		///</summary>
+		public virtual TbasFormDescriptionProviderBase TbasFormDescriptionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasFuleTypeProviderBase instance.
+		///</summary>
+		public virtual TbasFuleTypeProviderBase TbasFuleTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBalanceToTinfCashDocProviderBase instance.
+		///</summary>
+		public virtual TinfBalanceToTinfCashDocProviderBase TinfBalanceToTinfCashDocProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasFormulaGroupTaxAccountProviderBase instance.
+		///</summary>
+		public virtual TbasFormulaGroupTaxAccountProviderBase TbasFormulaGroupTaxAccountProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasConfigProviderBase instance.
+		///</summary>
+		public virtual TbasConfigProviderBase TbasConfigProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBuildingGroupProviderBase instance.
+		///</summary>
+		public virtual TbasBuildingGroupProviderBase TbasBuildingGroupProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasConfigDetailProviderBase instance.
+		///</summary>
+		public virtual TbasConfigDetailProviderBase TbasConfigDetailProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBuildingPropertyProviderBase instance.
+		///</summary>
+		public virtual TbasBuildingPropertyProviderBase TbasBuildingPropertyProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBuildingDirectionProviderBase instance.
+		///</summary>
+		public virtual TbasBuildingDirectionProviderBase TbasBuildingDirectionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBuildingPropertyOptionsProviderBase instance.
+		///</summary>
+		public virtual TbasBuildingPropertyOptionsProviderBase TbasBuildingPropertyOptionsProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBusinessFactorProviderBase instance.
+		///</summary>
+		public virtual TbasBusinessFactorProviderBase TbasBusinessFactorProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBuildingPropertyStateProviderBase instance.
+		///</summary>
+		public virtual TbasBuildingPropertyStateProviderBase TbasBuildingPropertyStateProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBusinessProviderBase instance.
+		///</summary>
+		public virtual TbasBusinessProviderBase TbasBusinessProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBookletStepProviderBase instance.
+		///</summary>
+		public virtual TbasBookletStepProviderBase TbasBookletStepProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBuildingStateProviderBase instance.
+		///</summary>
+		public virtual TbasBuildingStateProviderBase TbasBuildingStateProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBookletStateProviderBase instance.
+		///</summary>
+		public virtual TbasBookletStateProviderBase TbasBookletStateProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasAnalysisZoneProviderBase instance.
+		///</summary>
+		public virtual TbasAnalysisZoneProviderBase TbasAnalysisZoneProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBookletRulesProviderBase instance.
+		///</summary>
+		public virtual TbasBookletRulesProviderBase TbasBookletRulesProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasActivityDataTypeProviderBase instance.
+		///</summary>
+		public virtual TbasActivityDataTypeProviderBase TbasActivityDataTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasAreaProviderBase instance.
+		///</summary>
+		public virtual TbasAreaProviderBase TbasAreaProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasActivityProviderBase instance.
+		///</summary>
+		public virtual TbasActivityProviderBase TbasActivityProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBlockShapeProviderBase instance.
+		///</summary>
+		public virtual TbasBlockShapeProviderBase TbasBlockShapeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBankProviderBase instance.
+		///</summary>
+		public virtual TbasBankProviderBase TbasBankProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBlockProviderBase instance.
+		///</summary>
+		public virtual TbasBlockProviderBase TbasBlockProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBusinessGroupProviderBase instance.
+		///</summary>
+		public virtual TbasBusinessGroupProviderBase TbasBusinessGroupProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBankDetailProviderBase instance.
+		///</summary>
+		public virtual TbasBankDetailProviderBase TbasBankDetailProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCommission100ResultTypeProviderBase instance.
+		///</summary>
+		public virtual TbasCommission100ResultTypeProviderBase TbasCommission100ResultTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBusinessGroupPriceProviderBase instance.
+		///</summary>
+		public virtual TbasBusinessGroupPriceProviderBase TbasBusinessGroupPriceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCommission100ProvisionProviderBase instance.
+		///</summary>
+		public virtual TbasCommission100ProvisionProviderBase TbasCommission100ProvisionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCommission100ValueTypeProviderBase instance.
+		///</summary>
+		public virtual TbasCommission100ValueTypeProviderBase TbasCommission100ValueTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBookletBusinessProviderBase instance.
+		///</summary>
+		public virtual TbasBookletBusinessProviderBase TbasBookletBusinessProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCommission100VerdictTypeProviderBase instance.
+		///</summary>
+		public virtual TbasCommission100VerdictTypeProviderBase TbasCommission100VerdictTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCommissionReferProviderBase instance.
+		///</summary>
+		public virtual TbasCommissionReferProviderBase TbasCommissionReferProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCommission77KindProviderBase instance.
+		///</summary>
+		public virtual TbasCommission77KindProviderBase TbasCommission77KindProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCommission77VerdictTypeProviderBase instance.
+		///</summary>
+		public virtual TbasCommission77VerdictTypeProviderBase TbasCommission77VerdictTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCommission100FoulProviderBase instance.
+		///</summary>
+		public virtual TbasCommission100FoulProviderBase TbasCommission100FoulProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCommission77ResultTypeProviderBase instance.
+		///</summary>
+		public virtual TbasCommission77ResultTypeProviderBase TbasCommission77ResultTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCalculateTypeProviderBase instance.
+		///</summary>
+		public virtual TbasCalculateTypeProviderBase TbasCalculateTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCityProviderBase instance.
+		///</summary>
+		public virtual TbasCityProviderBase TbasCityProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCalculateDocumentTypeProviderBase instance.
+		///</summary>
+		public virtual TbasCalculateDocumentTypeProviderBase TbasCalculateDocumentTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCalenderProviderBase instance.
+		///</summary>
+		public virtual TbasCalenderProviderBase TbasCalenderProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasBusinessPriceProviderBase instance.
+		///</summary>
+		public virtual TbasBusinessPriceProviderBase TbasBusinessPriceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCemetaryMonitoringProviderBase instance.
+		///</summary>
+		public virtual TbasCemetaryMonitoringProviderBase TbasCemetaryMonitoringProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasChequeStateProviderBase instance.
+		///</summary>
+		public virtual TbasChequeStateProviderBase TbasChequeStateProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCemetaryRequestTypeProviderBase instance.
+		///</summary>
+		public virtual TbasCemetaryRequestTypeProviderBase TbasCemetaryRequestTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasChequeFollowTypeProviderBase instance.
+		///</summary>
+		public virtual TbasChequeFollowTypeProviderBase TbasChequeFollowTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasInformTableProviderBase instance.
+		///</summary>
+		public virtual TbasInformTableProviderBase TbasInformTableProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasCemetarySectionProviderBase instance.
+		///</summary>
+		public virtual TbasCemetarySectionProviderBase TbasCemetarySectionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasStructureProviderBase instance.
+		///</summary>
+		public virtual TbasStructureProviderBase TbasStructureProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasInspectionTypeProviderBase instance.
+		///</summary>
+		public virtual TbasInspectionTypeProviderBase TbasInspectionTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasStockTypeProviderBase instance.
+		///</summary>
+		public virtual TbasStockTypeProviderBase TbasStockTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasStructurePriceProviderBase instance.
+		///</summary>
+		public virtual TbasStructurePriceProviderBase TbasStructurePriceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasTariffTypeProviderBase instance.
+		///</summary>
+		public virtual TbasTariffTypeProviderBase TbasTariffTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasWorkFlowProviderBase instance.
+		///</summary>
+		public virtual TbasWorkFlowProviderBase TbasWorkFlowProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasTaxFactoreStateProviderBase instance.
+		///</summary>
+		public virtual TbasTaxFactoreStateProviderBase TbasTaxFactoreStateProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasWeekDayProviderBase instance.
+		///</summary>
+		public virtual TbasWeekDayProviderBase TbasWeekDayProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasStateProviderBase instance.
+		///</summary>
+		public virtual TbasStateProviderBase TbasStateProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasTaxTypeProviderBase instance.
+		///</summary>
+		public virtual TbasTaxTypeProviderBase TbasTaxTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasSpecialParamProviderBase instance.
+		///</summary>
+		public virtual TbasSpecialParamProviderBase TbasSpecialParamProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasSectionProviderBase instance.
+		///</summary>
+		public virtual TbasSectionProviderBase TbasSectionProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasSmsTypeProviderBase instance.
+		///</summary>
+		public virtual TbasSmsTypeProviderBase TbasSmsTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasRoofTypeProviderBase instance.
+		///</summary>
+		public virtual TbasRoofTypeProviderBase TbasRoofTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasSliderProviderBase instance.
+		///</summary>
+		public virtual TbasSliderProviderBase TbasSliderProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasRoleProviderBase instance.
+		///</summary>
+		public virtual TbasRoleProviderBase TbasRoleProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasSmsTableNameProviderBase instance.
+		///</summary>
+		public virtual TbasSmsTableNameProviderBase TbasSmsTableNameProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasSliderMenuProviderBase instance.
+		///</summary>
+		public virtual TbasSliderMenuProviderBase TbasSliderMenuProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasSmsStateProviderBase instance.
+		///</summary>
+		public virtual TbasSmsStateProviderBase TbasSmsStateProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasWorkFlowStatusProviderBase instance.
+		///</summary>
+		public virtual TbasWorkFlowStatusProviderBase TbasWorkFlowStatusProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasSmsProviderBase instance.
+		///</summary>
+		public virtual TbasSmsProviderBase TbasSmsProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasWorkFlowStepProviderBase instance.
+		///</summary>
+		public virtual TbasWorkFlowStepProviderBase TbasWorkFlowStepProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfAccountingDocumentProviderBase instance.
+		///</summary>
+		public virtual TinfAccountingDocumentProviderBase TinfAccountingDocumentProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasZoneProviderBase instance.
+		///</summary>
+		public virtual TbasZoneProviderBase TbasZoneProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfAccountingDocumenDetailProviderBase instance.
+		///</summary>
+		public virtual TinfAccountingDocumenDetailProviderBase TinfAccountingDocumenDetailProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfAccountingDocumentFinancialSystemProviderBase instance.
+		///</summary>
+		public virtual TinfAccountingDocumentFinancialSystemProviderBase TinfAccountingDocumentFinancialSystemProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfActivityAuthorityProviderBase instance.
+		///</summary>
+		public virtual TinfActivityAuthorityProviderBase TinfActivityAuthorityProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBalanceProviderBase instance.
+		///</summary>
+		public virtual TinfBalanceProviderBase TinfBalanceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfArcProviderBase instance.
+		///</summary>
+		public virtual TinfArcProviderBase TinfArcProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfArchiveRelationProviderBase instance.
+		///</summary>
+		public virtual TinfArchiveRelationProviderBase TinfArchiveRelationProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TinfBalanceToTcalculateKeyProviderBase instance.
+		///</summary>
+		public virtual TinfBalanceToTcalculateKeyProviderBase TinfBalanceToTcalculateKeyProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TcalculateParamProviderBase instance.
+		///</summary>
+		public virtual TcalculateParamProviderBase TcalculateParamProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TcalculateMiscProviderBase instance.
+		///</summary>
+		public virtual TcalculateMiscProviderBase TcalculateMiscProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TcalculateBusinessProviderBase instance.
+		///</summary>
+		public virtual TcalculateBusinessProviderBase TcalculateBusinessProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TcalculateMainDetailsProviderBase instance.
+		///</summary>
+		public virtual TcalculateMainDetailsProviderBase TcalculateMainDetailsProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TcalculateBoardProviderBase instance.
+		///</summary>
+		public virtual TcalculateBoardProviderBase TcalculateBoardProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TcalculateCemetaryProviderBase instance.
+		///</summary>
+		public virtual TcalculateCemetaryProviderBase TcalculateCemetaryProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasZonePriceProviderBase instance.
+		///</summary>
+		public virtual TbasZonePriceProviderBase TbasZonePriceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TcalculateKeyPledgeProviderBase instance.
+		///</summary>
+		public virtual TcalculateKeyPledgeProviderBase TcalculateKeyPledgeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TcalculateDocumentProviderBase instance.
+		///</summary>
+		public virtual TcalculateDocumentProviderBase TcalculateDocumentProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TcalculateKeyLinkProviderBase instance.
+		///</summary>
+		public virtual TcalculateKeyLinkProviderBase TcalculateKeyLinkProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasReturnPreviousStepProviderBase instance.
+		///</summary>
+		public virtual TbasReturnPreviousStepProviderBase TbasReturnPreviousStepProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TcalculateInstaurationProviderBase instance.
+		///</summary>
+		public virtual TcalculateInstaurationProviderBase TcalculateInstaurationProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasRequestTypeCitizenProviderBase instance.
+		///</summary>
+		public virtual TbasRequestTypeCitizenProviderBase TbasRequestTypeCitizenProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasLisenceProviderBase instance.
+		///</summary>
+		public virtual TbasLisenceProviderBase TbasLisenceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasLogStatusProviderBase instance.
+		///</summary>
+		public virtual TbasLogStatusProviderBase TbasLogStatusProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasMabarProviderBase instance.
+		///</summary>
+		public virtual TbasMabarProviderBase TbasMabarProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasLisenceToTbasRequestTypeProviderBase instance.
+		///</summary>
+		public virtual TbasLisenceToTbasRequestTypeProviderBase TbasLisenceToTbasRequestTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasMabarTypeProviderBase instance.
+		///</summary>
+		public virtual TbasMabarTypeProviderBase TbasMabarTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasMapRecordStatusProviderBase instance.
+		///</summary>
+		public virtual TbasMapRecordStatusProviderBase TbasMapRecordStatusProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasMapInstaurationBlockProviderBase instance.
+		///</summary>
+		public virtual TbasMapInstaurationBlockProviderBase TbasMapInstaurationBlockProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasMappingAccountingGroupTaxProviderBase instance.
+		///</summary>
+		public virtual TbasMappingAccountingGroupTaxProviderBase TbasMappingAccountingGroupTaxProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasLisenceExtendProviderBase instance.
+		///</summary>
+		public virtual TbasLisenceExtendProviderBase TbasLisenceExtendProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasMapLimitTypeProviderBase instance.
+		///</summary>
+		public virtual TbasMapLimitTypeProviderBase TbasMapLimitTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasLabelProviderBase instance.
+		///</summary>
+		public virtual TbasLabelProviderBase TbasLabelProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasLisenceConfirmProviderBase instance.
+		///</summary>
+		public virtual TbasLisenceConfirmProviderBase TbasLisenceConfirmProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasKeeperTypeProviderBase instance.
+		///</summary>
+		public virtual TbasKeeperTypeProviderBase TbasKeeperTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasLabelGroupProviderBase instance.
+		///</summary>
+		public virtual TbasLabelGroupProviderBase TbasLabelGroupProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasInstaurationCodeProviderBase instance.
+		///</summary>
+		public virtual TbasInstaurationCodeProviderBase TbasInstaurationCodeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasLinksProviderBase instance.
+		///</summary>
+		public virtual TbasLinksProviderBase TbasLinksProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasLabelGroupStateProviderBase instance.
+		///</summary>
+		public virtual TbasLabelGroupStateProviderBase TbasLabelGroupStateProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasLimitTypeProviderBase instance.
+		///</summary>
+		public virtual TbasLimitTypeProviderBase TbasLimitTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasMapZoneMabarProviderBase instance.
+		///</summary>
+		public virtual TbasMapZoneMabarProviderBase TbasMapZoneMabarProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasLabelGroupStateLabelProviderBase instance.
+		///</summary>
+		public virtual TbasLabelGroupStateLabelProviderBase TbasLabelGroupStateLabelProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasMenuProviderBase instance.
+		///</summary>
+		public virtual TbasMenuProviderBase TbasMenuProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasProvinceProviderBase instance.
+		///</summary>
+		public virtual TbasProvinceProviderBase TbasProvinceProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasOperationTypeProviderBase instance.
+		///</summary>
+		public virtual TbasOperationTypeProviderBase TbasOperationTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasProcessProviderBase instance.
+		///</summary>
+		public virtual TbasProcessProviderBase TbasProcessProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasQuotaTypeProviderBase instance.
+		///</summary>
+		public virtual TbasQuotaTypeProviderBase TbasQuotaTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasPostTypeProviderBase instance.
+		///</summary>
+		public virtual TbasPostTypeProviderBase TbasPostTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasReportProviderBase instance.
+		///</summary>
+		public virtual TbasReportProviderBase TbasReportProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasRequestImagesProviderBase instance.
+		///</summary>
+		public virtual TbasRequestImagesProviderBase TbasRequestImagesProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasReportDetailProviderBase instance.
+		///</summary>
+		public virtual TbasReportDetailProviderBase TbasReportDetailProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasPledgeTypeProviderBase instance.
+		///</summary>
+		public virtual TbasPledgeTypeProviderBase TbasPledgeTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasReportToTbasRequestTypeProviderBase instance.
+		///</summary>
+		public virtual TbasReportToTbasRequestTypeProviderBase TbasReportToTbasRequestTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasPanelProviderBase instance.
+		///</summary>
+		public virtual TbasPanelProviderBase TbasPanelProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasPeopleRoleProviderBase instance.
+		///</summary>
+		public virtual TbasPeopleRoleProviderBase TbasPeopleRoleProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasOwnerShipTypeProviderBase instance.
+		///</summary>
+		public virtual TbasOwnerShipTypeProviderBase TbasOwnerShipTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasPanelPricProviderBase instance.
+		///</summary>
+		public virtual TbasPanelPricProviderBase TbasPanelPricProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasParamGeneralProviderBase instance.
+		///</summary>
+		public virtual TbasParamGeneralProviderBase TbasParamGeneralProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasPcPosStatusProviderBase instance.
+		///</summary>
+		public virtual TbasPcPosStatusProviderBase TbasPcPosStatusProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasPledgeTypeDetailProviderBase instance.
+		///</summary>
+		public virtual TbasPledgeTypeDetailProviderBase TbasPledgeTypeDetailProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasPcPosTypeProviderBase instance.
+		///</summary>
+		public virtual TbasPcPosTypeProviderBase TbasPcPosTypeProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasPeoplePropertyToCommission77ProviderBase instance.
+		///</summary>
+		public virtual TbasPeoplePropertyToCommission77ProviderBase TbasPeoplePropertyToCommission77Provider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TmpUserAccessibilityProviderBase instance.
+		///</summary>
+		public virtual TmpUserAccessibilityProviderBase TmpUserAccessibilityProvider{get {throw new NotImplementedException();}}
+		
+		///<summary>
+		/// Current TbasPeopleGroupProviderBase instance.
+		///</summary>
+		public virtual TbasPeopleGroupProviderBase TbasPeopleGroupProvider{get {throw new NotImplementedException();}}
+		
+		
+		///<summary>
+		/// Current VtBookletInfoProviderBase instance.
+		///</summary>
+		public virtual VtBookletInfoProviderBase VtBookletInfoProvider{get {throw new NotImplementedException();}}
+		
+	}
+}
