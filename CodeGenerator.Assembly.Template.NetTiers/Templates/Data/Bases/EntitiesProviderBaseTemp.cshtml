@@ -1,5 +1,5 @@
 ﻿@using CodeGenerator.Assembly.Template.NetTiers.Extensions
-@model CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.ITable
+@model CodeGenerator.Assembly.Template.NetTiers.TemplateModels.Data.Bases.EntitiesProviderBaseTempModel
 
 #region Using directives
 
@@ -18,10 +18,10 @@ using Behsaz.Data;
 namespace Behsaz.Data.Bases
 {
 	///<summary>
-	/// This class is the base class for any <see cref="@(Model.NamePascal)ProviderBase" /> implementation.
+	/// This class is the base class for any <see cref="@(Model.Table.NamePascal)ProviderBase" /> implementation.
 	/// It exposes CRUD methods as well as selecting on index, foreign keys and custom stored procedures.
 	///</summary>
-	public abstract partial class @(Model.NamePascal)ProviderBase : @(Model.NamePascal)ProviderBaseCore
+	public abstract partial class @(Model.Table.NamePascal)ProviderBase : @(Model.Table.NamePascal)ProviderBaseCore
 	{
 	} // end class
 } // end namespace

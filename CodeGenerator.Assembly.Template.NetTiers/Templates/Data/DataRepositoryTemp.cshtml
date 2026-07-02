@@ -1,16 +1,8 @@
 ﻿@using CodeGenerator.Assembly.Template.NetTiers.Extensions
 @using System.Text.RegularExpressions
 @using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo
-@model CodeGenerator.Assembly.Template.NetTiers.ModelView.Data.DataRepositoryModel
-@{
-	var tables=await Model.Tables;
+@model CodeGenerator.Assembly.Template.NetTiers.TemplateModels.Data.DataRepositoryTempModel
 
-	var views = await Model.Views;
-	var listObject = new List<ISchemaObject>();
-	listObject.AddRange(tables);
-	listObject.AddRange(views);
-	listObject.OrderBy(q=>q.ObjectId);
-}
 #region Using directives
 
 using System;
@@ -455,7 +447,7 @@ namespace Behsaz.Data
             }
         }
         
-@foreach (var item in listObject)
+@foreach (var item in Model.TablesAndViews)
 {
 @:		#region @(item.NamePascal)Provider
 @:
@@ -502,7 +494,7 @@ namespace Behsaz.Data
 	}
 	
 	#region Query/Filters
-@foreach (var item in listObject)
+@foreach (var item in Model.TablesAndViews)
 {
 @:	#region @(item.NamePascal)Filters
 @:	

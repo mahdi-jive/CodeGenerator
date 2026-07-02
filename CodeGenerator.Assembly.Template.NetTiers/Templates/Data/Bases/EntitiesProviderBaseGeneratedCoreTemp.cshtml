@@ -1,18 +1,10 @@
 ﻿@using CodeGenerator.Assembly.Template.NetTiers.Extensions
-@model CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.ITable
+@using CodeGenerator.Assembly.Template.NetTiers.TemplateModels.Data.Bases
+@model EntitiesProviderBaseGeneratedCoreTempModel
 @{
-	var columns = (await Model.Columns).DistinctBy(c => c.Name);
-	var columnsWithoutPK = columns.Where(c => !c.IsPrimaryKey);
-	var relations = (await Model.Relations).OrderBy(q => q.Name);
-	var referencedBy = (await Model.ReferencedBy).OrderBy(q => q.Name);
-	var Indexs = (await Model.Indexs).Where(q=>!q.IsPrimaryKey).OrderByDescending(q => q.Name);
-	var IndexsPrimary = (await Model.Indexs).FirstOrDefault(q=>q.IsPrimaryKey);
-	var storedProcedures  =(await Model.StoredProcedures).OrderByDescending(q => q.ObjectId);
-	var storedProceduresCustom = storedProcedures.Where(q => q.Name.StartsWith("sp_"));
-	var primaryKey = columns.FirstOrDefault(q => q.IsPrimaryKey);
-	if (primaryKey == null)
+	if (Model.PrimaryKey == null)
 	{
-		throw new NullReferenceException(Model.Name);
+		throw new NullReferenceException(Model.Table.Name);
 	}
 }
 #region Using directives
@@ -31,14 +23,14 @@ using Behsaz.Data;
 namespace Behsaz.Data.Bases
 {	
 	///<summary>
-	/// This class is the base class for any <see cref="@(Model.NamePascal)ProviderBase"/> implementation.
+	/// This class is the base class for any <see cref="@(Model.Table.NamePascal)ProviderBase"/> implementation.
 	/// It exposes CRUD methods as well as selecting on index, foreign keys and custom stored procedures.
 	///</summary>
-	public abstract partial class @(Model.NamePascal)ProviderBaseCore : EntityProviderBase<Behsaz.Entities.@(Model.NamePascal), Behsaz.Entities.@(Model.NamePascal)Key>
+	public abstract partial class @(Model.Table.NamePascal)ProviderBaseCore : EntityProviderBase<Behsaz.Entities.@(Model.Table.NamePascal), Behsaz.Entities.@(Model.Table.NamePascal)Key>
 	{
         #region Fields & Properties
 
-	public override string TableName { get { return "@(Model.Name)"; } }
+	public override string TableName { get { return "@(Model.Table.Name)"; } }
 
         #endregion
 
@@ -53,45 +45,45 @@ namespace Behsaz.Data.Bases
 		/// <param name="transactionManager">A <see cref="TransactionManager"/> object.</param>
 		/// <param name="key">The unique identifier of the row to delete.</param>
 		/// <returns>Returns true if operation suceeded.</returns>
-		public override bool Delete(TransactionManager transactionManager, Behsaz.Entities.@(Model.NamePascal)Key key)
+		public override bool Delete(TransactionManager transactionManager, Behsaz.Entities.@(Model.Table.NamePascal)Key key)
 		{
 
-			return Delete(transactionManager, key.@(primaryKey.NamePascal));
+			return Delete(transactionManager, key.@(Model.PrimaryKey.NamePascal));
 		}
 		
 		/// <summary>
 		/// 	Deletes a row from the DataSource.
 		/// </summary>
-		/// <param name="@(primaryKey.ToStringParamsWithoutType())">. Primary Key.</param>
+		/// <param name="@(Model.PrimaryKey.ToStringParamsWithoutType())">. Primary Key.</param>
 		/// <remarks>Deletes based on primary key(s).</remarks>
 		/// <returns>Returns true if operation suceeded.</returns>
-		public bool Delete(@(primaryKey.ToStringParamsSystemType()))
+		public bool Delete(@(Model.PrimaryKey.ToStringParamsSystemType()))
 		{
-			return Delete(null, @(primaryKey.ToStringParamsWithoutType()));
+			return Delete(null, @(Model.PrimaryKey.ToStringParamsWithoutType()));
 		}
 		
 		/// <summary>
 		/// 	Deletes a row from the DataSource.
 		/// </summary>
 		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
-		/// <param name="@(primaryKey.ToStringParamsWithoutType())">. Primary Key.</param>
+		/// <param name="@(Model.PrimaryKey.ToStringParamsWithoutType())">. Primary Key.</param>
 		/// <remarks>Deletes based on primary key(s).</remarks>
 		/// <returns>Returns true if operation suceeded.</returns>
-	public abstract bool Delete(TransactionManager transactionManager, @(primaryKey.ToStringParamsSystemType()));
+	public abstract bool Delete(TransactionManager transactionManager, @(Model.PrimaryKey.ToStringParamsSystemType()));
 
 	#endregion Delete Methods
 		
 		#region Get By Foreign Key Functions
-@foreach (var relation in relations)
+@foreach (var relation in Model.Relations)
 {
-	var column=columns.First(c=>c.ObjectId==relation.ColumnId);
+	var column=Model.GetColumnRelation(relation);
 @:		/// <summary>
 @:		/// 	Gets rows from the datasource based on the @(relation.Name) key.
 @:		///		@(relation.Name) Description: @(relation.Description)
 @:		/// </summary>
 @:		/// <param name="@(column.ToStringParamsWithoutType())">@(column.Description)</param>
-@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.NamePascal) objects.</returns>
-@:		public TList<@(Model.NamePascal)> GetBy@(column.NamePascal)(@(column.ToStringParamsSystemType()))
+@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.Table.NamePascal) objects.</returns>
+@:		public TList<@(Model.Table.NamePascal)> GetBy@(column.NamePascal)(@(column.ToStringParamsSystemType()))
 @:		{
 @:			int count = -1;
 @:			return GetBy@(column.NamePascal)(@(column.ToStringParamsWithoutType()), 0,int.MaxValue, out count);
@@ -103,9 +95,9 @@ namespace Behsaz.Data.Bases
 @:		/// </summary>
 @:		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
 @:		/// <param name="@(column.ToStringParamsWithoutType())">@(column.Description)</param>
-@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.NamePascal) objects.</returns>
+@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.Table.NamePascal) objects.</returns>
 @:		/// <remarks></remarks>
-@:		public TList<@(Model.NamePascal)> GetBy@(column.NamePascal)(TransactionManager transactionManager, @(column.ToStringParamsSystemType()))
+@:		public TList<@(Model.Table.NamePascal)> GetBy@(column.NamePascal)(TransactionManager transactionManager, @(column.ToStringParamsSystemType()))
 @:		{
 @:			int count = -1;
 @:			return GetBy@(column.NamePascal)(transactionManager, @(column.ToStringParamsWithoutType()), 0, int.MaxValue, out count);
@@ -120,8 +112,8 @@ namespace Behsaz.Data.Bases
 @:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
 @:		///  <param name="pageLength">Number of rows to return.</param>
 @:		/// <remarks></remarks>
-@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.NamePascal) objects.</returns>
-@:		public TList<@(Model.NamePascal)> GetBy@(column.NamePascal)(TransactionManager transactionManager, @(column.ToStringParamsSystemType()), int start, int pageLength)
+@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.Table.NamePascal) objects.</returns>
+@:		public TList<@(Model.Table.NamePascal)> GetBy@(column.NamePascal)(TransactionManager transactionManager, @(column.ToStringParamsSystemType()), int start, int pageLength)
 @:		{
 @:			int count = -1;
 @:			return GetBy@(column.NamePascal)(transactionManager,@(column.ToStringParamsWithoutType()), start, pageLength, out count);
@@ -135,8 +127,8 @@ namespace Behsaz.Data.Bases
 @:		/// <param name="pageLength">Number of rows to return.</param>
 @:		/// <param name="@(column.ToStringParamsWithoutType())">@(column.Description)</param>
 @:		/// <remarks></remarks>
-@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.NamePascal) objects.</returns>
-@:		public TList<@(Model.NamePascal)> GetBy@(column.NamePascal)(@(column.ToStringParamsSystemType()), int start, int pageLength)
+@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.Table.NamePascal) objects.</returns>
+@:		public TList<@(Model.Table.NamePascal)> GetBy@(column.NamePascal)(@(column.ToStringParamsSystemType()), int start, int pageLength)
 @:		{
 @:			int count =  -1;
 @:			return GetBy@(column.NamePascal)(null, @(column.ToStringParamsWithoutType()), start, pageLength,out count);	
@@ -151,8 +143,8 @@ namespace Behsaz.Data.Bases
 @:		/// <param name="@(column.ToStringParamsWithoutType())">@(column.Description)</param>
 @:		/// <param name="count">out parameter to get total records for query</param>
 @:		/// <remarks></remarks>
-@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.NamePascal) objects.</returns>
-@:		public TList<@(Model.NamePascal)> GetBy@(column.NamePascal)(@(column.ToStringParamsSystemType()), int start, int pageLength,out int count)
+@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.Table.NamePascal) objects.</returns>
+@:		public TList<@(Model.Table.NamePascal)> GetBy@(column.NamePascal)(@(column.ToStringParamsSystemType()), int start, int pageLength,out int count)
 @:		{
 @:			return GetBy@(column.NamePascal)(null, @(column.ToStringParamsWithoutType()), start, pageLength, out count);	
 @:		}
@@ -166,8 +158,8 @@ namespace Behsaz.Data.Bases
 @:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
 @:		/// <param name="pageLength">Number of rows to return.</param>
 @:		/// <param name="count">The total number of records.</param>
-@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.NamePascal) objects.</returns>
-@:		public abstract TList<@(Model.NamePascal)> GetBy@(column.NamePascal)(TransactionManager transactionManager, @(column.ToStringParamsSystemType()), int start, int pageLength, out int count);
+@:		/// <returns>Returns a typed collection of Behsaz.Entities.@(Model.Table.NamePascal) objects.</returns>
+@:		public abstract TList<@(Model.Table.NamePascal)> GetBy@(column.NamePascal)(TransactionManager transactionManager, @(column.ToStringParamsSystemType()), int start, int pageLength, out int count);
 
 }
 
@@ -183,12 +175,12 @@ namespace Behsaz.Data.Bases
 		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
 		/// <param name="pageLength">Number of rows to return.</param>
 		/// <returns>Returns an instance of the Entity class.</returns>
-		public override Behsaz.Entities.@(Model.NamePascal) Get(TransactionManager transactionManager, Behsaz.Entities.@(Model.NamePascal)Key key, int start, int pageLength)
+		public override Behsaz.Entities.@(Model.Table.NamePascal) Get(TransactionManager transactionManager, Behsaz.Entities.@(Model.Table.NamePascal)Key key, int start, int pageLength)
 		{
 			return GetById(transactionManager, key.Id, start, pageLength);
 		}
 		
-		@foreach (var index in Indexs)
+		@foreach (var index in Model.Indexes)
 	{
 		var columnsIndex= (await Model.GetColumnsIndexAsync(index));
 		var nameWitColumns  = string.Join("",columnsIndex.Select(q=>q.NamePascal));
@@ -200,8 +192,8 @@ foreach (var item in columnsIndex)
 {
 @:		/// <param name="_@(item.NameCamel)"></param>
 }
-@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
-@:		public Behsaz.Entities.@(Model.NamePascal) GetBy@(nameWitColumns)(@(columnsIndex.ToStringParamsSystemType()))
+@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> class.</returns>
+@:		public Behsaz.Entities.@(Model.Table.NamePascal) GetBy@(nameWitColumns)(@(columnsIndex.ToStringParamsSystemType()))
 @:		{
 @:			int count = -1;
 @:			return GetBy@(nameWitColumns)(null,@(columnsIndex.ToStringParamsWithoutType()), 0, int.MaxValue, out count);
@@ -217,8 +209,8 @@ foreach (var item in columnsIndex)
 @:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
 @:		/// <param name="pageLength">Number of rows to return.</param>
 @:		/// <remarks></remarks>
-@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
-@:		public Behsaz.Entities.@(Model.NamePascal) GetBy@(nameWitColumns)(@(columnsIndex.ToStringParamsSystemType()), int start, int pageLength)
+@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> class.</returns>
+@:		public Behsaz.Entities.@(Model.Table.NamePascal) GetBy@(nameWitColumns)(@(columnsIndex.ToStringParamsSystemType()), int start, int pageLength)
 @:		{
 @:			int count = -1;
 @:			return GetBy@(nameWitColumns)(null,@(columnsIndex.ToStringParamsWithoutType()), start, pageLength, out count);
@@ -233,8 +225,8 @@ foreach (var item in columnsIndex)
 @:		/// <param name="_@(item.NameCamel)"></param>
 }
 @:		/// <remarks></remarks>
-@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
-@:		public Behsaz.Entities.@(Model.NamePascal) GetBy@(nameWitColumns)(TransactionManager transactionManager, @(columnsIndex.ToStringParamsSystemType()))
+@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> class.</returns>
+@:		public Behsaz.Entities.@(Model.Table.NamePascal) GetBy@(nameWitColumns)(TransactionManager transactionManager, @(columnsIndex.ToStringParamsSystemType()))
 @:		{
 @:			int count = -1;
 @:			return GetBy@(nameWitColumns)(transactionManager,@(columnsIndex.ToStringParamsWithoutType()), 0, int.MaxValue, out count);
@@ -251,8 +243,8 @@ foreach (var item in columnsIndex)
 @:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
 @:		/// <param name="pageLength">Number of rows to return.</param>
 @:		/// <remarks></remarks>
-@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
-@:		public Behsaz.Entities.@(Model.NamePascal) GetBy@(nameWitColumns)(TransactionManager transactionManager,@(columnsIndex.ToStringParamsSystemType()), int start, int pageLength)
+@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> class.</returns>
+@:		public Behsaz.Entities.@(Model.Table.NamePascal) GetBy@(nameWitColumns)(TransactionManager transactionManager,@(columnsIndex.ToStringParamsSystemType()), int start, int pageLength)
 @:		{
 @:			int count = -1;
 @:			return GetBy@(nameWitColumns)(transactionManager,@(columnsIndex.ToStringParamsWithoutType()), start, pageLength, out count);
@@ -269,8 +261,8 @@ foreach (var item in columnsIndex)
 @:		/// <param name="pageLength">Number of rows to return.</param>
 @:		/// <param name="count">out parameter to get total records for query</param>
 @:		/// <remarks></remarks>
-@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
-@:		public Behsaz.Entities.@(Model.NamePascal) GetBy@(nameWitColumns)(@(columnsIndex.ToStringParamsSystemType()), int start, int pageLength, out int count)
+@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> class.</returns>
+@:		public Behsaz.Entities.@(Model.Table.NamePascal) GetBy@(nameWitColumns)(@(columnsIndex.ToStringParamsSystemType()), int start, int pageLength, out int count)
 @:		{
 @:			return GetBy@(nameWitColumns)(null,@(columnsIndex.ToStringParamsWithoutType()), start, pageLength, out count);
 @:		}
@@ -287,96 +279,96 @@ foreach (var item in columnsIndex)
 @:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
 @:		/// <param name="pageLength">Number of rows to return.</param>
 @:		/// <param name="count">The total number of records.</param>
-@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
-@:		public abstract Behsaz.Entities.@(Model.NamePascal) GetBy@(nameWitColumns)(TransactionManager transactionManager,@(columnsIndex.ToStringParamsSystemType()), int start, int pageLength, out int count);
+@:		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> class.</returns>
+@:		public abstract Behsaz.Entities.@(Model.Table.NamePascal) GetBy@(nameWitColumns)(TransactionManager transactionManager,@(columnsIndex.ToStringParamsSystemType()), int start, int pageLength, out int count);
 
 	}
 
 						
 		/// <summary>
-		/// 	Gets rows from the datasource based on the primary key @(IndexsPrimary.Name) index.
+		/// 	Gets rows from the datasource based on the primary key @(Model.IndexPrimary.Name) index.
 		/// </summary>
-		/// <param name="@(primaryKey.ToStringParamsWithoutType())"></param>
-		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
-		public Behsaz.Entities.@(Model.NamePascal) GetById(@(primaryKey.ToStringParamsSystemType()))
+		/// <param name="@(Model.PrimaryKey.ToStringParamsWithoutType())"></param>
+		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> class.</returns>
+		public Behsaz.Entities.@(Model.Table.NamePascal) GetById(@(Model.PrimaryKey.ToStringParamsSystemType()))
 		{
 			int count = -1;
-			return GetById(null,@(primaryKey.ToStringParamsWithoutType()), 0, int.MaxValue, out count);
+			return GetById(null,@(Model.PrimaryKey.ToStringParamsWithoutType()), 0, int.MaxValue, out count);
 		}
 		
 		/// <summary>
-		/// 	Gets rows from the datasource based on the @(IndexsPrimary.Name) index.
+		/// 	Gets rows from the datasource based on the @(Model.IndexPrimary.Name) index.
 		/// </summary>
-		/// <param name="@(primaryKey.ToStringParamsWithoutType())"></param>
+		/// <param name="@(Model.PrimaryKey.ToStringParamsWithoutType())"></param>
 		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
 		/// <param name="pageLength">Number of rows to return.</param>
 		/// <remarks></remarks>
-		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
-		public Behsaz.Entities.@(Model.NamePascal) GetById(@(primaryKey.ToStringParamsSystemType()), int start, int pageLength)
+		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> class.</returns>
+		public Behsaz.Entities.@(Model.Table.NamePascal) GetById(@(Model.PrimaryKey.ToStringParamsSystemType()), int start, int pageLength)
 		{
 			int count = -1;
-			return GetById(null, @(primaryKey.ToStringParamsWithoutType()), start, pageLength, out count);
+			return GetById(null, @(Model.PrimaryKey.ToStringParamsWithoutType()), start, pageLength, out count);
 		}
 		
 		/// <summary>
-		/// 	Gets rows from the datasource based on the @(IndexsPrimary.Name) index.
+		/// 	Gets rows from the datasource based on the @(Model.IndexPrimary.Name) index.
 		/// </summary>
 		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
-		/// <param name="@(primaryKey.ToStringParamsWithoutType())"></param>
+		/// <param name="@(Model.PrimaryKey.ToStringParamsWithoutType())"></param>
 		/// <remarks></remarks>
-		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
-		public Behsaz.Entities.@(Model.NamePascal) GetById(TransactionManager transactionManager, @(primaryKey.ToStringParamsSystemType()))
+		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> class.</returns>
+		public Behsaz.Entities.@(Model.Table.NamePascal) GetById(TransactionManager transactionManager, @(Model.PrimaryKey.ToStringParamsSystemType()))
 		{
 			int count = -1;
-			return GetById(transactionManager, @(primaryKey.ToStringParamsWithoutType()), 0, int.MaxValue, out count);
+			return GetById(transactionManager, @(Model.PrimaryKey.ToStringParamsWithoutType()), 0, int.MaxValue, out count);
 		}
 		
 		/// <summary>
-		/// 	Gets rows from the datasource based on the @(IndexsPrimary.Name) index.
+		/// 	Gets rows from the datasource based on the @(Model.IndexPrimary.Name) index.
 		/// </summary>
 		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
-		/// <param name="@(primaryKey.ToStringParamsWithoutType())"></param>
+		/// <param name="@(Model.PrimaryKey.ToStringParamsWithoutType())"></param>
 		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
 		/// <param name="pageLength">Number of rows to return.</param>
 		/// <remarks></remarks>
-		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
-		public Behsaz.Entities.@(Model.NamePascal) GetById(TransactionManager transactionManager, @(primaryKey.ToStringParamsSystemType()), int start, int pageLength)
+		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> class.</returns>
+		public Behsaz.Entities.@(Model.Table.NamePascal) GetById(TransactionManager transactionManager, @(Model.PrimaryKey.ToStringParamsSystemType()), int start, int pageLength)
 		{
 			int count = -1;
-			return GetById(transactionManager, @(primaryKey.ToStringParamsWithoutType()), start, pageLength, out count);
+			return GetById(transactionManager, @(Model.PrimaryKey.ToStringParamsWithoutType()), start, pageLength, out count);
 		}
 		
 		/// <summary>
-		/// 	Gets rows from the datasource based on the @(IndexsPrimary.Name) index.
+		/// 	Gets rows from the datasource based on the @(Model.IndexPrimary.Name) index.
 		/// </summary>
-		/// <param name="@(primaryKey.ToStringParamsWithoutType())"></param>
+		/// <param name="@(Model.PrimaryKey.ToStringParamsWithoutType())"></param>
 		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
 		/// <param name="pageLength">Number of rows to return.</param>
 		/// <param name="count">out parameter to get total records for query</param>
 		/// <remarks></remarks>
-		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
-		public Behsaz.Entities.@(Model.NamePascal) GetById(@(primaryKey.ToStringParamsSystemType()), int start, int pageLength, out int count)
+		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> class.</returns>
+		public Behsaz.Entities.@(Model.Table.NamePascal) GetById(@(Model.PrimaryKey.ToStringParamsSystemType()), int start, int pageLength, out int count)
 		{
-			return GetById(null, @(primaryKey.ToStringParamsWithoutType()), start, pageLength, out count);
+			return GetById(null, @(Model.PrimaryKey.ToStringParamsWithoutType()), start, pageLength, out count);
 		}
 		
 				
 		/// <summary>
-		/// 	Gets rows from the datasource based on the @(IndexsPrimary.Name) index.
+		/// 	Gets rows from the datasource based on the @(Model.IndexPrimary.Name) index.
 		/// </summary>
 		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
-		/// <param name="@(primaryKey.ToStringParamsWithoutType())"></param>
+		/// <param name="@(Model.PrimaryKey.ToStringParamsWithoutType())"></param>
 		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
 		/// <param name="pageLength">Number of rows to return.</param>
 		/// <param name="count">The total number of records.</param>
-		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> class.</returns>
-		public abstract Behsaz.Entities.@(Model.NamePascal) GetById(TransactionManager transactionManager, @(primaryKey.ToStringParamsSystemType()), int start, int pageLength, out int count);
+		/// <returns>Returns an instance of the <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> class.</returns>
+		public abstract Behsaz.Entities.@(Model.Table.NamePascal) GetById(TransactionManager transactionManager, @(Model.PrimaryKey.ToStringParamsSystemType()), int start, int pageLength, out int count);
 						
 		#endregion "Get By Index Functions"
 	
 		#region Custom Methods
 		
-@foreach (var item in storedProceduresCustom)
+@foreach (var item in Model.StoredProceduresCustom)
 	{
 		var  parameters=await  item.ParametersInfo;
 		var outputStoredProcedure = (await Model.GetOutputStoredProceduresAsync(item)).OutputString;
@@ -451,14 +443,14 @@ foreach (var parameter in parameters)
 		#region Helper Functions	
 		
 		/// <summary>
-		/// Fill a TList&lt;@(Model.NamePascal)&gt; From a DataReader.
+		/// Fill a TList&lt;@(Model.Table.NamePascal)&gt; From a DataReader.
 		/// </summary>
 		/// <param name="reader">Datareader</param>
 		/// <param name="rows">The collection to fill</param>
 		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
 		/// <param name="pageLength">number of rows.</param>
-		/// <returns>a <see cref="TList&lt;@(Model.NamePascal)&gt;"/></returns>
-		public static TList<@(Model.NamePascal)> Fill(IDataReader reader, TList<@(Model.NamePascal)> rows, int start, int pageLength)
+		/// <returns>a <see cref="TList&lt;@(Model.Table.NamePascal)&gt;"/></returns>
+		public static TList<@(Model.Table.NamePascal)> Fill(IDataReader reader, TList<@(Model.Table.NamePascal)> rows, int start, int pageLength)
 		{
 			NetTiersProvider currentProvider = DataRepository.Provider;
             bool useEntityFactory = currentProvider.UseEntityFactory;
@@ -479,20 +471,20 @@ foreach (var parameter in parameters)
 					
 				string key = null;
 				
-				Behsaz.Entities.@(Model.NamePascal) c = null;
+				Behsaz.Entities.@(Model.Table.NamePascal) c = null;
 				if (useEntityFactory)
 				{
-					key = new System.Text.StringBuilder("@(Model.NamePascal)")
-					.Append("|").Append((@(primaryKey.DataType.SystemType))reader[(@(primaryKey.DataType.CastCode)@(Model.NamePascal)Column.@(primaryKey.NamePascal) - 1)]).ToString();
-					c = EntityManager.LocateOrCreate<@(Model.NamePascal)>(
+					key = new System.Text.StringBuilder("@(Model.Table.NamePascal)")
+					.Append("|").Append((@(Model.PrimaryKey.DataType.SystemType))reader[(@(Model.PrimaryKey.DataType.CastCode)@(Model.Table.NamePascal)Column.@(Model.PrimaryKey.NamePascal) - 1)]).ToString();
+					c = EntityManager.LocateOrCreate<@(Model.Table.NamePascal)>(
 					key.ToString(), // EntityTrackingKey
-					"@(Model.NamePascal)",  //Creational Type
+					"@(Model.Table.NamePascal)",  //Creational Type
 					entityCreationFactoryType,  //Factory used to create entity
 					enableEntityTracking); // Track this entity?
 				}
 				else
 				{
-					c = new Behsaz.Entities.@(Model.NamePascal)();
+					c = new Behsaz.Entities.@(Model.Table.NamePascal)();
 				}
 				
 				if (!enableEntityTracking ||
@@ -506,15 +498,15 @@ foreach (var parameter in parameters)
 					))
 				{
 					c.SuppressEntityEvents = true;
-					@foreach (var column in columns)
+					@foreach (var column in Model.Columns)
 				{
 					if (column.IsNullable)
 					{
-	@:					c.@(column.NamePascal) = (reader.IsDBNull(((int@(Model.NamePascal)Column.@(column.NamePascal) - 1)))?null:(@(column.DataType.SystemType)?)reader[((int)@(Model.NamePascal)Column.@(column.NamePascal) - 1)];
+	@:					c.@(column.NamePascal) = (reader.IsDBNull(((int@(Model.Table.NamePascal)Column.@(column.NamePascal) - 1)))?null:(@(column.DataType.SystemType)?)reader[((int)@(Model.Table.NamePascal)Column.@(column.NamePascal) - 1)];
 					}
 					else
 					{
-	@:					c.@(column.NamePascal) = (@(column.DataType.SystemType))reader[(@(column.DataType.CastCode)@(Model.NamePascal)Column.@(column.NamePascal) - 1)];
+	@:					c.@(column.NamePascal) = (@(column.DataType.SystemType))reader[(@(column.DataType.CastCode)@(Model.Table.NamePascal)Column.@(column.NamePascal) - 1)];
 					}
 					
 				}
@@ -527,22 +519,22 @@ foreach (var parameter in parameters)
 		return rows;
 		}		
 		/// <summary>
-		/// Refreshes the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> object from the <see cref="IDataReader"/>.
+		/// Refreshes the <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> object from the <see cref="IDataReader"/>.
 		/// </summary>
 		/// <param name="reader">The <see cref="IDataReader"/> to read from.</param>
-		/// <param name="entity">The <see cref="Behsaz.Entities.@(Model.NamePascal)"/> object to refresh.</param>
-		public static void RefreshEntity(IDataReader reader, Behsaz.Entities.@(Model.NamePascal) entity)
+		/// <param name="entity">The <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> object to refresh.</param>
+		public static void RefreshEntity(IDataReader reader, Behsaz.Entities.@(Model.Table.NamePascal) entity)
 		{
 			if (!reader.Read()) return;
-				@foreach (var column in columns)
+				@foreach (var column in Model.Columns)
 				{
 					if (column.IsNullable)
 					{
-			@:			entity.@(column.NamePascal) = (reader.IsDBNull(((int@(Model.NamePascal)Column.@(column.NamePascal) - 1)))?null:(@(column.DataType.SystemType)?)reader[((int)@(Model.NamePascal)Column.@(column.NamePascal) - 1)];
+			@:			entity.@(column.NamePascal) = (reader.IsDBNull(((int@(Model.Table.NamePascal)Column.@(column.NamePascal) - 1)))?null:(@(column.DataType.SystemType)?)reader[((int)@(Model.Table.NamePascal)Column.@(column.NamePascal) - 1)];
 					}
 					else
 					{
-			@:			entity.@(column.NamePascal) = (@(column.DataType.SystemType))reader[(@(column.DataType.CastCode)@(Model.NamePascal)Column.@(column.NamePascal) - 1)];
+			@:			entity.@(column.NamePascal) = (@(column.DataType.SystemType))reader[(@(column.DataType.CastCode)@(Model.Table.NamePascal)Column.@(column.NamePascal) - 1)];
 					}
 					
 				}
@@ -550,15 +542,15 @@ foreach (var parameter in parameters)
 		}
 		
 		/// <summary>
-		/// Refreshes the <see cref="Behsaz.Entities.@(Model.NamePascal)"/> object from the <see cref="DataSet"/>.
+		/// Refreshes the <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> object from the <see cref="DataSet"/>.
 		/// </summary>
 		/// <param name="dataSet">The <see cref="DataSet"/> to read from.</param>
-		/// <param name="entity">The <see cref="Behsaz.Entities.@(Model.NamePascal)"/> object.</param>
-		public static void RefreshEntity(DataSet dataSet, Behsaz.Entities.@(Model.NamePascal) entity)
+		/// <param name="entity">The <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> object.</param>
+		public static void RefreshEntity(DataSet dataSet, Behsaz.Entities.@(Model.Table.NamePascal) entity)
 		{
 			DataRow dataRow = dataSet.Tables[0].Rows[0];
 			
-				@foreach (var column in columns)
+				@foreach (var column in Model.Columns)
 				{
 					if (column.IsNullable)
 					{
@@ -583,19 +575,19 @@ foreach (var parameter in parameters)
 		/// Use this method with caution as it is possible to DeepLoad with Recursion and traverse an entire object graph.
 		/// </remarks>
 		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
-		/// <param name="entity">The <see cref="Behsaz.Entities.@(Model.NamePascal)"/> object to load.</param>
+		/// <param name="entity">The <see cref="Behsaz.Entities.@(Model.Table.NamePascal)"/> object to load.</param>
 		/// <param name="deep">Boolean. A flag that indicates whether to recursively save all Property Collection that are descendants of this instance. If True, saves the complete object graph below this object. If False, saves this object only. </param>
 		/// <param name="deepLoadType">DeepLoadType Enumeration to Include/Exclude object property collections from Load.</param>
-		/// <param name="childTypes">Behsaz.Entities.@(Model.NamePascal) Property Collection Type Array To Include or Exclude from Load</param>
+		/// <param name="childTypes">Behsaz.Entities.@(Model.Table.NamePascal) Property Collection Type Array To Include or Exclude from Load</param>
 		/// <param name="innerList">A collection of child types for easy access.</param>
 	    /// <exception cref="ArgumentNullException">entity or childTypes is null.</exception>
 	    /// <exception cref="ArgumentException">deepLoadType has invalid value.</exception>
-		public override void DeepLoad(TransactionManager transactionManager, Behsaz.Entities.@(Model.NamePascal) entity, bool deep, DeepLoadType deepLoadType, System.Type[] childTypes, DeepSession innerList)
+		public override void DeepLoad(TransactionManager transactionManager, Behsaz.Entities.@(Model.Table.NamePascal) entity, bool deep, DeepLoadType deepLoadType, System.Type[] childTypes, DeepSession innerList)
 		{
 			if(entity == null)
 				return;
 				
-		@foreach (var relation in relations)
+		@foreach (var relation in Model.Relations)
 		{
 @:			#region @(relation.ColumnNamePascal)Source
 @:			if (CanDeepLoad(entity, "@(relation.TableNamePascal)|@(relation.ColumnNamePascal)Source", deepLoadType, innerList) 

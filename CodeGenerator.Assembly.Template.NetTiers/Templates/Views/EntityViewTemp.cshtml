@@ -1,9 +1,9 @@
 ﻿@using CodeGenerator.Assembly.Template.NetTiers.Extensions
 @using System.Text.RegularExpressions
-@model CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.View.IView
+@model CodeGenerator.Assembly.Template.NetTiers.TemplateModels.Views.EntityViewTempModel
 @{
 
-    var summaryText = string.IsNullOrEmpty(Model.Description)
+    var summaryText = string.IsNullOrEmpty(Model.View.Description)
         ? $"An object representation of the '{Model.Name}' view. [No description found in the database]"
         : Model.Description;
 }

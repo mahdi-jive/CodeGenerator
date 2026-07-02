@@ -192,11 +192,7 @@ ORDER BY pr.parameter_id;";
                                                    new Lazy<Task<IEnumerable<IIndexTable>>>(() => GetIndexTable(name))
                                                    );
                         Console.WriteLine(tableInfo.Name);
-                        if (tableInfo.Name == "TCalculateMain")
-                        {
-
-                            tables.Add(tableInfo);
-                        }
+                        tables.Add(tableInfo);
                     }
                 }
             }

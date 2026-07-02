@@ -1,5 +1,6 @@
 ﻿using CodeGenerator.Assembly.Abstractions;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseModel;
+using CodeGenerator.Assembly.Template.NetTiers.TemplateModels.Enums;
 using CodeGenerator.Infrastructure;
 
 namespace CodeGenerator.Assembly.Template.NetTiers.Entities.Enums
@@ -13,7 +14,8 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities.Enums
             {
                 foreach (var item in await contextModel.TableEnums)
                 {
-                    var compilationUnit = await renderer.RenderAsync("Enums/EnumEntityListTemp.cshtml", item);
+                    var tempModel = await EnumEntityListTempModel.Create(item);
+                    var compilationUnit = await renderer.RenderAsync("Enums/EnumEntityListTemp.cshtml", tempModel);
                     codeFiles.Add(new CodeFile($"{item.NamePascal}List.cs", $"{item.NamePascal}List", compilationUnit));
                 }
 

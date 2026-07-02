@@ -6,6 +6,7 @@ using CodeGenerator.FileSystem.Physical;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Diagnostics;
 
 internal class Program
 {
@@ -51,8 +52,10 @@ internal class Program
         //await generationManager.GenerateAllAsync();
         //ITemplateRenderer Renderer = new TemplateRenderer(Path.Combine(Directory.GetCurrentDirectory(), "Templates"));
         //var allGenerators = TypeFinder.FindWithTypes(typeof(IAssemblyGenerator));
-
+        Stopwatch stopwatch = Stopwatch.StartNew();
         await GenerateNetTiersFactory.Generated(Mediator, entitiesDirectory, null);
+        stopwatch.Stop();
+        Console.WriteLine(stopwatch.Elapsed);
         //var a = allGenerators.Select(type => (IAssemblyGenerator)Activator.CreateInstance(type))
         // .ToList();
         //foreach (var item in a)

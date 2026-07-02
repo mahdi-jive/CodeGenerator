@@ -1,12 +1,11 @@
 ﻿@using CodeGenerator.Assembly.Template.NetTiers.Extensions
 @using System.Text.RegularExpressions
-@model  CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.TableEnum.ITableEnum
+@model  CodeGenerator.Assembly.Template.NetTiers.TemplateModels.Enums.EnumEntityListTempModel
 @{
 
-	var summaryText = string.IsNullOrEmpty(Model.Description)
-		? $"An enum representation of the '{Model.Name}' table. [No description found in the database]"
-		: Model.Description;
-	var Items = (await Model.Items);
+	var summaryText = string.IsNullOrEmpty(Model.TableEnum.Description)
+		? $"An enum representation of the '{Model.TableEnum.Name}' table. [No description found in the database]"
+		: Model.TableEnum.Description;
 }
 
 using System;
@@ -18,9 +17,9 @@ namespace Behsaz.Entities
 	/// </summary>
 	/// <remark>this enumeration contains the items contained in the table TBASBank</remark>
 	[Serializable]
-	public enum @(Model.Name)List
+	public enum @(Model.TableEnum.NamePascal)List
 	{
-@foreach (var item in Items)
+@foreach (var item in Model.Items)
 {
 @:		/// <summary>
 @:		/// @item.Title
