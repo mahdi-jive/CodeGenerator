@@ -1,11 +1,6 @@
 ﻿@using CodeGenerator.Assembly.Template.NetTiers.Extensions
-@model CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.ITable
-@{
-	
-	var summaryText = string.IsNullOrEmpty(Model.Description)
-		? $"An object representation of the '{Model.Name}' table. [No description found in the database]"
-		: Model.Description?.Replace("\r", "").Replace("\n", "\n			///");
-}
+@model CodeGenerator.Assembly.Template.NetTiers.TemplateModels.TableEntityTempModel
+
 #region Using directives
 
 using System;
@@ -15,21 +10,21 @@ using System;
 namespace Behsaz.Entities
 {	
 	///<summary>
-	/// @summaryText
+	/// @Model.SummaryText
 	///</summary>
 	/// <remarks>
 	/// This file is generated once and will never be overwritten.
 	/// </remarks>	
 	[Serializable]
 	[CLSCompliant(true)]
-	public partial class @Model.NamePascal :@($"{Model.NamePascal}Base")
+	public partial class @Model.Table.NamePascal :@($"{Model.Table.NamePascal}Base")
 	{		
 		#region Constructors
 
 		///<summary>
-		/// Creates a new <see cref="@Model.NamePascal" /> instance.
+	/// Creates a new <see cref="@Model.Table.NamePascal" /> instance.
 		///</summary>
-		public @(Model.NamePascal)():base(){}
+		public @(Model.Table.NamePascal)():base(){}
 
 		#endregion
 	}

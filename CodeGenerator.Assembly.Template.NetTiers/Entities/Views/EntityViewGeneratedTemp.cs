@@ -1,6 +1,7 @@
 ﻿using CodeGenerator.Assembly.Abstractions;
 using CodeGenerator.Assembly.Template.NetTiers.Entities.Enums;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseModel;
+using CodeGenerator.Assembly.Template.NetTiers.TemplateModels.Views;
 using CodeGenerator.Infrastructure;
 
 namespace CodeGenerator.Assembly.Template.NetTiers.Entities.Views
@@ -15,7 +16,8 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities.Views
             {
                 foreach (var item in await model.Views)
                 {
-                    var compilationUnit = await renderer.RenderAsync("Views/EntityViewGeneratedTemp.cshtml", item);
+                    var tempModel = await EntityViewGeneratedTempModel.CreateModel(item);
+                    var compilationUnit = await renderer.RenderAsync("Views/EntityViewGeneratedTemp.cshtml", tempModel);
                     codeFiles.Add(new CodeFile($"{item.NamePascal}Base.generated.cs", $"{item.NamePascal}Base", compilationUnit));
                 }
 

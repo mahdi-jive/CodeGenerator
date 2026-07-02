@@ -61,7 +61,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table
                 }
                 else
                 {
-                    result = OutputProcedure.Enumerable(this);
+                    result = OutputProcedure.TList(this);
                 }
             }
             else

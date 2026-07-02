@@ -1,6 +1,4 @@
-﻿using CodeGenerator.Assembly.Template.NetTiers.Data;
-
-namespace CodeGenerator.Assembly.Template.NetTiers.Entities.Enums
+﻿namespace CodeGenerator.Assembly.Template.NetTiers.Data.Bases
 {
     public class BasesDirectory : DirectoryAssemblyGeneratorBase<DataFactory, DataFactory>
     {

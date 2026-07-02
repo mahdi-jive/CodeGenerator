@@ -1,5 +1,7 @@
 ﻿using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.StoredProcedure;
+using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.StoredProcedure;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.View.Column;
+using System.Text.RegularExpressions;
 
 namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.View
 {
@@ -14,6 +16,35 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.View
         {
             _Columns = columns;
             _StoredProcedures = storedProcedures;
+        }
+        public async Task<IOutputProcedure> GetOutputStoredProceduresAsync(IStoredProcedure storedProcedure)
+        {
+            IOutputProcedure result;
+            var outputProcedures = await storedProcedure.OutputColumn;
+            if (outputProcedures.Any())
+            {
+                var columns = (await Columns);
+                var outputNameList = outputProcedures.Select(q => q.Name.ToLower());
+                var columnsNameList = columns.Select(q => q.Name.ToLower());
+                var exceptOutputColumns = outputNameList.Except(columnsNameList);
+                if (exceptOutputColumns.Any())
+                {
+                    result = OutputProcedure.DataSet();
+                }
+                else
+                {
+                    result = OutputProcedure.VList(this);
+                }
+            }
+            else
+            {
+                result = OutputProcedure.Void();
+            }
+            return result;
+        }
+        public string GetMethodNameStoredProcedures(IStoredProcedure storedProcedure)
+        {
+            return Regex.Replace(storedProcedure.Name, $"sp_{this.Name}_", string.Empty);
         }
     }
 }

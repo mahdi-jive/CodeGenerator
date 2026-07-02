@@ -3,7 +3,7 @@
 namespace CodeGenerator.Abstractions
 {
     public interface IDirectoryAssemblyGenerator<TAssemblyGenerator, TDirectoryParent> : IGeneratorBase, IDirectoryAssemblyGeneratorBase
-        where TAssemblyGenerator : IAssemblyGenerator, TDirectoryParent
+        where TAssemblyGenerator : IAssemblyGenerator
         where TDirectoryParent : IDirectoryGenerator
     {
         public TAssemblyGenerator AssemblyGenerator { get; }

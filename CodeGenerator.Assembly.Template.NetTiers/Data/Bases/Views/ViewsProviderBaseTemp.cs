@@ -1,12 +1,11 @@
 ﻿using CodeGenerator.Assembly.Abstractions;
-using CodeGenerator.Assembly.Template.NetTiers.Data.Bases;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseModel;
-using CodeGenerator.Assembly.Template.NetTiers.TemplateModels.Data.Bases;
+using CodeGenerator.Assembly.Template.NetTiers.TemplateModels.Data.Bases.Views;
 using CodeGenerator.Infrastructure;
 
-namespace CodeGenerator.Assembly.Template.NetTiers.Entities
+namespace CodeGenerator.Assembly.Template.NetTiers.Data.Bases.Views
 {
-    public class EntitiesProviderBaseTemp : CodeGeneratorBase<BasesDirectory, DatabaseInfoModel>
+    public class ViewsProviderBaseTemp : CodeGeneratorBase<ViewsDirectory, DatabaseInfoModel>
     {
         public override async Task<IEnumerable<ICodeFile>> Generate(ITemplateRenderer renderer, DatabaseInfoModel contextModel)
         {
@@ -14,10 +13,10 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
             var model = contextModel;
             if (model != null)
             {
-                foreach (var item in await model.Tables)
+                foreach (var item in await model.Views)
                 {
-                    var tempModel = new EntitiesProviderBaseTempModel(item);
-                    var compilationUnit = await renderer.RenderAsync("Data/Bases/EntitiesProviderBaseTemp.cshtml", tempModel);
+                    var tempModel = new ViewsProviderBaseTempModel(item);
+                    var compilationUnit = await renderer.RenderAsync("Data/Bases/Views/ViewsProviderBaseTemp.cshtml", tempModel);
                     codeFiles.Add(new CodeFile($"{item.NamePascal}ProviderBase.cs", $"{item.NamePascal}ProviderBase", compilationUnit));
                 }
 

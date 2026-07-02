@@ -1,12 +1,7 @@
 ﻿@using CodeGenerator.Assembly.Template.NetTiers.Extensions
 @using System.Text.RegularExpressions
 @model CodeGenerator.Assembly.Template.NetTiers.TemplateModels.Views.EntityViewTempModel
-@{
 
-    var summaryText = string.IsNullOrEmpty(Model.View.Description)
-        ? $"An object representation of the '{Model.Name}' view. [No description found in the database]"
-        : Model.Description;
-}
 #region Using directives
 
 using System;
@@ -16,21 +11,21 @@ using System;
 namespace Behsaz.Entities
 {
 	///<summary>
-	/// @summaryText
+	/// @Model.SummaryText
 	///</summary>
 	/// <remarks>
 	/// This file is generated once and will never be overwritten.
 	///</remarks>
 	[Serializable]
 	[CLSCompliant(true)]
-	public partial class @Model.NamePascal : @($"{Model.NamePascal}Base")
+	public partial class @Model.View.NamePascal : @($"{Model.View.NamePascal}Base")
 	{
 		#region Constructors
 
 	///<summary>
-	/// Creates a new <see cref="@Model.NamePascal" /> instance.
+	/// Creates a new <see cref="@Model..NamePascal" /> instance.
 	///</summary>
-		public @(Model.NamePascal)():base(){}
+		public @(Model.View.NamePascal)():base(){}
 
 		#endregion
 	}

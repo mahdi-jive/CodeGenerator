@@ -1,5 +1,5 @@
 ﻿using CodeGenerator.Assembly.Abstractions;
-using CodeGenerator.Assembly.Template.NetTiers.Entities.Enums;
+using CodeGenerator.Assembly.Template.NetTiers.Data.Bases;
 using CodeGenerator.Assembly.Template.NetTiers.Entities.StaticFile;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseModel;
 using CodeGenerator.Infrastructure;

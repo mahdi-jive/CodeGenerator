@@ -1,0 +1,357 @@
+﻿@using CodeGenerator.Assembly.Template.NetTiers.Extensions
+@using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.StoredProcedure
+@model CodeGenerator.Assembly.Template.NetTiers.TemplateModels.Data.Bases.Views.ViewsProviderBaseGeneratedCoreTempModel
+#region Using directives
+
+using System;
+using System.Data;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using Behsaz.Entities;
+using Behsaz.Data;
+
+#endregion
+
+namespace Behsaz.Data.Bases
+{	
+	///<summary>
+	/// This class is the base class for any <see cref="@(Model.View.NamePascal)ProviderBase"/> implementation.
+	/// It exposes CRUD methods as well as selecting on index, foreign keys and custom stored procedures.
+	///</summary>
+	public abstract class @(Model.View.NamePascal)ProviderBaseCore : EntityViewProviderBase<@(Model.View.NamePascal)>
+	{
+		#region Custom Methods
+		
+		@foreach (var item in Model.StoredProceduresCustom)
+	{
+		var  parameters=await  item.ParametersInfo;
+		var outputStoredProcedure = (await Model.GetOutputStoredProceduresAsync(item));
+		var methodNameStoredProcedure = Model.GetMethodNameStoredProcedures(item);
+		@:		#region @(item.Name) 
+@:		
+@:		/// <summary>
+@:		///	This method wrap the '@(item.Name)' stored procedure. 
+@:		/// </summary>
+foreach (var parameter in parameters)
+		{
+@:		/// <param name="@(parameter.NameCamel)"> A <c>@(parameter.DataType.SystemType)</c> instance.</param>
+		}
+@:		/// <remark>This method is generate from a stored procedure.</remark>
+if (outputStoredProcedure.State!=OutputProcedureState.Void)
+		{
+@:		/// <returns>A <see cref="@(outputStoredProcedure.OutputString)"/> instance.</returns>
+			
+		}
+@:		public @(outputStoredProcedure.OutputString) @(methodNameStoredProcedure)(@(parameters.ToStringParamsSystemType()))
+@:		{
+@:			@(outputStoredProcedure.State!=OutputProcedureState.Void?"return":string.Empty) @(methodNameStoredProcedure)(null, 0, int.MaxValue ,@(parameters.ToStringParamsWithoutType()));
+@:		}
+@:		
+@:		/// <summary>
+@:		///	This method wrap the '@(item.Name)' stored procedure. 
+@:		/// </summary>
+foreach (var parameter in parameters)
+		{
+@:		/// <param name="@(parameter.NameCamel)"> A <c>@(parameter.DataType.SystemType)</c> instance.</param>
+		}
+@:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+@:		/// <param name="pageLength">Number of rows to return.</param>
+@:		/// <remark>This method is generate from a stored procedure.</remark>
+if (outputStoredProcedure.State!=OutputProcedureState.Void)
+		{
+@:		/// <returns>A <see cref="@(outputStoredProcedure.OutputString)"/> instance.</returns>
+			
+		}
+@:		public @(outputStoredProcedure.OutputString) @(methodNameStoredProcedure)(int start, int pageLength, @(parameters.ToStringParamsSystemType()))
+@:		{
+@:			@(outputStoredProcedure.State!=OutputProcedureState.Void?"return":string.Empty) @(methodNameStoredProcedure)(null, start, pageLength ,@(parameters.ToStringParamsWithoutType()));
+@:		}
+@:				
+@:		/// <summary>
+@:		///	This method wrap the '@(item.Name)' stored procedure. 
+@:		/// </summary>
+foreach (var parameter in parameters)
+		{
+@:		/// <param name="@(parameter.NameCamel)"> A <c>@(parameter.DataType.SystemType)</c> instance.</param>
+		}
+@:		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+@:		/// <remark>This method is generate from a stored procedure.</remark>
+if (outputStoredProcedure.State!=OutputProcedureState.Void)
+		{
+@:		/// <returns>A <see cref="@(outputStoredProcedure.OutputString)"/> instance.</returns>
+			
+		}
+@:		public  @(outputStoredProcedure.OutputString) @(methodNameStoredProcedure)(TransactionManager transactionManager, @(parameters.ToStringParamsSystemType()))
+@:		{
+@:			@(outputStoredProcedure.State!=OutputProcedureState.Void?"return":string.Empty) @(methodNameStoredProcedure)(transactionManager, 0, int.MaxValue , @(parameters.ToStringParamsWithoutType()));
+@:		}
+@:		
+@:		/// <summary>
+@:		///	This method wrap the '@(item.Name)' stored procedure. 
+@:		/// </summary>
+foreach (var parameter in parameters)
+		{
+@:		/// <param name="@(parameter.NameCamel)"> A <c>@(parameter.DataType.SystemType)</c> instance.</param>
+		}
+@:		/// <param name="start">Row number at which to start reading, the first row is 0.</param>
+@:		/// <param name="pageLength">Number of rows to return.</param>
+@:		/// <param name="transactionManager"><see cref="TransactionManager"/> object</param>
+@:		/// <remark>This method is generate from a stored procedure.</remark>
+if (outputStoredProcedure.State!=OutputProcedureState.Void)
+		{
+@:		/// <returns>A <see cref="@(outputStoredProcedure.OutputString)"/> instance.</returns>
+			
+		}
+@:		public abstract @(outputStoredProcedure.OutputString) @(methodNameStoredProcedure)(TransactionManager transactionManager, int start, int pageLength , @(parameters.ToStringParamsSystemType()));
+@:		
+@:		#endregion
+		
+	}
+		
+		#endregion
+
+		#region Helper Functions
+		
+		/*
+		///<summary>
+		/// Fill an VList&lt;@(Model.View.NamePascal)&gt; From a DataSet
+		///</summary>
+		/// <param name="dataSet">the DataSet</param>
+		/// <param name="rows">The collection to fill</param>
+		/// <param name="start">Start row</param>
+		/// <param name="pagelen">number of row.</param>
+		///<returns><see chref="VList&lt;@(Model.View.NamePascal)&gt;"/></returns>
+		protected static VList&lt;@(Model.View.NamePascal)&gt; Fill(DataSet dataSet, VList<@(Model.View.NamePascal)> rows, int start, int pagelen)
+		{
+			if (dataSet.Tables.Count == 1)
+			{
+				return Fill(dataSet.Tables[0], rows, start, pagelen);
+			}
+			else
+			{
+				return new VList<@(Model.View.NamePascal)>();
+			}	
+		}
+		
+		
+		///<summary>
+		/// Fill an VList&lt;@(Model.View.NamePascal)&gt; From a DataTable
+		///</summary>
+		/// <param name="dataTable">the DataTable that hold the data.</param>
+		/// <param name="rows">The collection to fill</param>
+		/// <param name="start">Start row</param>
+		/// <param name="pagelen">number of row.</param>
+		///<returns><see chref="VList<@(Model.View.NamePascal)>"/></returns>
+		protected static VList&lt;@(Model.View.NamePascal)&gt; Fill(DataTable dataTable, VList<@(Model.View.NamePascal)> rows, int start, int pagelen)
+		{
+			int recordnum = 0;
+			
+			System.Collections.IEnumerator dataRows =  dataTable.Rows.GetEnumerator();
+			
+			while (dataRows.MoveNext() && (pagelen != 0))
+			{
+				if(recordnum >= start)
+				{
+					DataRow row = (DataRow)dataRows.Current;
+				
+					@(Model.View.NamePascal) c = new @(Model.View.NamePascal)();
+					@foreach (var column in Model.Columns)
+				{
+					@:c.@(column.NamePascal) = (Convert.IsDBNull(row["@(column.Name)"]))?@(column.DataType.CastCode)@(column.DataType.DefaultValue):(@(column.DataType.SystemType))row["@(column.Name)"];
+				}
+					c.AcceptChanges();
+					rows.Add(c);
+					pagelen -= 1;
+				}
+				recordnum += 1;
+			}
+			return rows;
+		}
+		*/	
+						
+		///<summary>
+		/// Fill an <see cref="VList&lt;@(Model.View.NamePascal)&gt;"/> From a DataReader.
+		///</summary>
+		/// <param name="reader">Datareader</param>
+		/// <param name="rows">The collection to fill</param>
+		/// <param name="start">Start row</param>
+		/// <param name="pageLength">number of row.</param>
+		///<returns>a <see cref="VList&lt;@(Model.View.NamePascal)&gt;"/></returns>
+		protected VList<@(Model.View.NamePascal)> Fill(IDataReader reader, VList<@(Model.View.NamePascal)> rows, int start, int pageLength)
+		{
+			int recordnum = 0;
+			while (reader.Read() && (pageLength != 0))
+			{
+				if(recordnum >= start)
+				{
+					@(Model.View.NamePascal) entity = null;
+					if (DataRepository.Provider.UseEntityFactory)
+					{
+						entity = EntityManager.CreateViewEntity<@(Model.View.NamePascal)>("@(Model.View.NamePascal)",  DataRepository.Provider.EntityCreationalFactoryType); 
+					}
+					else
+					{
+						entity = new @(Model.View.NamePascal)();
+					}
+					
+					entity.SuppressEntityEvents = true;
+					@foreach (var column in Model.Columns)
+							{
+								if (column.IsNullable)
+								{
+@:					entity.@(column.NamePascal) = (reader.IsDBNull(((int)@(Model.View.NamePascal)Column.@(column.NamePascal))))?null:(@(column.DataType.SystemType)@(column.DataType.SystemType!= "System.String"? "?" :string.Empty))reader[((int)@(Model.View.NamePascal)Column.@(column.NamePascal))];
+								}
+								else{
+@:					entity.@(column.NamePascal) = (@(column.DataType.SystemType))reader[((int)@(Model.View.NamePascal)Column.@(column.NamePascal))];
+
+								}
+@:					//entity.@(column.NamePascal) = (Convert.IsDBNull(reader["@(column.Name)"]))?@(column.DataType.CastCode)@(column.DataType.DefaultValue):(@(column.DataType.SystemType))reader["@(column.Name)"];
+							}
+					entity.AcceptChanges();
+					entity.SuppressEntityEvents = false;
+					
+					rows.Add(entity);
+					pageLength -= 1;
+				}
+				recordnum += 1;
+			}
+			return rows;
+		}
+		
+		
+		/// <summary>
+		/// Refreshes the <see cref="@(Model.View.NamePascal)"/> object from the <see cref="IDataReader"/>.
+		/// </summary>
+		/// <param name="reader">The <see cref="IDataReader"/> to read from.</param>
+		/// <param name="entity">The <see cref="@(Model.View.NamePascal)"/> object to refresh.</param>
+		protected void RefreshEntity(IDataReader reader, @(Model.View.NamePascal) entity)
+		{
+			reader.Read();
+			@foreach (var column in Model.Columns)
+			{
+				if (column.IsNullable)
+				{
+@:				entity.@(column.NamePascal) = (reader.IsDBNull(((int)@(Model.View.NamePascal)Column.@(column.NamePascal))))?null:(@(column.DataType.SystemType)@(column.DataType.SystemType!= "System.String"? "?" :string.Empty))reader[((int)@(Model.View.NamePascal)Column.@(column.NamePascal))];
+				}
+				else
+				{
+@:				entity.@(column.NamePascal) = (@(column.DataType.SystemType))reader[((int)@(Model.View.NamePascal)Column.@(column.NamePascal))];
+				}
+@:				//entity.@(column.NamePascal) = (Convert.IsDBNull(reader["@(column.Name)"]))?@(column.DataType.CastCode)@(column.DataType.DefaultValue):(@(column.DataType.SystemType))reader["@(column.Name)"];
+			}
+			reader.Close();
+	
+			entity.AcceptChanges();
+		}
+		
+		/*
+		/// <summary>
+		/// Refreshes the <see cref="@(Model.View.NamePascal)"/> object from the <see cref="DataSet"/>.
+		/// </summary>
+		/// <param name="dataSet">The <see cref="DataSet"/> to read from.</param>
+		/// <param name="entity">The <see cref="@(Model.View.NamePascal)"/> object.</param>
+		protected static void RefreshEntity(DataSet dataSet, @(Model.View.NamePascal) entity)
+		{
+			DataRow dataRow = dataSet.Tables[0].Rows[0];
+			@foreach (var column in Model.Columns)
+			{
+@:			entity.@(column.NamePascal) = (Convert.IsDBNull(dataRow["@(column.Name)"]))?@(column.DataType.CastCode)@(column.DataType.DefaultValue):(@(column.DataType.SystemType))dataRow["@(column.Name)"];
+			}
+			entity.AcceptChanges();
+		}
+		*/
+			
+		#endregion Helper Functions
+	}//end class
+
+	#region @(Model.View.NamePascal)FilterBuilder
+	
+	/// <summary>
+	/// A strongly-typed instance of the <see cref="SqlFilterBuilder&lt;EntityColumn&gt;"/> class
+	/// that is used exclusively with a <see cref="@(Model.View.NamePascal)"/> object.
+	/// </summary>
+	[CLSCompliant(true)]
+	public class @(Model.View.NamePascal)FilterBuilder : SqlFilterBuilder<@(Model.View.NamePascal)Column>
+	{
+		#region Constructors
+
+		/// <summary>
+		/// Initializes a new instance of the @(Model.View.NamePascal)FilterBuilder class.
+		/// </summary>
+		public @(Model.View.NamePascal)FilterBuilder() : base() { }
+
+		/// <summary>
+		/// Initializes a new instance of the @(Model.View.NamePascal)FilterBuilder class.
+		/// </summary>
+		/// <param name="ignoreCase">Specifies whether to create case-insensitive statements.</param>
+		public @(Model.View.NamePascal)FilterBuilder(bool ignoreCase) : base(ignoreCase) { }
+
+		/// <summary>
+		/// Initializes a new instance of the @(Model.View.NamePascal)FilterBuilder class.
+		/// </summary>
+		/// <param name="ignoreCase">Specifies whether to create case-insensitive statements.</param>
+		/// <param name="useAnd">Specifies whether to combine statements using AND or OR.</param>
+		public @(Model.View.NamePascal)FilterBuilder(bool ignoreCase, bool useAnd) : base(ignoreCase, useAnd) { }
+
+		#endregion Constructors
+	}
+
+	#endregion @(Model.View.NamePascal)FilterBuilder
+
+	#region @(Model.View.NamePascal)ParameterBuilder
+	
+	/// <summary>
+	/// A strongly-typed instance of the <see cref="ParameterizedSqlFilterBuilder&lt;EntityColumn&gt;"/> class
+	/// that is used exclusively with a <see cref="@(Model.View.NamePascal)"/> object.
+	/// </summary>
+	[CLSCompliant(true)]
+	public class @(Model.View.NamePascal)ParameterBuilder : ParameterizedSqlFilterBuilder<@(Model.View.NamePascal)Column>
+	{
+		#region Constructors
+
+		/// <summary>
+		/// Initializes a new instance of the @(Model.View.NamePascal)ParameterBuilder class.
+		/// </summary>
+		public @(Model.View.NamePascal)ParameterBuilder() : base() { }
+
+		/// <summary>
+		/// Initializes a new instance of the @(Model.View.NamePascal)ParameterBuilder class.
+		/// </summary>
+		/// <param name="ignoreCase">Specifies whether to create case-insensitive statements.</param>
+		public @(Model.View.NamePascal)ParameterBuilder(bool ignoreCase) : base(ignoreCase) { }
+
+		/// <summary>
+		/// Initializes a new instance of the @(Model.View.NamePascal)ParameterBuilder class.
+		/// </summary>
+		/// <param name="ignoreCase">Specifies whether to create case-insensitive statements.</param>
+		/// <param name="useAnd">Specifies whether to combine statements using AND or OR.</param>
+		public @(Model.View.NamePascal)ParameterBuilder(bool ignoreCase, bool useAnd) : base(ignoreCase, useAnd) { }
+
+		#endregion Constructors
+	}
+
+	#endregion @(Model.View.NamePascal)ParameterBuilder
+	
+	#region @(Model.View.NamePascal)SortBuilder
+    
+    /// <summary>
+    /// A strongly-typed instance of the <see cref="SqlSortBuilder&lt;EntityColumn&gt;"/> class
+	/// that is used exclusively with a <see cref="@(Model.View.NamePascal)"/> object.
+    /// </summary>
+    [CLSCompliant(true)]
+    public class @(Model.View.NamePascal)SortBuilder : SqlSortBuilder<@(Model.View.NamePascal)Column>
+    {
+		#region Constructors
+
+		/// <summary>
+		/// Initializes a new instance of the @(Model.View.NamePascal)SqlSortBuilder class.
+		/// </summary>
+		public @(Model.View.NamePascal)SortBuilder() : base() { }
+
+		#endregion Constructors
+
+    }    
+    #endregion @(Model.View.NamePascal)SortBuilder
+
+} // end namespace

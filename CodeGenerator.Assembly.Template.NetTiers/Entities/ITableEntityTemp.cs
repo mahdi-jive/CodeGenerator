@@ -1,10 +1,11 @@
 ﻿using CodeGenerator.Assembly.Abstractions;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.DatabaseModel;
+using CodeGenerator.Assembly.Template.NetTiers.TemplateModels;
 using CodeGenerator.Infrastructure;
 
 namespace CodeGenerator.Assembly.Template.NetTiers.Entities
 {
-    public class ITableEntityTemp :  CodeGeneratorBase<EntitiesFactory, DatabaseInfoModel>
+    public class ITableEntityTemp : CodeGeneratorBase<EntitiesFactory, DatabaseInfoModel>
     {
         public override async Task<IEnumerable<ICodeFile>> Generate(ITemplateRenderer renderer, DatabaseInfoModel contextModel)
         {
@@ -14,7 +15,8 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities
             {
                 foreach (var item in await model.Tables)
                 {
-                    var compilationUnit = await renderer.RenderAsync("ITableEntityTemp.cshtml", item);
+                    var tempModel = await ITableEntityTempModel.CreateModel(item);
+                    var compilationUnit = await renderer.RenderAsync("ITableEntityTemp.cshtml", tempModel);
                     codeFiles.Add(new CodeFile($"I{item.NamePascal}.cs", $"I{item.NamePascal}", compilationUnit));
                 }
 

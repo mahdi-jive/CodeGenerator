@@ -24,6 +24,12 @@
                     case OutputProcedureState.Enumerable:
                         result = $"IEnumerable<{Table.NamePascal}>";
                         break;
+                    case OutputProcedureState.TList:
+                        result = $"TList<{Table.NamePascal}>";
+                        break;
+                    case OutputProcedureState.VList:
+                        result = $"VList<{Table.NamePascal}>";
+                        break;
                 }
                 return result;
             }
@@ -31,6 +37,14 @@
         public static IOutputProcedure Enumerable(ISchemaObject table)
         {
             return new OutputProcedure(OutputProcedureState.Enumerable, table, true);
+        }
+        public static IOutputProcedure TList(ISchemaObject table)
+        {
+            return new OutputProcedure(OutputProcedureState.TList, table, true);
+        }
+        public static IOutputProcedure VList(ISchemaObject table)
+        {
+            return new OutputProcedure(OutputProcedureState.VList, table, true);
         }
         public static IOutputProcedure Entity(ISchemaObject table)
         {

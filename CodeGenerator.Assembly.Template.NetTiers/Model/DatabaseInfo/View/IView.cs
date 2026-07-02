@@ -1,4 +1,5 @@
 ﻿using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.StoredProcedure;
+using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.Table.StoredProcedure;
 using CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.View.Column;
 
 namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.View
@@ -7,6 +8,8 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.View
     {
         Task<IEnumerable<IColumnView>> Columns { get; }
         Task<IEnumerable<IStoredProcedure>> StoredProcedures { get; }
+        Task<IOutputProcedure> GetOutputStoredProceduresAsync(IStoredProcedure storedProcedure);
+        string GetMethodNameStoredProcedures(IStoredProcedure storedProcedure);
     }
 
 

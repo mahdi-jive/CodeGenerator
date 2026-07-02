@@ -5,6 +5,8 @@
         Void,
         DataSet,
         Entity,
-        Enumerable
+        Enumerable,
+        VList,
+        TList
     }
 }
