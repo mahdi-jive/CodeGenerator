@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -12,10 +12,6 @@
     <Compile Remove="Entities\Query\**" />
     <EmbeddedResource Remove="Entities\Query\**" />
     <None Remove="Entities\Query\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Data.SqlClient\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,6 +48,11 @@
 		<None Include="Templates\**\*.cshtml">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Remove="Templates\SqlClient\Views\ViewProviderGeneratedTemp.cshtml" />
+	  <Content Remove="Templates\SqlClient\Views\ViewProviderTemp.cshtml" />
 	</ItemGroup>
 
 </Project>

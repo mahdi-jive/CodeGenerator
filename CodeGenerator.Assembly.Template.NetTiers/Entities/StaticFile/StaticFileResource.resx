@@ -181,6 +181,9 @@
   <data name="EntityViewProviderBaseCore.generated" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\Resources\EntityViewProviderBaseCore.generated.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="ExpressionParserBase" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\ExpressionParserBase.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
   <data name="FileConfigurationSouce" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\Resources\FileConfigurationSouce.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
@@ -234,6 +237,18 @@
   </data>
   <data name="ResetCacheSpecification" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\Resources\ResetCacheSpecification.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="SqlExpressionParser" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\SqlExpressionParser.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="SqlStringBuilder" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\SqlStringBuilder.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="SqlUtil" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\SqlUtil.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="StringTokenizer" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\Resources\StringTokenizer.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="TableCacheValidityDuration" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\Resources\TableCacheValidityDuration.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>

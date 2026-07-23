@@ -45,8 +45,11 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo.StoredProc
             var baseType = DataType.SystemType;
             if (baseType != "System.String" &&
                 baseType != "System.Object" &&
+                baseType != "System.Boolean" &&
                 !baseType.EndsWith("[]") &&
-                 !IsRequired)
+                string.IsNullOrWhiteSpace(DataType.DefaultValue) &&
+                 !IsRequired
+                 )
             {
                 baseType += "?";
             }

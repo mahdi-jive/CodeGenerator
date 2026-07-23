@@ -53,8 +53,8 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Model.DatabaseInfo
                     AND ep.minor_id = 0
                     AND ep.name = 'MS_Description'
                 WHERE p.is_ms_shipped = 0
-                     AND (LOWER(p.name)  LIKE LOWER('{contain}_%') OR LOWER(p.name) LIKE LOWER('{userConfiguration.CustomProcedureStartsWith}{contain}_%'))
-                ORDER BY p.name;";
+                     AND (LOWER(p.name)  LIKE LOWER('{contain}[_]%') OR LOWER(p.name) LIKE LOWER('{userConfiguration.CustomProcedureStartsWith}{contain}[_]%'))
+                ORDER BY p.object_id;";
 
                 using (var command = new SqlCommand(query, connection))
                 using (var reader = await command.ExecuteReaderAsync())
@@ -288,7 +288,7 @@ ORDER BY c.column_id;";
         {
             List<IRelationTable> relations = new List<IRelationTable>();
             var query = @"
-            SELECT  
+            SELECT
                 fk.name AS Name,
                 fk.object_id AS ObjectId,
                 ep.value AS Description,
@@ -339,7 +339,7 @@ LEFT JOIN sys.extended_properties ep
         private async Task<IEnumerable<IRelationTable>> GetReferencedBy(string referencedTableName)
         {
             List<IRelationTable> relations = new List<IRelationTable>();
-            var query = @"SELECT  
+            var query = @"SELECT
                             fk.name AS Name,
                             fk.object_id AS ObjectId,
                             ep.value AS Description,

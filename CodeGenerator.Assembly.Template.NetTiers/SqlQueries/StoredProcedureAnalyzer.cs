@@ -20,65 +20,59 @@ namespace CodeGenerator.Assembly.Template.NetTiers.SqlQueries
             string preparedText = PrepareText(spText, parameters);
             return ExtractOutputSchema(preparedText, parameters);
         }
-        public async Task<List<OutputColumnProcedure>> AnalyzeBasicAsync(string storedProcedureName, List<SqlParameter> parameters)
+        public async Task<List<OutputColumnProcedure>> AnalyzeBasicAsync(
+            string storedProcedureName, List<SqlParameter> parameters)
         {
             var output = new List<OutputColumnProcedure>();
-            Console.WriteLine(storedProcedureName);
+
             try
             {
                 _connection.Open();
-                using var transaction = _connection.BeginTransaction();
 
-                string paramList = string.Join(", ", parameters
-                    .Where(parameter => parameter.Direction != ParameterDirection.Output
-                                        && parameter.Direction != ParameterDirection.InputOutput
-                                        && parameter.SqlDbType != SqlDbType.Structured)
-                    .Select(p => $"{SetParameter(p)}"));
+                using var cmd = _connection.CreateCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = storedProcedureName;
+                cmd.CommandTimeout = 10;
 
-                var paramOutputList = parameters
-                    .Where(parameter => parameter.Direction == ParameterDirection.Output
-                                        || parameter.Direction == ParameterDirection.InputOutput);
-                string paramOutputVariableList = string.Join("\n", paramOutputList
-                    .Select(p => $"DECLARE {SetParameter(p, true)}"));
-                var paramOutputValueList = string.Join(',', paramOutputList
-                                             .Select(p => $"{p.ParameterName} = {p.ParameterName}"));
+                foreach (var p in parameters)
+                    cmd.Parameters.Add(BuildSafeParameter(p));
 
-                string sql =
-                    $@"{paramOutputVariableList}  EXEC [{storedProcedureName}] {paramList}
-{(paramOutputList.Any() ? "," + paramOutputValueList : "")}";
-
-                //using (var cmd = _connection.CreateCommand())
-                //{
-                //    cmd.Transaction = transaction;
-                //    cmd.CommandText = sql;
-                //    cmd.ExecuteNonQuery(); // اجرای اولیه برای ایجاد جدول موقت و ...
-                //}
-
-                using (var schemaCmd = _connection.CreateCommand())
+                using (var setOn = _connection.CreateCommand())
                 {
-                    schemaCmd.Transaction = transaction;
-                    schemaCmd.CommandText = sql;
-                    using var reader = await schemaCmd.ExecuteReaderAsync();
-
-                    var schemaTable = reader.GetSchemaTable();
-                    if (schemaTable != null)
-                    {
-                        foreach (DataRow row in schemaTable.Rows)
-                        {
-                            string name = row["ColumnName"].ToString()!;
-                            string dataType = row["DataTypeName"].ToString()!;
-                            bool isNullable = (bool)row["AllowDBNull"];
-                            int maxLength = Convert.ToInt32(row["ColumnSize"]);
-                            output.Add(new OutputColumnProcedure(name, dataType, isNullable, maxLength));
-                        }
-                    }
+                    setOn.CommandText = "SET FMTONLY ON";
+                    await setOn.ExecuteNonQueryAsync();
                 }
 
-                transaction.Rollback(); // 🔁 در انتها همه تغییرات را لغو کن
+                try
+                {
+                    using var reader = await cmd.ExecuteReaderAsync();
+                    do
+                    {
+                        var schemaTable = reader.GetSchemaTable();
+                        if (schemaTable == null) continue;
+
+                        foreach (DataRow row in schemaTable.Rows)
+                        {
+                            output.Add(new OutputColumnProcedure(
+                                row["ColumnName"].ToString()!,
+                                row["DataTypeName"].ToString()!,
+                                (bool)row["AllowDBNull"],
+                                Convert.ToInt32(row["ColumnSize"])
+                            ));
+                        }
+                    }
+                    while (await reader.NextResultAsync());
+                }
+                finally
+                {
+                    using var setOff = _connection.CreateCommand();
+                    setOff.CommandText = "SET FMTONLY OFF";
+                    await setOff.ExecuteNonQueryAsync();
+                }
             }
             catch (Exception ex)
             {
-                // اختیاری: لاگ یا مدیریت خطا
+                // TODO: لاگ کنید - این SP با FMTONLY جواب نداده (مثلاً به‌خاطر Temp Table)
             }
             finally
             {
@@ -87,9 +81,68 @@ namespace CodeGenerator.Assembly.Template.NetTiers.SqlQueries
             }
 
             return output;
-
         }
 
+        private SqlParameter BuildSafeParameter(SqlParameter original)
+        {
+            var p = new SqlParameter
+            {
+                ParameterName = original.ParameterName,
+                SqlDbType = original.SqlDbType,
+                Direction = original.Direction,
+                Size = original.Size,
+                Precision = original.Precision,
+                Scale = original.Scale,
+                TypeName = original.TypeName
+            };
+
+            if (original.Value != null && original.Value != DBNull.Value)
+            {
+                p.Value = original.Value;
+                return p;
+            }
+
+            if (original.SqlDbType == SqlDbType.Structured)
+            {
+                p.Value = new DataTable();
+                return p;
+            }
+
+            if (original.Direction == ParameterDirection.Output)
+            {
+                p.Value = DBNull.Value;
+                return p;
+            }
+
+            p.Value = GetDefaultValue(original.SqlDbType);
+            return p;
+        }
+
+        private object GetDefaultValue(SqlDbType type) => type switch
+        {
+            SqlDbType.Char or SqlDbType.NChar or
+            SqlDbType.VarChar or SqlDbType.NVarChar or
+            SqlDbType.Text or SqlDbType.NText or SqlDbType.Xml => string.Empty,
+
+            SqlDbType.Binary or SqlDbType.VarBinary or SqlDbType.Image
+                => Array.Empty<byte>(),
+
+            SqlDbType.Bit => false,
+
+            SqlDbType.TinyInt or SqlDbType.SmallInt or
+            SqlDbType.Int or SqlDbType.BigInt => 0,
+
+            SqlDbType.Decimal or SqlDbType.Money or SqlDbType.SmallMoney or
+            SqlDbType.Float or SqlDbType.Real => 0,
+
+            SqlDbType.DateTime or SqlDbType.DateTime2 or
+            SqlDbType.SmallDateTime or SqlDbType.Date => new DateTime(1900, 1, 1),
+
+            SqlDbType.Time => TimeSpan.Zero,
+            SqlDbType.UniqueIdentifier => Guid.Empty,
+
+            _ => DBNull.Value
+        };
         private string PrepareText(string text, List<SqlParameter> parameters)
         {
             var sb = new StringBuilder();

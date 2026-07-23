@@ -19,7 +19,7 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities.StaticFile {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class StaticFileResource {
@@ -609,6 +609,36 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities.StaticFile {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to #region Using Directives
+        ///using System;
+        ///using System.Collections;
+        ///using System.Collections.Generic;
+        ///using System.Text;
+        ///#endregion
+        ///
+        ///namespace Behsaz.Data
+        ///{
+        ///	/// &lt;summary&gt;
+        ///	/// Provides the base functionality required to parse search terms.
+        ///	/// &lt;/summary&gt;
+        ///	[CLSCompliant(true)]
+        ///	public abstract class ExpressionParserBase
+        ///	{
+        ///		#region Constructors
+        ///
+        ///		/// &lt;summary&gt;
+        ///		/// Initializes a new instance of the ExpressionParserBase class.
+        ///		/// &lt;/summary&gt;
+        ///		/// &lt;param name=&quot;propertyName&quot;&gt;&lt;/param&gt;
+        ///	 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ExpressionParserBase {
+            get {
+                return ResourceManager.GetString("ExpressionParserBase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to //NETTIERS - This is a copy of the source code for EntLib 5.  This fixes a bug for webapps.
         /////http://entlib.codeplex.com/workitem/26760?projectname=entlib
         ///
@@ -1071,6 +1101,130 @@ namespace CodeGenerator.Assembly.Template.NetTiers.Entities.StaticFile {
         internal static string ResetCacheSpecification {
             get {
                 return ResourceManager.GetString("ResetCacheSpecification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using Directives
+        ///using System;
+        ///using System.Collections;
+        ///using System.Text;
+        ///#endregion
+        ///
+        ///namespace Behsaz.Data
+        ///{
+        ///	/// &lt;summary&gt;
+        ///	/// Parses search text into an expression that can
+        ///	/// be used in a SQL WHERE clause.
+        ///	/// &lt;/summary&gt;
+        ///	[CLSCompliant(true)]
+        ///	public class SqlExpressionParser : ExpressionParserBase
+        ///	{
+        ///		#region Declarations
+        ///
+        ///		private StringBuilder sql;
+        ///
+        ///		#endregion Declarations
+        ///
+        ///		#region Constructors
+        ///
+        ///		/// &lt;summary&gt;
+        ///		/// Initializes a new instance of the SqlExp [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string SqlExpressionParser {
+            get {
+                return ResourceManager.GetString("SqlExpressionParser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using Directives
+        ///using System;
+        ///using System.Collections;
+        ///using System.Collections.Generic;
+        ///using System.Configuration;
+        ///using System.Text;
+        ///using Behsaz.Entities;
+        ///#endregion
+        ///
+        ///namespace Behsaz.Data
+        ///{
+        ///    /// &lt;summary&gt;
+        ///    /// Represents a SQL filter builder expression enumeration.
+        ///    /// &lt;/summary&gt;
+        ///    [CLSCompliant(true)]
+        ///    public enum StringBuilderExpression
+        ///    {
+        ///        /// &lt;summary&gt;
+        ///        /// Append
+        ///        /// &lt;/summary&gt;
+        ///        Append = 1,
+        ///        /// &lt;summary&gt;
+        ///        [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string SqlStringBuilder {
+            get {
+                return ResourceManager.GetString("SqlStringBuilder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using Directives
+        ///using System;
+        ///using System.Configuration;
+        ///using System.Text;
+        ///#endregion
+        ///
+        ///namespace Behsaz.Data
+        ///{
+        ///	/// &lt;summary&gt;
+        ///	/// Provides utility methods for generating SQL expressions.
+        ///	/// &lt;/summary&gt;
+        ///	[CLSCompliant(true)]
+        ///	public static class SqlUtil
+        ///	{
+        ///		#region Declarations
+        ///
+        ///		/// &lt;summary&gt;
+        ///		/// SQL AND keyword.
+        ///		/// &lt;/summary&gt;
+        ///		public static readonly String AND  = &quot;AND&quot;;
+        ///		/// &lt;summary&gt;
+        ///		/// SQL OR keyword.
+        ///		/// &lt;/summary&gt;
+        ///		public static readonly String OR   =  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string SqlUtil {
+            get {
+                return ResourceManager.GetString("SqlUtil", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #region Using Directives
+        ///using System;
+        ///using System.Collections.Generic;
+        ///#endregion
+        ///
+        ////*
+        /// * $author: QmQ
+        /// * $source: http://www.codeproject.com/useritems/SimpleStringTokenizer.asp
+        /// * $date:   10-June-2006
+        /// */
+        ///namespace Behsaz.Data
+        ///{
+        ///
+        ///    #region [Summary and remarks]
+        ///    /// &lt;summary&gt;
+        ///    /// Implements a StringTokenizer class for splitting a string
+        ///    /// into substrings using a set of delimiters.
+        ///    /// &lt;/summary&gt;
+        ///    /// &lt;remarks&gt;
+        ///    /// C# version of the java.util.StringTokenizer cl [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string StringTokenizer {
+            get {
+                return ResourceManager.GetString("StringTokenizer", resourceCulture);
             }
         }
         
